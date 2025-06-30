@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Meetransportation</title>
+    <!-- Firebase SDK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-firestore-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-auth-compat.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #5cc528;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            border: none;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #f9f9f9;
+            background: linear-gradient(rgba(44, 62, 80, 0.8), rgba(44, 62, 80, 0.8)), url(./img/background_1.jpg);
+            background-size: cover;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        .checkout-container {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+            flex-direction: row;
+        }
+
+        .form-section {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #orderForm {
+            padding: 1rem 2rem;
+        }
+
+        .order-summary {
+            width: 30%;
+            min-width: 450px;
+            background: white;
+            padding: 0rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            align-self: flex-start;
+            top: 2rem;
+            display: inline-flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            flex-direction: row;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--secondary);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .btn:hover {
+            background-color: #3ba709;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .order-item {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .order-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            border-radius: 5px;
+        }
+
+        .order-details {
+            flex: 1;
+            width: 100%;
+        }
+
+        .order-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .order-price {
+            font-weight: 600;
+            color: var(--secondary);
+            text-align: center;
+            margin-top: 0.5rem;
+            font-size: 1.5rem;
+        }
+
+        .order-total {
+            padding-top: 0.5rem;
+            border-top: 2px solid #eee;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .payment-options {
+            margin-top: 0.5rem;
+            padding-top: 1rem;
+            border-top: 2px solid #eee;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .payment-option:hover {
+            border-color: var(--secondary);
+        }
+
+        .payment-option input {
+            margin-right: 1rem;
+        }
+
+        .payment-icon {
+            margin-right: 1rem;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .payment-label {
+            flex: 1;
+        }
+
+        .payment-selected {
+            border-color: var(--secondary);
+            background-color: rgba(92, 197, 40, 0.1);
+        }
+
+        .success-message {
+            text-align: center;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-top: 2rem;
+        }
+
+        .success-icon {
+            font-size: 3rem;
+            color: var(--success);
+            margin-bottom: 1rem;
+        }
+
+        /* Estilos para promociones */
+        .promo-summary .order-title {
+            font-size: 1.5rem;
+            color: var(--secondary);
+        }
+
+        .promo-summary .order-price {
+            font-size: 1.8rem;
+            color: #FFC107;
+        }
+
+        .order-price {
+            font-weight: 600;
+            color: var(--secondary);
+            width: 100%;
+            margin-top: 0.5rem;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .order-tax {
+            width: 100%;
+            font-size: 0.9rem;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.2rem;
+            padding-top: 0.2rem;
+        }
+
+        .Modal-Title {
+            width: 100%;
+            background: rgb(231 231 231);
+            min-height: 40px;
+            pointer-events: none;
+            border-bottom: 1px solid rgb(221 221 221);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px 10px 0px 0px;
+        }
+
+        .Modal-Body {
+            background: rgba(255, 255, 255, 0);
+            overflow: auto;
+            flex: 1;
+            padding: 1rem 2rem;
+            overflow: auto;
+            max-height: calc(100vh - 100px);
+        }
+
+
+        @media (max-width: 768px) {
+            .checkout-container {
+                flex-direction: column;
+            }
+
+            .order-summary {
+                width: 100%;
+                top: 1rem;
+            }
+
+            .form-row {
+
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="checkout-container">
+            <!-- Formulario -->
+            <div class="form-section">
+                <div class="Modal-Title">
+                    <h3>Finalizar Pedido</h3>
+                </div>
+
+                <form id="orderForm">
+                    <h2>Información del Remitente</h2>
+
+                    <div class="form-group">
+                        <label for="senderName">Nombre Completo</label>
+                        <input type="text" id="senderName" class="form-control" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="senderEmail">Correo Electrónico</label>
+                            <input type="email" id="senderEmail" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="senderPhone">Teléfono</label>
+                            <input type="tel" id="senderPhone" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="senderAddress">Dirección Completa (USA)</label>
+                        <input type="text" id="senderAddress" class="form-control" required>
+                    </div>
+
+                    <h2 style="margin-top: 2rem;">Información del Destinatario</h2>
+
+                    <div class="form-group">
+                        <label for="receiverName">Nombre Completo</label>
+                        <input type="text" id="receiverName" class="form-control" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="receiverPhone">Teléfono</label>
+                            <input type="tel" id="receiverPhone" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="receiverCedula">Cédula</label>
+                            <input type="text" id="receiverCedula" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="receiverAddress">Dirección Completa (RD)</label>
+                        <input type="text" id="receiverAddress" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="receiverProvince">Provincia</label>
+                        <select id="receiverProvince" class="form-control" required>
+                            <option value="" disabled selected>Seleccione una provincia</option>
+                            <option value="Distrito Nacional">Distrito Nacional</option>
+                            <option value="Santo Domingo">Santo Domingo</option>
+                            <option value="Santiago">Santiago</option>
+                            <option disabled>──────────</option>
+                            <option value="Azua">Azua</option>
+                            <option value="Bahoruco">Bahoruco</option>
+                            <option value="Barahona">Barahona</option>
+                            <option value="Dajabón">Dajabón</option>
+                            <option value="Duarte">Duarte</option>
+                            <option value="El Seibo">El Seibo</option>
+                            <option value="Elías Piña">Elías Piña</option>
+                            <option value="Espaillat">Espaillat</option>
+                            <option value="Hato Mayor">Hato Mayor</option>
+                            <option value="Hermanas Mirabal">Hermanas Mirabal</option>
+                            <option value="Independencia">Independencia</option>
+                            <option value="La Altagracia">La Altagracia</option>
+                            <option value="La Romana">La Romana</option>
+                            <option value="La Vega">La Vega</option>
+                            <option value="María Trinidad Sánchez">María Trinidad Sánchez</option>
+                            <option value="Monseñor Nouel">Monseñor Nouel</option>
+                            <option value="Monte Cristi">Monte Cristi</option>
+                            <option value="Monte Plata">Monte Plata</option>
+                            <option value="Pedernales">Pedernales</option>
+                            <option value="Peravia">Peravia</option>
+                            <option value="Puerto Plata">Puerto Plata</option>
+                            <option value="Samaná">Samaná</option>
+                            <option value="San Cristóbal">San Cristóbal</option>
+                            <option value="San José de Ocoa">San José de Ocoa</option>
+                            <option value="San Juan">San Juan</option>
+                            <option value="San Pedro de Macorís">San Pedro de Macorís</option>
+                            <option value="Sánchez Ramírez">Sánchez Ramírez</option>
+                            <option value="Santiago Rodríguez">Santiago Rodríguez</option>
+                            <option value="Valverde">Valverde</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="additionalNotes">Notas adicionales (opcional)</label>
+                        <textarea id="additionalNotes" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn" id="submitOrderBtn">Confirmar Pedido</button>
+                </form>
+
+                <div id="successMessage" class="success-message" style="display: none;">
+                    <div class="success-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h2>¡Pedido Confirmado!</h2>
+                    <p>Hemos recibido tu pedido correctamente. Te enviaremos un correo con los detalles de seguimiento.
+                    </p>
+                    <a href="index.html" class="btn" style="margin-top: 1rem;">Volver al Inicio</a>
+                </div>
+            </div>
+
+            <!-- Resumen del Pedido -->
+            <div class="order-summary">
+                <div class="Modal-Title">
+                    <h3>Resumen del Pedido</h3>
+                </div>
+
+                <div class="Modal-Body">
+                    <div id="orderItemContainer"></div>
+                    <div class="order-total">
+                        <span>Total:</span>
+                        <span id="orderTotal"></span>
+                    </div>
+
+                    <div class="payment-options">
+                        <h2>Método de Pago</h2>
+
+                        <div class="payment-option" onclick="selectPayment('online')">
+                            <input type="radio" id="onlinePayment" name="payment" value="online" checked>
+                            <div class="payment-icon">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div class="payment-label">
+                                <label for="onlinePayment">Pagar en línea</label>
+                                <p style="font-size: 0.9rem; color: #666;">Tarjeta de crédito/débito</p>
+                            </div>
+                        </div>
+
+                        <div class="payment-option" onclick="selectPayment('pickup')">
+                            <input type="radio" id="pickupPayment" name="payment" value="pickup">
+                            <div class="payment-icon">
+                                <i class="fas fa-box-open"></i>
+                            </div>
+                            <div class="payment-label">
+                                <label for="pickupPayment">Pagar al recoger</label>
+                                <p style="font-size: 0.9rem; color: #666;">Paga cuando se vaya a recoger tu envío</p>
+                            </div>
+                        </div>
+
+                        <div class="payment-option" onclick="selectPayment('delivery')">
+                            <input type="radio" id="deliveryPayment" name="payment" value="delivery">
+                            <div class="payment-icon">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="payment-label">
+                                <label for="deliveryPayment">Pagar al recibir (RD)</label>
+                                <p style="font-size: 0.9rem; color: #666;">Paga en efectivo cuando recibas tu envío</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDUPUM36QOLPGb-FmPx6-qMZoS2pCZdurI",
+            authDomain: "meetransportation.firebaseapp.com",
+            projectId: "meetransportation",
+            storageBucket: "meetransportation.appspot.com",
+            messagingSenderId: "1087042032724",
+            appId: "1:1087042032724:web:0975e57ca30ff342f349c1",
+            measurementId: "G-8XHXKXL0CV"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // Seleccionar método de pago
+        function selectPayment(method) {
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.classList.remove('payment-selected');
+            });
+
+            document.querySelector(`.payment-option[onclick="selectPayment('${method}')"]`).classList.add('payment-selected');
+            document.querySelector(`#${method}Payment`).checked = true;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Obtener el servicio seleccionado del localStorage
+            const selectedService = JSON.parse(localStorage.getItem('selectedService'));
+            const orderItemContainer = document.getElementById('orderItemContainer');
+
+            if (selectedService) {
+                const isPromo = selectedService.type === 'promo';
+
+                if (!isPromo) {
+                    // Mostrar detalles completos para servicios regulares
+                    orderItemContainer.innerHTML = `
+                        <div class="order-item">
+                            ${selectedService.icon ? `<img src="${selectedService.icon}" alt="${selectedService.name}">` : ''}
+                            <div class="order-details">
+                                <div class="order-title">${selectedService.name}</div>
+                                <div>
+                                    ${selectedService.slot1 ? `<p><strong>${selectedService.slot1.split(':')[0]}:</strong> ${selectedService.slot1.split(':').slice(1).join(':')}</p>` : ''}
+                                    ${selectedService.slot2 ? `<p><strong>${selectedService.slot2.split(':')[0]}:</strong> ${selectedService.slot2.split(':').slice(1).join(':')}</p>` : ''}
+                                    ${selectedService.slot3 ? `<p><strong>${selectedService.slot3.split(':')[0]}:</strong> ${selectedService.slot3.split(':').slice(1).join(':')}</p>` : ''}
+                                    ${selectedService.slot4 ? `<p><strong>${selectedService.slot4.split(':')[0]}:</strong> ${selectedService.slot4.split(':').slice(1).join(':')}</p>` : ''}
+                                </div>
+                                <div class="order-price">
+                                    <span>Precio:</span>
+                                    <span>US$${selectedService.price}</span>
+                                    <div class="order-tax">
+                                        <span>Tax:</span>
+                                        <span>US$0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    document.getElementById('orderTotal').textContent = `US$${selectedService.price}`;
+                } else {
+                    // Para promociones, mostrar solo el título y el precio especial
+                    orderItemContainer.innerHTML = `
+                        <div class="order-item promo-summary" style="text-align: center; padding: 1rem;">
+                            <div class="order-title">${selectedService.name}</div>
+                            <div class="order-price">
+                                <span>Precio:</span>
+                                <span>${selectedService.price}</span>
+                                <div class="order-tax">
+                                    <span>Tax:</span>
+                                    <span>US$0</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    document.getElementById('orderTotal').textContent = selectedService.price.includes('US$')
+                        ? `${selectedService.price}`
+                        : `${selectedService.price}`;
+                }
+            } else {
+                // Si no hay servicio seleccionado, redirigir al inicio
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Verificar autenticación y cargar datos del usuario si está logueado
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    db.collection('users').doc(user.uid).get().then(doc => {
+                        if (doc.exists) {
+                            const userData = doc.data();
+                            document.getElementById('senderName').value = userData.profile?.name || '';
+                            document.getElementById('senderEmail').value = user.email;
+                            document.getElementById('senderPhone').value = userData.profile?.phone || '';
+                            document.getElementById('senderAddress').value = userData.profile?.address || '';
+                        }
+                    });
+                }
+            });
+
+            // Configurar event listeners para los métodos de pago
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.addEventListener('click', function () {
+                    const method = this.querySelector('input').value;
+                    selectPayment(method);
+                });
+            });
+
+            // Manejar envío del formulario
+            document.getElementById('orderForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const submitBtn = document.getElementById('submitOrderBtn');
+                submitBtn.textContent = 'Procesando...';
+                submitBtn.disabled = true;
+
+                // Validar formulario
+                const requiredFields = [
+                    'senderName', 'senderEmail', 'senderPhone', 'senderAddress',
+                    'receiverName', 'receiverPhone', 'receiverCedula', 'receiverAddress', 'receiverProvince'
+                ];
+
+                let isValid = true;
+                requiredFields.forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    if (!field.value.trim()) {
+                        field.style.borderColor = 'red';
+                        isValid = false;
+                    } else {
+                        field.style.borderColor = '#ddd';
+                    }
+                });
+
+                if (!isValid) {
+                    alert('Por favor complete todos los campos requeridos');
+                    submitBtn.textContent = 'Confirmar Pedido';
+                    submitBtn.disabled = false;
+                    return;
+                }
+
+                // Crear objeto con los datos del pedido
+                const orderData = {
+                    service: {
+                        id: selectedService.id,
+                        name: selectedService.name,
+                        price: selectedService.price,
+                        type: selectedService.type
+                    },
+                    sender: {
+                        name: document.getElementById('senderName').value.trim(),
+                        email: document.getElementById('senderEmail').value.trim(),
+                        phone: document.getElementById('senderPhone').value.trim(),
+                        address: document.getElementById('senderAddress').value.trim()
+                    },
+                    receiver: {
+                        name: document.getElementById('receiverName').value.trim(),
+                        phone: document.getElementById('receiverPhone').value.trim(),
+                        cedula: document.getElementById('receiverCedula').value.trim(),
+                        address: document.getElementById('receiverAddress').value.trim(),
+                        province: document.getElementById('receiverProvince').value
+                    },
+                    paymentMethod: document.querySelector('input[name="payment"]:checked').value,
+                    additionalNotes: document.getElementById('additionalNotes').value.trim(),
+                    status: 'pending',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: auth.currentUser ? auth.currentUser.uid : null
+                };
+
+                // Guardar en Firestore
+                db.collection('orders').add(orderData)
+                    .then((docRef) => {
+                        // Limpiar localStorage después de guardar
+                        localStorage.removeItem('selectedService');
+
+                        // Mostrar mensaje de éxito
+                        document.getElementById('orderForm').style.display = 'none';
+                        document.getElementById('successMessage').style.display = 'block';
+
+                        // Opcional: Guardar referencia del pedido en el perfil del usuario
+                        if (auth.currentUser) {
+                            db.collection('users').doc(auth.currentUser.uid).update({
+                                orders: firebase.firestore.FieldValue.arrayUnion(docRef.id)
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al guardar el pedido:', error);
+                        alert('Hubo un error al procesar tu pedido. Por favor intenta nuevamente.');
+                        submitBtn.textContent = 'Confirmar Pedido';
+                        submitBtn.disabled = false;
+                    });
+            });
+
+            // Inicializar selección de método de pago
+            selectPayment('online');
+        });
+    </script>
+</body>
+
+</html>

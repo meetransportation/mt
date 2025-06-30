@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meetransportation - Envíos de USA a República Dominicana</title>
+        <link rel="stylesheet" href="./css/style.css">
+    <!-- Firebase SDK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-firestore-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-auth-compat.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+</head>
+
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo">Mee<span>Transportation</span></a>
+                <nav>
+                    <ul>
+                        <li><a href="#inicio" data-i18n="inicio">Inicio</a></li>
+                        <li><a href="#services" data-i18n="servicios">Servicios</a></li>
+                        <li><a href="#quote" data-i18n="cotizacion">Cotización</a></li>
+                        <li><a href="#tracking" data-i18n="rastreo">Rastreo</a></li>
+                        <li><a href="#contact" data-i18n="contacto">Contacto</a></li>
+                        <li><a href="#" id="loginBtn" data-i18n="login">Iniciar Sesión</a></li>
+                        <li><a href="#" id="userProfile"
+                                style="display: none;font-size: 21px;color: #5cc528;font-weight:600;"></a></li>
+                        <li style="margin-left: 0rem;"><a href="#" id="logoutBtn" style="display:none;"
+                                class="btn btn-outline">Cerrar Sesión</a></li>
+                        <li>
+                            <select id="languageSelector"
+                                style="cursor: pointer;background: var(--primary); color: white; border: 1px solid white; border-radius: 5px; padding: 2px 5px;">
+                                <option value="es">🇩🇴 Español</option>
+                                <option value="en">🇺🇸 English</option>
+                            </select>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="inicio">
+        <div class="container">
+            <div class="route-info">
+                <div class="location">
+                    <img src="./img/Bandera_USA_1.png">
+                    <h3 style="margin: 0px 31px;" data-i18n="EstadosUnidos">Estados Unidos</h3>
+                    <p data-i18n="NY">Nueva York, NY</p>
+                </div>
+                <div class="arrow">
+                    <i class="fas fa-arrow-right" style="font-size: 40px;color: #ffffff;"></i>
+                </div>
+                <div class="location">
+                    <img src="./img/Bandera_RD_1.png">
+                    <h3 data-i18n="RD">República Dominicana</h3>
+                    <p data-i18n="TodoPais">Todo el país</p>
+                </div>
+            </div>
+
+            <div class="hero-content">
+                <h1 data-i18n="heroTitle">Envíos seguros de USA a República Dominicana</h1>
+                <p data-i18n="heroText">Especializados en el envío de cajas y tanques azules desde Nueva York a todo el
+                    territorio dominicano. Confiabilidad, rapidez y transparencia en cada envío.</p>
+                <a href="#quote" class="btn" data-i18n="quoteBtn">Solicitar Cotización</a>
+                <a href="#services" class="btn btn-outline" data-i18n="servicesBtn">Nuestros Servicios</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services">
+        <div class="container">
+            <h2 class="section-title">Nuestros Servicios</h2>
+            <div class="services-grid" id="servicesContainer">
+                <!-- Los servicios se cargarán aquí dinámicamente desde Firebase -->
+            </div>
+
+            <div style="display: inline-flex;gap: 35px;width: 100%;">
+                <div
+                    style="text-align: center;margin-top: 2rem;padding: 1rem 2rem;background: linear-gradient(135deg, #ffeaa7, #fab1a0);border-radius: 15px;width: 50%;display: inline-flex;flex-direction: row;align-items: center;">
+                    <img src="./img/comprar_arroz_aceite_1.png" style="height: 110px;">
+                    <div>
+                    <h3 style="color: #2d3436; margin-bottom: 1rem;">
+                        ¿No tienes arroz o aceite?
+                    </h3>
+                    <p style="font-size: 1.2rem; color: #2d3436;">
+                        ¡No te preocupes! Nosotros te lo vendemos al mejor precio.
+                    </p>
+                    </div>
+                    <button style="
+    background-color: var(--secondary);
+    color: white;
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s;
+    margin: 1rem 0;
+">Ordenar</button>
+                </div>
+
+                <div
+                    style="text-align: center;margin-top: 2rem;padding: 1rem 2rem;background: linear-gradient(135deg, #ffeaa7, #fab1a0);border-radius: 15px;width: 50%;display: inline-flex;flex-direction: row;align-items: center;">
+                    <img src="./img/comprar_caja_tanque_1.png" style="height: 110px;">
+
+                    <div>
+                        <h3 style="color: #2d3436; margin-bottom: 1rem;">¿No tienes caja o tanque?</h3>
+                        <p style="font-size: 1.2rem; color: #2d3436;">
+                            ¡No te preocupes! Nosotros te lo vendemos al mejor precio.
+                        </p>
+                    </div>
+                    <button style="
+    background-color: var(--secondary);
+    color: white;
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s;
+    margin: 1rem 0;
+">Ordenar</button>
+                </div>
+
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Quote Section -->
+    <section id="quote" class="quote">
+        <div class="container">
+            <div class="section-title" style="margin-bottom: 1rem;">
+                <h2 style="color: white;">Solicita tu Cotización</h2>
+            </div>
+            <div class="quote-form">
+                <form id="quoteForm">
+                    <div class="form-group">
+                        <label for="name">Nombre Completo:</label>
+                        <input type="text" id="name" class="form-control" required>
+                    </div>
+
+                    <div class="form-row" style="border-bottom: 1px solid #e9ecef;margin-bottom: 15px;">
+                        <div class="form-group">
+                            <label for="email">Correo Electrónico:</label>
+                            <input type="email" id="email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Teléfono:</label>
+                            <input type="tel" id="phone" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tipo de Paquete:</label>
+                        <div class="package-type">
+                            <div class="package-option">
+                                <input type="radio" id="commonItem" name="package" value="Artículo Común" checked>
+                                <label for="commonItem" style="padding: 1rem 0px;">Artículo Común</label>
+                            </div>
+                            <div class="package-option">
+                                <input type="radio" id="custom" name="package" value="Personalizado">
+                                <label for="custom">Personalizado</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="commonItemDiv" class="custom-package show">
+                        <div class="form-group">
+                            <label>Seleccione el artículo:</label>
+                            <div id="commonItemsContainer" class="package-type" style="margin-top: 1rem;">
+                                <!-- Los artículos se cargarán aquí dinámicamente desde Firebase -->
+                            </div>
+                            <input type="hidden" id="commonItemType">
+                        </div>
+                    </div>
+
+                    <div id="customPackage" class="custom-package">
+                        <div class="form-group">
+                            <label for="item">Artículo a enviar:</label>
+                            <input type="text" id="item" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="commercialValue">Valor comercial (USD):</label>
+                            <input type="number" id="commercialValue" class="form-control" min="0" step="0.01">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="length">Largo (pulgadas):</label>
+                                <input type="number" id="length" class="form-control" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="width">Ancho (pulgadas):</label>
+                                <input type="number" id="width" class="form-control" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="height">Alto (pulgadas):</label>
+                                <input type="number" id="height" class="form-control" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="weight">Peso (lbs):</label>
+                                <input type="number" id="weight" class="form-control" min="1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <!-- Reemplaza esto en la sección de cotización -->
+                        <div class="form-group">
+                            <label for="origin">Origen (Ciudad, Estado):</label>
+                            <select id="origin" class="form-control" required>
+                                <option value="New York, NY" selected>New York, NY</option>
+                            </select>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="destination">Destino (Provincia):</label>
+                            <select id="destination" class="form-control" required>
+                                <option value="" disabled selected>Seleccione una provincia</option>
+                                <option value="Distrito Nacional">Distrito Nacional</option>
+                                <option value="Santo Domingo">Santo Domingo</option>
+                                <option value="Santiago">Santiago</option>
+                                <option disabled>──────────</option>
+                                <option value="Azua">Azua</option>
+                                <option value="Bahoruco">Bahoruco</option>
+                                <option value="Barahona">Barahona</option>
+                                <option value="Dajabón">Dajabón</option>
+                                <option value="Duarte">Duarte</option>
+                                <option value="El Seibo">El Seibo</option>
+                                <option value="Elías Piña">Elías Piña</option>
+                                <option value="Espaillat">Espaillat</option>
+                                <option value="Hato Mayor">Hato Mayor</option>
+                                <option value="Hermanas Mirabal">Hermanas Mirabal</option>
+                                <option value="Independencia">Independencia</option>
+                                <option value="La Altagracia">La Altagracia</option>
+                                <option value="La Romana">La Romana</option>
+                                <option value="La Vega">La Vega</option>
+                                <option value="María Trinidad Sánchez">María Trinidad Sánchez</option>
+                                <option value="Monseñor Nouel">Monseñor Nouel</option>
+                                <option value="Monte Cristi">Monte Cristi</option>
+                                <option value="Monte Plata">Monte Plata</option>
+                                <option value="Pedernales">Pedernales</option>
+                                <option value="Peravia">Peravia</option>
+                                <option value="Puerto Plata">Puerto Plata</option>
+                                <option value="Samaná">Samaná</option>
+                                <option value="San Cristóbal">San Cristóbal</option>
+                                <option value="San José de Ocoa">San José de Ocoa</option>
+                                <option value="San Juan">San Juan</option>
+                                <option value="San Pedro de Macorís">San Pedro de Macorís</option>
+                                <option value="Sánchez Ramírez">Sánchez Ramírez</option>
+                                <option value="Santiago Rodríguez">Santiago Rodríguez</option>
+                                <option value="Valverde">Valverde</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message">Mensaje adicional (opcional):</label>
+                        <textarea id="message" class="form-control" rows="4"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn">Enviar Solicitud</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="section-title" style="margin-bottom: 1rem;">
+                <h2>Contacto</h2>
+            </div>
+            <div class="contact-content" style="margin-bottom: 1rem;">
+                <p>¿Tienes alguna pregunta? No dudes en contactarnos. Estamos aquí para ayudarte con tus necesidades de
+                    envío.</p>
+                <div class="contact-info">
+                    <p><i class="fas fa-phone"></i> (123) 456-7890</p>
+                    <p><i class="fas fa-envelope"></i> info@meetransportation.com</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Nueva York, USA</p>
+                </div>
+            </div>
+
+            <!-- Start Map -->
+            <iframe class="map-iframe"
+                src="https://maps.google.com/maps?q=40.83005838598232, -73.94384101203005&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                allowfullscreen="" loading="lazy"></iframe>
+            <!-- End Map -->
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Meetransportation</h3>
+                    <p>Especialistas en envíos desde Estados Unidos a República Dominicana. Confiabilidad y rapidez en
+                        cada entrega.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Enlaces Rápidos</h3>
+                    <a href="#services">Servicios</a>
+                    <a href="#quote">Cotización</a>
+                    <a href="#">Rastreo</a>
+                    <a href="#contact">Contacto</a>
+                </div>
+                <div class="footer-column">
+                    <h3>Horario</h3>
+                    <p>Lunes - Viernes: 9am - 6pm</p>
+                    <p>Sábado: 9am - 2pm</p>
+                    <p>Domingo: Cerrado</p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025 Meetransportation. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content"
+            style="background-color: #ffffff;padding: 2rem;display: inline-flex;align-items: center;">
+            <h3>¡Solicitud Enviada!</h3>
+            <p>Hemos recibido tu solicitud de cotización. Nos pondremos en contacto contigo en las próximas 24 horas con
+                los detalles de tu envío.</p>
+            <button class="close-modal btn">Cerrar</button>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content" style="max-width: 570px;">
+            <div class="Modal-Title ">
+                <h3>Iniciar Sesión / Registrarse</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="Modal-Body" style="padding: 30px 50px;">
+                <form id="authForm">
+                    <div class="form-group">
+                        <label for="authEmail">Correo Electrónico</label>
+                        <input type="email" id="authEmail" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="authPassword">Contraseña</label>
+                        <input type="password" id="authPassword" class="form-control" required>
+                    </div>
+
+                    <!-- Campos adicionales para registro -->
+                    <div id="registerFields" style="display: none;">
+                        <div class="form-group">
+                            <label for="fullName">Nombre Completo</label>
+                            <input type="text" id="fullName" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="phoneNumber">Número de Teléfono</label>
+                            <input type="tel" id="phoneNumber" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Dirección</label>
+                            <input type="text" id="address" class="form-control">
+                        </div>
+                        <div class="form-group" id="terminos">
+                            <input type="checkbox" id="termsCheckbox" required>
+                            <label for="termsCheckbox" style="margin-bottom: 0rem;">Acepto los <a href="#"
+                                    style="color: var(--secondary);" onclick="showTerms()">Términos y
+                                    Condiciones</a></label>
+                        </div>
+                    </div>
+
+                    <button type="button" id="loginUserBtn" class="btn">Iniciar Sesión</button>
+                    <button type="button" id="showLoginBtn" class="btn btn-outline-2" style="display: none;">Ya tengo
+                        cuenta</button>
+                    <button type="button" id="registerUserBtn" class="btn btn-outline-2">Registrarse</button>
+
+                    <!-- Botón de Google -->
+                    <div style="text-align: center; margin: 1rem 0;">
+                        <p style="margin: 1rem 0;">O inicia sesión con</p>
+                        <button type="button" id="googleSignInBtn" class="btn">
+                            <img src="./img/google-icon.svg" style="height: 32px;">Google</button>
+                    </div>
+
+                    <div id="authMessage" style="margin-top: 1rem; color: var(--accent);"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Términos y Condiciones Modal -->
+    <div id="termsModal" class="modal">
+        <div class="modal-content" style="max-width: 800px; max-height: 80vh; overflow-y: auto;">
+            <div class="Modal-Title">
+                <h3>Términos y Condiciones</h3>
+                <button class="close-terms-modal">&times;</button>
+            </div>
+            <div class="Modal-Body">
+                <div style="text-align: left; margin-bottom: 1.5rem;">
+                    <p><strong>Última actualización:</strong> 26 de junio de 2025</p>
+                    <h4>1. Aceptación de los Términos</h4>
+                    <p>Al registrarte en Meetransportation, aceptas cumplir con estos términos y condiciones.</p>
+                    <h4>2. Servicios</h4>
+                    <p>Meetransportation ofrece servicios de envío de paquetes desde Estados Unidos a República
+                        Dominicana.
+                    </p>
+                    <h4>3. Responsabilidades del Usuario</h4>
+                    <p>El usuario es responsable de proporcionar información precisa y completa durante el registro y al
+                        solicitar servicios.</p>
+                    <h4>4. Privacidad</h4>
+                    <p>Tus datos personales serán protegidos según nuestra Política de Privacidad.</p>
+                    <h4>5. Restricciones</h4>
+                    <p>No se permiten envíos de artículos ilegales o prohibidos por las leyes de tránsito internacional.
+                    </p>
+                    <h4>6. Modificaciones</h4>
+                    <p>Nos reservamos el derecho de modificar estos términos en cualquier momento.</p>
+                    <h4>7. Limitación de Responsabilidad</h4>
+                    <p>Meetransportation no será responsable por daños indirectos o consecuenciales derivados del uso
+                        del
+                        servicio.</p>
+                </div>
+                <button class="close-terms-modal terms-OK">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <h3>Mi Perfil</h3>
+            <div id="userInfo"></div>
+            <h4 style="margin-top: 1.5rem;">Mis Envíos</h4>
+            <div id="userShipments" style="max-height: 300px; overflow-y: auto;"></div>
+            <button class="close-modal btn" style="margin-top: 1.5rem;">Cerrar</button>
+        </div>
+    </div>
+
+    <script src="./js/main.js"></script>
+
+    <script>
+        // Función para cargar los servicios desde Firebase
+        async function loadServices() {
+            const servicesContainer = document.getElementById('servicesContainer');
+            servicesContainer.innerHTML = '<p>Cargando servicios...</p>';
+
+            try {
+                const snapshot = await db.collection('services')
+                    .orderBy('position', 'asc')
+                    .get();
+
+                if (snapshot.empty) {
+                    servicesContainer.innerHTML = '<p>No hay servicios disponibles</p>';
+                    return;
+                }
+
+                servicesContainer.innerHTML = '';
+
+                snapshot.forEach(doc => {
+                    const service = doc.data();
+                    const serviceCard = document.createElement('div');
+                    serviceCard.className = 'service-card';
+
+                    const isPromo = service.type === 'promo';
+                    if (isPromo) {
+                        serviceCard.classList.add('offer-card');
+                    }
+
+                    // Construir el precio según el tipo
+                    const priceContent = isPromo
+                        ? `<div class="service-price">${service.price}</div>` // Texto directo para promos
+                        : `<div class="service-price">US$${service.price}</div>`; // Formato USD para regulares
+
+                    let cardContent = `
+                <div class="service-title">${service.name}</div>
+                ${priceContent}
+                <ul class="service-details">
+                    ${service.slot1 ? `<li><strong>${service.slot1.split(':')[0]}:</strong> ${service.slot1.split(':').slice(1).join(':')}</li>` : ''}
+                    ${service.slot2 ? `<li><strong>${service.slot2.split(':')[0]}:</strong> ${service.slot2.split(':').slice(1).join(':')}</li>` : ''}
+                    ${service.slot3 ? `<li><strong>${service.slot3.split(':')[0]}:</strong> ${service.slot3.split(':').slice(1).join(':')}</li>` : ''}
+                    ${service.slot4 ? `<li><strong>${service.slot4.split(':')[0]}:</strong> ${service.slot4.split(':').slice(1).join(':')}</li>` : ''}
+                </ul>
+            `;
+
+                    if (!isPromo && service.icon) {
+                        cardContent = `
+                    <div class="service-icon"><img src="${service.icon}" alt="${service.name}"></div>
+                    ${cardContent}
+                `;
+                    }
+
+                    if (!isPromo) {
+                        cardContent += `
+                    <div style="display: inline-flex; justify-content: center; width: 100%;">
+                        <button class="btn-ordenar" data-service-id="${doc.id}">Ordenar</button>
+                    </div>
+                `;
+                    }
+
+                    serviceCard.innerHTML = cardContent;
+                    servicesContainer.appendChild(serviceCard);
+                });
+
+                document.querySelectorAll('.btn-ordenar').forEach(button => {
+                    button.addEventListener('click', async function () {
+                        const serviceId = this.getAttribute('data-service-id');
+                        try {
+                            const doc = await db.collection('services').doc(serviceId).get();
+                            if (doc.exists) {
+                                const service = doc.data();
+                                localStorage.setItem('selectedService', JSON.stringify({
+                                    id: doc.id,
+                                    ...service
+                                }));
+                                window.location.href = 'checkout.html';
+                            }
+                        } catch (error) {
+                            console.error('Error al obtener el servicio:', error);
+                            alert('Error al procesar la orden. Por favor intente nuevamente.');
+                        }
+                    });
+                });
+
+            } catch (error) {
+                console.error('Error cargando servicios:', error);
+                servicesContainer.innerHTML = '<p>Error al cargar los servicios</p>';
+            }
+        }
+
+        // Ejecutar cuando el DOM esté cargado
+        document.addEventListener('DOMContentLoaded', loadServices);
+    </script>
+
+
+</body>
+
+</html>
+
+<!-- 2 -->
