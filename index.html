@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meetransportation - Envíos de USA a República Dominicana</title>
-        <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/style.css">
     <!-- Firebase SDK -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app-compat.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-firestore-compat.min.js"></script>
@@ -23,7 +23,10 @@
         <div class="container">
             <div class="header-content">
                 <a href="#" class="logo">Mee<span>Transportation</span></a>
-                <nav>
+                <div class="menu-toggle" id="mobile-menu">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <nav id="main-nav">
                     <ul>
                         <li><a href="#inicio" data-i18n="inicio">Inicio</a></li>
                         <li><a href="#services" data-i18n="servicios">Servicios</a></li>
@@ -36,8 +39,9 @@
                         <li style="margin-left: 0rem;"><a href="#" id="logoutBtn" style="display:none;"
                                 class="btn btn-outline">Cerrar Sesión</a></li>
                         <li>
-                            <select id="languageSelector"
-                                style="cursor: pointer;background: var(--primary); color: white; border: 1px solid white; border-radius: 5px; padding: 2px 5px;">
+                            <select id="languageSelector" style="display: none;">
+                                style="cursor: pointer;background: var(--primary); color: white; border: 1px solid
+                                white; border-radius: 5px; padding: 2px 5px;">
                                 <option value="es">🇩🇴 Español</option>
                                 <option value="en">🇺🇸 English</option>
                             </select>
@@ -90,12 +94,12 @@
                     style="text-align: center;margin-top: 2rem;padding: 1rem 2rem;background: linear-gradient(135deg, #ffeaa7, #fab1a0);border-radius: 15px;width: 50%;display: inline-flex;flex-direction: row;align-items: center;">
                     <img src="./img/comprar_arroz_aceite_1.png" style="height: 110px;">
                     <div>
-                    <h3 style="color: #2d3436; margin-bottom: 1rem;">
-                        ¿No tienes arroz o aceite?
-                    </h3>
-                    <p style="font-size: 1.2rem; color: #2d3436;">
-                        ¡No te preocupes! Nosotros te lo vendemos al mejor precio.
-                    </p>
+                        <h3 style="color: #2d3436; margin-bottom: 1rem;">
+                            ¿No tienes arroz o aceite?
+                        </h3>
+                        <p style="font-size: 1.2rem; color: #2d3436;">
+                            ¡No te preocupes! Nosotros te lo vendemos al mejor precio.
+                        </p>
                     </div>
                     <button style="
     background-color: var(--secondary);
@@ -455,6 +459,30 @@
     </div>
 
     <script src="./js/main.js"></script>
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function() {
+    // Menú móvil
+    const mobileMenuBtn = document.getElementById('mobile-menu');
+    const mainNav = document.getElementById('main-nav');
+    
+    mobileMenuBtn.addEventListener('click', function() {
+        mainNav.classList.toggle('active');
+        this.querySelector('i').classList.toggle('fa-bars');
+        this.querySelector('i').classList.toggle('fa-times');
+    });
+    
+    // Cerrar menú al hacer clic en un enlace
+    document.querySelectorAll('#main-nav a').forEach(link => {
+        link.addEventListener('click', () => {
+            mainNav.classList.remove('active');
+            mobileMenuBtn.querySelector('i').classList.add('fa-bars');
+            mobileMenuBtn.querySelector('i').classList.remove('fa-times');
+        });
+    });
+});
+    </script>
 
     <script>
         // Función para cargar los servicios desde Firebase
