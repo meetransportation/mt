@@ -92,7 +92,7 @@
       background: linear-gradient(rgba(44, 62, 80, 0.8), rgba(44, 62, 80, 0.8)), url('../img/background_1.jpg');
       background-size: cover;
       background-position: center;
-      height: 100vh;
+      height: 100dvh;
       display: flex;
       align-items: center;
       text-align: center;
@@ -1088,11 +1088,6 @@
       }
 
       /* Ajustes para el hero */
-      .hero {
-          padding-top: 120px;
-          height: auto;
-          min-height: 100vh;
-      }
 
       .hero-content h1 {
           font-size: 2rem;
