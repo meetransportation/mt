@@ -389,6 +389,12 @@
       flex: 1;
   }
 
+.contact-info a {
+    text-decoration: none;
+    color: #2377b5;
+}
+
+
   .package-type {
       display: flex;
       flex-wrap: wrap;
@@ -1186,10 +1192,6 @@
       }
 
       /* Ajustes para los botones de compra */
-
-      section {
-          padding: 2rem 0px;
-      }
 
 
       .services-section>div {
