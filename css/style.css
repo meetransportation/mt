@@ -966,6 +966,16 @@
   /* Responsive */
   @media (max-width: 768px) {
 
+      header {
+          width: 100%;
+          position: absolute;
+      }
+
+      .hero {
+          padding-top: 0px;
+      }
+
+
       .quote-form {
           padding: 1rem;
       }
@@ -1054,9 +1064,6 @@
       .selected-item .dimension-inputs label {
           font-size: 0.5rem;
       }
-
-
-
   }
 
 
@@ -1144,6 +1151,7 @@
 
       .route-info {
           gap: 1rem;
+          padding: 0 1rem;
       }
 
       .location {
