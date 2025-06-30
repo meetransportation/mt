@@ -589,61 +589,7 @@
       background-color: #2980b9;
   }
 
-  @media (max-width: 1050px) {
-      .header-content {
-          flex-direction: column;
-      }
-  }
 
-  /* Responsive */
-  @media (max-width: 768px) {
-
-      .quote-form {
-          padding: 1rem;
-      }
-
-      .package-type {
-          gap: 0.5rem;
-      }
-
-      nav ul {
-          margin-top: 1rem;
-          justify-content: center;
-      }
-
-      nav ul li {
-          margin: 0 0.5rem;
-      }
-
-      .hero-content h1 {
-          font-size: 2.2rem;
-      }
-
-      .hero-content p {
-          font-size: 1rem;
-      }
-
-      .btn {
-          display: block;
-          width: 100%;
-          margin: 0 auto 1rem;
-      }
-
-      .btn-outline {
-          margin-left: 0;
-      }
-
-      .form-row {
-          flex-direction: column;
-          gap: 0;
-      }
-
-      .modal-content {
-          max-height: 100%;
-          border-radius: 0px;
-          height: 100%;
-      }
-  }
 
 
   .service-icon {
@@ -1011,6 +957,109 @@
 
 
 
+  @media (max-width: 1050px) {
+      .header-content {
+          flex-direction: column;
+      }
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+
+      .quote-form {
+          padding: 1rem;
+      }
+
+      .package-type {
+          gap: 0.5rem;
+      }
+
+      nav ul {
+          margin-top: 1rem;
+          justify-content: center;
+      }
+
+      nav ul li {
+          margin: 0 0.5rem;
+      }
+
+      .hero-content h1 {
+          font-size: 2.2rem;
+      }
+
+      .hero-content p {
+          font-size: 1rem;
+      }
+
+      .btn {
+          display: block;
+          width: 100%;
+          margin: 0 auto 1rem;
+      }
+
+      .btn-outline {
+          margin-left: 0;
+      }
+
+      .form-row {
+          flex-direction: column;
+          gap: 0;
+      }
+
+      .modal-content {
+          max-height: 100%;
+          border-radius: 0px;
+          height: 100%;
+      }
+
+      .selected-item img {
+          width: 40px;
+          height: 40px;
+      }
+
+      .selected-item {
+          flex-direction: column;
+          gap: 0rem;
+          padding: 5px;
+      }
+
+      .selected-item .item-info {
+          flex-direction: column;
+
+      }
+
+
+      .selected-item .dimension-inputs {
+          gap: 0.2rem;
+      }
+
+      #item-info-name {
+          min-width: 95%;
+          font-size: 0.8rem;
+          text-align: center;
+      }
+
+      .selected-item .dimension-inputs input {
+          width: 45px;
+          padding: 0.2rem;
+          font-size: 0.7rem;
+      }
+
+      .selected-item .remove-item {
+          padding: 0px 7px;
+          margin-top: 14px;
+
+      }
+
+      .selected-item .dimension-inputs label {
+          font-size: 0.5rem;
+      }
+
+
+
+  }
+
+
 
 
   /* Agrega esto al final de tu CSS */
@@ -1120,8 +1169,8 @@
       /* Ajustes para los botones de compra */
 
       section {
-    padding: 2rem 0px;
-}
+          padding: 2rem 0px;
+      }
 
 
       .services-section>div {
@@ -1159,6 +1208,11 @@
           margin: 1rem 16px 1rem 0rem 1rem;
       }
 
+      .btn-ordenar {
+          padding: 0.5rem 1rem;
+          margin: 0rem 0;
+      }
+
   }
 
   /* Para pantallas muy pequeñas */
@@ -1171,10 +1225,6 @@
       select.form-control {
           padding: 0.4rem 0.8rem;
           font-size: 0.9rem;
-      }
-
-      .service-card {
-          padding: 1rem;
       }
 
       .service-title {
