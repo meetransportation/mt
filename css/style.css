@@ -33,10 +33,11 @@
       top: 0;
       z-index: 1000;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      width: 100dvw;
   }
 
   .container {
-      width: 90%;
+      width: 100%;
       max-width: 1200px;
       margin: 0 auto;
   }
@@ -299,6 +300,51 @@
       margin-bottom: 1.5rem;
   }
 
+  #comprar-arroz-tanque-content {
+      display: inline-flex;
+      gap: 35px;
+      width: 100%;
+  }
+
+  #comprar-arroz-tanque {
+      text-align: center;
+      margin-top: 2rem;
+      padding: 1rem 2rem;
+      background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+      border-radius: 15px;
+      width: 50%;
+      display: inline-flex;
+      flex-direction: row;
+      align-items: center;
+  }
+
+  #comprar-arroz-tanque-btn {
+      background-color: var(--secondary);
+      color: white;
+      padding: 0.8rem 1rem;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: all 0.3s;
+      margin: 1rem 0;
+  }
+
+  #comprar-arroz-tanque img {
+      height: 110px;
+  }
+
+  #comprar-arroz-tanque h3 {
+      color: #2d3436;
+      margin-bottom: 1rem;
+  }
+
+  #comprar-arroz-tanque p {
+      font-size: 1.2rem;
+      color: #2d3436;
+  }
+
   .form-group label {
       display: block;
       margin-bottom: 0.5rem;
@@ -551,9 +597,13 @@
 
   /* Responsive */
   @media (max-width: 768px) {
-      .header-content {
-          flex-direction: column;
-          text-align: center;
+
+      .quote-form {
+          padding: 1rem;
+      }
+
+      .package-type {
+          gap: 0.5rem;
       }
 
       nav ul {
@@ -575,7 +625,7 @@
 
       .btn {
           display: block;
-          width: 80%;
+          width: 100%;
           margin: 0 auto 1rem;
       }
 
@@ -954,7 +1004,9 @@
       transform: translateY(-2px);
   }
 
-
+  .menu-toggle {
+      display: none;
+  }
 
 
 
@@ -964,27 +1016,43 @@
   /* Agrega esto al final de tu CSS */
   @media (max-width: 768px) {
 
+      .container {
+          padding: 0px 0.5rem;
+      }
+
+      .section-title {
+          font-size: 2rem;
+          padding-bottom: 0rem;
+          margin-bottom: 1rem;
+      }
+
+      .form-group {
+          margin-bottom: 1rem;
+      }
+
       /* Menú hamburguesa */
       .header-content {
           flex-direction: row;
-          padding: 1rem 0;
+          padding: 0rem 0;
       }
 
       .logo {
           margin-bottom: 0;
+          width: 100%;
+          text-align: center;
       }
 
       nav {
           position: fixed;
-          top: 78px;
+          top: 46px;
           right: -100%;
           width: 80%;
-          height: calc(100vh - 92px);
+          height: calc(100vh - 58px);
           background-color: var(--primary);
           transition: all 0.3s ease;
           z-index: 999;
           /* border-top: 1px solid #4c5966; */
-          box-shadow: inset 0px 13px 20px -23px rgb(0 0 0);
+          /* box-shadow: inset 0px 13px 20px -23px rgb(0 0 0); */
           box-shadow: inset 0px 1px 0px 0px rgb(72 86 106);
       }
 
@@ -1009,6 +1077,8 @@
           cursor: pointer;
           font-size: 1.5rem;
           color: white;
+          position: absolute;
+          right: 20px;
       }
 
       /* Selector de idioma */
@@ -1048,8 +1118,17 @@
           font-size: 0.8rem;
       }
 
+      .package-option label {
+          padding: 0.5rem 5px;
+      }
 
       /* Ajustes para los botones de compra */
+
+      section {
+    padding: 2rem 0px;
+}
+
+
       .services-section>div {
           flex-direction: column;
           gap: 1rem;
@@ -1058,6 +1137,33 @@
       .services-section>div>div {
           width: 100% !important;
       }
+
+      #comprar-arroz-tanque {
+          flex-direction: column;
+          padding: 1rem 1rem;
+      }
+
+      #comprar-arroz-tanque-content {
+          gap: 15px;
+      }
+
+      #comprar-arroz-tanque img {
+          height: 64px;
+      }
+
+      #comprar-arroz-tanque h3 {
+          font-size: 0.9rem;
+      }
+
+      #comprar-arroz-tanque p {
+          font-size: 0.9rem;
+      }
+
+      #comprar-arroz-tanque-btn {
+          padding: 0.5rem 0.7rem;
+          margin: 1rem 16px 1rem 0rem 1rem;
+      }
+
   }
 
   /* Para pantallas muy pequeñas */
@@ -1066,15 +1172,10 @@
           font-size: 1.8rem;
       }
 
-      .btn,
-      .btn-outline {
-          width: 100%;
-          margin-bottom: 1rem;
-      }
-
       .form-control,
       select.form-control {
-          padding: 0.6rem 1rem;
+          padding: 0.4rem 0.8rem;
+          font-size: 0.9rem;
       }
 
       .service-card {
