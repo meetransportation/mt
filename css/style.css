@@ -14,6 +14,14 @@
       border: none;
   }
 
+  button,
+  a,
+  input,
+  textarea,
+  select {
+      -webkit-tap-highlight-color: transparent;
+  }
+
   html {
       scroll-behavior: smooth;
   }
@@ -966,13 +974,9 @@
   /* Responsive */
   @media (max-width: 768px) {
 
-      header {
-          width: 100%;
-          position: absolute;
-      }
 
       .hero {
-          padding-top: 0px;
+          padding-top: 20px;
       }
 
 
@@ -1082,6 +1086,14 @@
           margin-bottom: 1rem;
       }
 
+      #hero-btn-content {
+          padding: 0rem 2rem;
+      }
+
+      .map-iframe {
+          height: 270px;
+      }
+
       .form-group {
           margin-bottom: 1rem;
       }
@@ -1103,7 +1115,7 @@
           top: 46px;
           right: -100%;
           width: 80%;
-          height: calc(100vh - 58px);
+          height: calc(100vh - 46px);
           background-color: var(--primary);
           transition: all 0.3s ease;
           z-index: 999;
@@ -1118,13 +1130,15 @@
 
       nav ul {
           flex-direction: column;
-          padding: 2rem;
+          padding: 0rem 1rem;
           align-items: flex-start;
       }
 
       nav ul li {
           margin: 0.5rem 0;
           width: 100%;
+          display: inline-flex;
+          justify-content: center;
       }
 
       /* Botón hamburguesa */
@@ -1219,6 +1233,20 @@
       .btn-ordenar {
           padding: 0.5rem 1rem;
           margin: 0rem 0;
+      }
+
+      .footer-content {
+          gap: 1rem;
+      }
+
+      .footer-column p,
+      .footer-column a {
+          margin-bottom: 0.1rem;
+      }
+
+      .footer-column h3 {
+
+          margin-bottom: 1rem;
       }
 
   }
