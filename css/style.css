@@ -18,7 +18,8 @@
   a,
   input,
   textarea,
-  select {
+  select,
+  .menu-toggle {
       -webkit-tap-highlight-color: transparent;
   }
 
@@ -50,10 +51,15 @@
       margin: 0 auto;
   }
 
+  #menu-s {
+      width: 90%;
+  }
+
   .header-content {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      transition: all 0.3s;
   }
 
   .logo {
@@ -206,7 +212,7 @@
 
   .services-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
       gap: 2rem;
   }
 
@@ -219,15 +225,7 @@
       transition: all 0.3s ease;
   }
 
-  .service-card:hover {
-      transform: translateY(0px);
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-  }
 
-  .offer-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-  }
 
   .service-icon {
       display: inline-flex;
@@ -743,7 +741,7 @@
 
   .common-item-btn {
       flex: 1;
-      min-width: 120px;
+      min-width: 100px;
       padding: 5px;
       background-color: var(--light);
       border-radius: 14px;
@@ -968,6 +966,7 @@
   @media (max-width: 1050px) {
       .header-content {
           flex-direction: column;
+          padding-bottom: 5px;
       }
   }
 
@@ -976,7 +975,7 @@
 
 
       .hero {
-          padding-top: 20px;
+          padding-top: 50px;
       }
 
 
@@ -1068,13 +1067,11 @@
       .selected-item .dimension-inputs label {
           font-size: 0.5rem;
       }
-  }
 
-
-
-
-  /* Agrega esto al final de tu CSS */
-  @media (max-width: 768px) {
+      .service-card {
+          padding: 1rem 1rem;
+          margin: 0rem 2rem;
+      }
 
       .container {
           padding: 0px 0.5rem;
