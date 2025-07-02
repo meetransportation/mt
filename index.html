@@ -571,6 +571,101 @@
     </script>
 
 
+<script>
+// --- CONST Y UTILS ----------------------------------------------------------
+const CACHE_KEY = 'servicesCache';          // LocalStorage key
+const COLLECTION = 'services';              // Nombre de la colección
+const servicesContainer = document.getElementById('servicesContainer');
+
+// Renderiza la cuadrícula de tarjetas
+function renderServices(services = []) {
+  servicesContainer.innerHTML = '';
+
+  if (!services.length) {
+    servicesContainer.innerHTML = '<p>No hay servicios disponibles</p>';
+    return;
+  }
+
+  services.forEach(service => {
+    const card = document.createElement('div');
+    card.className = 'service-card';
+    const isPromo = service.type === 'promo';
+    if (isPromo) card.classList.add('offer-card');
+
+    const priceHTML = isPromo
+      ? `<div class="service-price">${service.price}</div>`
+      : `<div class="service-price">US$${service.price}</div>`;
+
+    let html = `
+      <div class="service-title">${service.name}</div>
+      ${priceHTML}
+      <ul class="service-details">
+        ${service.slot1 ? `<li><strong>${service.slot1.split(':')[0]}:</strong> ${service.slot1.split(':').slice(1).join(':')}</li>` : ''}
+        ${service.slot2 ? `<li><strong>${service.slot2.split(':')[0]}:</strong> ${service.slot2.split(':').slice(1).join(':')}</li>` : ''}
+        ${service.slot3 ? `<li><strong>${service.slot3.split(':')[0]}:</strong> ${service.slot3.split(':').slice(1).join(':')}</li>` : ''}
+        ${service.slot4 ? `<li><strong>${service.slot4.split(':')[0]}:</strong> ${service.slot4.split(':').slice(1).join(':')}</li>` : ''}
+      </ul>
+    `;
+
+    if (!isPromo && service.icon) {
+      html = `<div class="service-icon"><img src="${service.icon}" alt="${service.name}"></div>` + html;
+    }
+    if (!isPromo) {
+      html += `
+        <div style="display:flex;justify-content:center;width:100%">
+          <button class="btn-ordenar" data-service-id="${service.id}">Ordenar</button>
+        </div>`;
+    }
+
+    card.innerHTML = html;
+    servicesContainer.appendChild(card);
+  });
+
+  // Botones “Ordenar”
+  document.querySelectorAll('.btn-ordenar').forEach(btn => {
+    btn.addEventListener('click', async e => {
+      const id = e.currentTarget.dataset.serviceId;
+      const service = services.find(s => s.id === id);
+      if (!service) return;
+      localStorage.setItem('selectedService', JSON.stringify(service));
+      window.location.href = 'checkout.html';
+    });
+  });
+}
+
+// --- INICIALIZACIÓN ---------------------------------------------------------
+document.addEventListener('DOMContentLoaded', () => {
+  // 1) Muestra lo que haya en caché (si existe)
+  const cached = localStorage.getItem(CACHE_KEY);
+  if (cached) {
+    try { renderServices(JSON.parse(cached)); }
+    catch (err) { console.warn('Error leyendo caché:', err); }
+  } else {
+    servicesContainer.innerHTML = '<p>Cargando servicios...</p>';
+  }
+
+  // 2) Suscripción en tiempo real a Firestore
+  db.collection(COLLECTION)
+    .orderBy('position', 'asc')
+    .onSnapshot(
+      snap => {
+        const fresh = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const freshStr = JSON.stringify(fresh);
+        if (freshStr !== localStorage.getItem(CACHE_KEY)) {
+          localStorage.setItem(CACHE_KEY, freshStr);
+          renderServices(fresh);
+        }
+      },
+      err => {
+        console.error('Firestore listener error:', err);
+        if (!cached) servicesContainer.innerHTML = '<p>Error al cargar los servicios</p>';
+      }
+    );
+});
+</script>
+
+
+
 </body>
 
 </html>
