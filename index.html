@@ -16,6 +16,49 @@
     <!-- Google Fonts -->
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+
+
+    <!-- intl-tel-input CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css">
+    <!-- intl-tel-input JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"></script>
+
+
+    <style>
+        .intl-tel-input {
+            width: 100%;
+            display: block;
+        }
+
+        .intl-tel-input .flag-container {
+            padding: 0;
+            left: 8px;
+        }
+
+        .intl-tel-input .selected-flag {
+            padding: 0 6px 0 8px;
+            width: 50px;
+        }
+
+        .intl-tel-input .country-list {
+            width: 300px;
+        }
+
+        .intl-tel-input input {
+            padding-left: 60px !important;
+        }
+
+        .iti {
+            width: 100%;
+        }
+
+        .iti--separate-dial-code .iti__selected-flag {
+            border-radius: 22px 0px 0px 22px;
+        }
+    </style>
+
+
 </head>
 
 <body>
@@ -132,13 +175,13 @@
                 <form id="quoteForm">
                     <div class="form-group">
                         <label for="name">Nombre Completo:</label>
-                        <input type="text" id="name" class="form-control" required>
+                        <input type="text" id="name" class="form-control" placeholder="Nombre y Apellido" required>
                     </div>
 
                     <div class="form-row" style="border-bottom: 1px solid #e9ecef;margin-bottom: 15px;">
                         <div class="form-group">
                             <label for="email">Correo Electrónico:</label>
-                            <input type="email" id="email" class="form-control" required>
+                            <input type="email" id="email" class="form-control" placeholder="tucorreo@email.com" required>
                         </div>
                         <div class="form-group">
                             <label for="phone">Teléfono:</label>
@@ -374,7 +417,7 @@
                             <label for="phoneNumber">Número de Teléfono</label>
                             <input type="tel" id="phoneNumber" class="form-control">
                         </div>
-                        <div class="form-group">
+                        <div class="form-group"  style="display: none;">
                             <label for="address">Dirección</label>
                             <input type="text" id="address" class="form-control">
                         </div>
@@ -405,7 +448,7 @@
     </div>
 
     <!-- Términos y Condiciones Modal -->
-    <div id="termsModal" class="modal">
+    <div id="termsModal" class="modal" style="background-color: rgb(0 0 0 / 5%);">
         <div class="modal-content" style="max-width: 800px; max-height: 80vh; overflow-y: auto;">
             <div class="Modal-Title">
                 <h3>Términos y Condiciones</h3>
@@ -571,32 +614,32 @@
     </script>
 
 
-<script>
-// --- CONST Y UTILS ----------------------------------------------------------
-const CACHE_KEY = 'servicesCache';          // LocalStorage key
-const COLLECTION = 'services';              // Nombre de la colección
-const servicesContainer = document.getElementById('servicesContainer');
+    <script>
+        // --- CONST Y UTILS ----------------------------------------------------------
+        const CACHE_KEY = 'servicesCache';          // LocalStorage key
+        const COLLECTION = 'services';              // Nombre de la colección
+        const servicesContainer = document.getElementById('servicesContainer');
 
-// Renderiza la cuadrícula de tarjetas
-function renderServices(services = []) {
-  servicesContainer.innerHTML = '';
+        // Renderiza la cuadrícula de tarjetas
+        function renderServices(services = []) {
+            servicesContainer.innerHTML = '';
 
-  if (!services.length) {
-    servicesContainer.innerHTML = '<p>No hay servicios disponibles</p>';
-    return;
-  }
+            if (!services.length) {
+                servicesContainer.innerHTML = '<p>No hay servicios disponibles</p>';
+                return;
+            }
 
-  services.forEach(service => {
-    const card = document.createElement('div');
-    card.className = 'service-card';
-    const isPromo = service.type === 'promo';
-    if (isPromo) card.classList.add('offer-card');
+            services.forEach(service => {
+                const card = document.createElement('div');
+                card.className = 'service-card';
+                const isPromo = service.type === 'promo';
+                if (isPromo) card.classList.add('offer-card');
 
-    const priceHTML = isPromo
-      ? `<div class="service-price">${service.price}</div>`
-      : `<div class="service-price">US$${service.price}</div>`;
+                const priceHTML = isPromo
+                    ? `<div class="service-price">${service.price}</div>`
+                    : `<div class="service-price">US$${service.price}</div>`;
 
-    let html = `
+                let html = `
       <div class="service-title">${service.name}</div>
       ${priceHTML}
       <ul class="service-details">
@@ -607,64 +650,141 @@ function renderServices(services = []) {
       </ul>
     `;
 
-    if (!isPromo && service.icon) {
-      html = `<div class="service-icon"><img src="${service.icon}" alt="${service.name}"></div>` + html;
-    }
-    if (!isPromo) {
-      html += `
+                if (!isPromo && service.icon) {
+                    html = `<div class="service-icon"><img src="${service.icon}" alt="${service.name}"></div>` + html;
+                }
+                if (!isPromo) {
+                    html += `
         <div style="display:flex;justify-content:center;width:100%">
           <button class="btn-ordenar" data-service-id="${service.id}">Ordenar</button>
         </div>`;
-    }
+                }
 
-    card.innerHTML = html;
-    servicesContainer.appendChild(card);
-  });
+                card.innerHTML = html;
+                servicesContainer.appendChild(card);
+            });
 
-  // Botones “Ordenar”
-  document.querySelectorAll('.btn-ordenar').forEach(btn => {
-    btn.addEventListener('click', async e => {
-      const id = e.currentTarget.dataset.serviceId;
-      const service = services.find(s => s.id === id);
-      if (!service) return;
-      localStorage.setItem('selectedService', JSON.stringify(service));
-      window.location.href = 'checkout.html';
-    });
-  });
-}
-
-// --- INICIALIZACIÓN ---------------------------------------------------------
-document.addEventListener('DOMContentLoaded', () => {
-  // 1) Muestra lo que haya en caché (si existe)
-  const cached = localStorage.getItem(CACHE_KEY);
-  if (cached) {
-    try { renderServices(JSON.parse(cached)); }
-    catch (err) { console.warn('Error leyendo caché:', err); }
-  } else {
-    servicesContainer.innerHTML = '<p>Cargando servicios...</p>';
-  }
-
-  // 2) Suscripción en tiempo real a Firestore
-  db.collection(COLLECTION)
-    .orderBy('position', 'asc')
-    .onSnapshot(
-      snap => {
-        const fresh = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        const freshStr = JSON.stringify(fresh);
-        if (freshStr !== localStorage.getItem(CACHE_KEY)) {
-          localStorage.setItem(CACHE_KEY, freshStr);
-          renderServices(fresh);
+            // Botones “Ordenar”
+            document.querySelectorAll('.btn-ordenar').forEach(btn => {
+                btn.addEventListener('click', async e => {
+                    const id = e.currentTarget.dataset.serviceId;
+                    const service = services.find(s => s.id === id);
+                    if (!service) return;
+                    localStorage.setItem('selectedService', JSON.stringify(service));
+                    window.location.href = 'checkout.html';
+                });
+            });
         }
-      },
-      err => {
-        console.error('Firestore listener error:', err);
-        if (!cached) servicesContainer.innerHTML = '<p>Error al cargar los servicios</p>';
-      }
-    );
-});
-</script>
 
+        // --- INICIALIZACIÓN ---------------------------------------------------------
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1) Muestra lo que haya en caché (si existe)
+            const cached = localStorage.getItem(CACHE_KEY);
+            if (cached) {
+                try { renderServices(JSON.parse(cached)); }
+                catch (err) { console.warn('Error leyendo caché:', err); }
+            } else {
+                servicesContainer.innerHTML = '<p>Cargando servicios...</p>';
+            }
 
+            // 2) Suscripción en tiempo real a Firestore
+            db.collection(COLLECTION)
+                .orderBy('position', 'asc')
+                .onSnapshot(
+                    snap => {
+                        const fresh = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                        const freshStr = JSON.stringify(fresh);
+                        if (freshStr !== localStorage.getItem(CACHE_KEY)) {
+                            localStorage.setItem(CACHE_KEY, freshStr);
+                            renderServices(fresh);
+                        }
+                    },
+                    err => {
+                        console.error('Firestore listener error:', err);
+                        if (!cached) servicesContainer.innerHTML = '<p>Error al cargar los servicios</p>';
+                    }
+                );
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Configuración común para ambos inputs
+            const options = {
+                preferredCountries: ['us', 'do'],
+                separateDialCode: true,
+                initialCountry: "us",
+                nationalMode: false, // Importante para mantener el código fuera del input
+                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+            };
+
+            // Inicializa los inputs
+            const phoneInput = document.querySelector("#phone");
+            const phoneIti = window.intlTelInput(phoneInput, options);
+
+            const phoneNumberInput = document.querySelector("#phoneNumber");
+            const phoneNumberIti = window.intlTelInput(phoneNumberInput, options);
+
+            // Función para formatear visualmente con guiones
+            function formatNumberForDisplay(input, iti) {
+                const countryCode = iti.getSelectedCountryData().iso2;
+                let number = input.value.replace(/\D/g, '');
+
+                // Solo aplicamos formato para US y DO
+                if ((countryCode === 'us' || countryCode === 'do') && number.length > 0) {
+                    // Limitar a 10 dígitos (sin contar el código)
+                    if (number.length > 10) number = number.substring(0, 10);
+
+                    // Aplicar formato: 123-456-7890
+                    let formatted = '';
+                    if (number.length > 6) {
+                        formatted = `${number.substring(0, 3)}-${number.substring(3, 6)}-${number.substring(6)}`;
+                    } else if (number.length > 3) {
+                        formatted = `${number.substring(0, 3)}-${number.substring(3)}`;
+                    } else {
+                        formatted = number;
+                    }
+
+                    input.value = formatted;
+                }
+            }
+
+            // Event listeners para formateo en tiempo real
+            [phoneInput, phoneNumberInput].forEach(input => {
+                const iti = input === phoneInput ? phoneIti : phoneNumberIti;
+
+                input.addEventListener('input', function () {
+                    // Mantener solo dígitos en el valor real
+                    const digits = this.value.replace(/\D/g, '');
+                    if (digits.length > 10) {
+                        this.value = digits.substring(0, 10);
+                    }
+
+                    // Formatear visualmente
+                    formatNumberForDisplay(this, iti);
+                });
+
+                input.addEventListener('blur', function () {
+                    formatNumberForDisplay(this, iti);
+                });
+
+                input.addEventListener('keydown', function (e) {
+                    // Permitir solo teclas numéricas y comandos especiales
+                    if (!/[\d-]|Backspace|Delete|ArrowLeft|ArrowRight|Tab/.test(e.key)) {
+                        e.preventDefault();
+                    }
+                });
+            });
+
+            // Función para obtener el número limpio (sin formato)
+            window.getCleanPhoneNumber = function (inputElement) {
+                const iti = window.intlTelInputGlobals.getInstance(inputElement);
+                const countryData = iti.getSelectedCountryData();
+                const digits = inputElement.value.replace(/\D/g, '');
+                return `+${countryData.dialCode}${digits}`;
+            };
+        });
+    </script>
 
 </body>
 
