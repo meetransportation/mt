@@ -366,8 +366,14 @@ async function signInWithGoogle() {
         googleBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando sesión...';
         googleBtn.disabled = true;
 
+        // Solicitar el alcance del número de teléfono
+        googleProvider.addScope('https://www.googleapis.com/auth/user.phonenumbers.read');
+        
         const result = await firebase.auth().signInWithPopup(googleProvider);
         const user = result.user;
+
+        // Obtener el número de teléfono del usuario de Google si está disponible
+        const phoneNumber = user.phoneNumber || '';
 
         // Check if new user
         if (result.additionalUserInfo?.isNewUser) {
@@ -377,12 +383,20 @@ async function signInWithGoogle() {
                 registrationDate: firebase.firestore.FieldValue.serverTimestamp(),
                 profile: {
                     name: user.displayName || user.email.split('@')[0],
-                    phone: user.phoneNumber || '',
+                    phone: phoneNumber, // Agregar el número de teléfono si está disponible
                     photoURL: user.photoURL || ''
                 },
                 termsAccepted: true,
                 termsAcceptanceDate: firebase.firestore.FieldValue.serverTimestamp()
             });
+        } else if (phoneNumber) {
+            // Si el usuario ya existe pero no tenía número de teléfono, actualizarlo
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            if (userDoc.exists && !userDoc.data().profile?.phone) {
+                await db.collection('users').doc(user.uid).update({
+                    'profile.phone': phoneNumber
+                });
+            }
         }
 
         // Show success message
