@@ -359,60 +359,61 @@ document.getElementById('authForm').addEventListener('keypress', function(e) {
 // Sign in with Google
 async function signInWithGoogle() {
     const messageDiv = document.getElementById('authMessage');
-    const googleBtn   = document.getElementById('googleSignInBtn');
-    const originalTxt = googleBtn.innerHTML;
+    const googleBtn = document.getElementById('googleSignInBtn');
+    const originalText = googleBtn.innerHTML;
 
     try {
         googleBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando sesión...';
-        googleBtn.disabled  = true;
+        googleBtn.disabled = true;
 
-        const result      = await firebase.auth().signInWithPopup(googleProvider);
-        const user        = result.user;
-        const credential  = result.credential;
+        const result = await firebase.auth().signInWithPopup(googleProvider);
+        const user = result.user;
 
-        /* ─────── OBTENER TELÉFONO ─────── */
-        let phone = user.phoneNumber || '';
-        if (!phone && credential?.accessToken) {
-            phone = await getPhoneFromGoogle(credential.accessToken);
-        }
-        /* ──────────────────────────────── */
-
+        // Check if new user
         if (result.additionalUserInfo?.isNewUser) {
-            // Crear documento para usuario nuevo
+            // Obtener el número de teléfono de la cuenta de Google si está disponible
+            const phoneNumber = user.phoneNumber || '';
+            
+            // Create user profile in Firestore
             await db.collection('users').doc(user.uid).set({
                 email: user.email,
                 registrationDate: firebase.firestore.FieldValue.serverTimestamp(),
                 profile: {
                     name: user.displayName || user.email.split('@')[0],
-                    phone: phone,           // ←── Guardamos el teléfono
+                    phone: phoneNumber, // Guardar el número de teléfono si existe
                     photoURL: user.photoURL || ''
                 },
                 termsAccepted: true,
                 termsAcceptanceDate: firebase.firestore.FieldValue.serverTimestamp()
             });
-        } else if (phone) {
-            // Usuario existente: actualiza teléfono si aún no lo tenía
-            await db.collection('users').doc(user.uid).set(
-                { profile: { phone } },
-                { merge: true }
-            );
+
+            // Si hay número de teléfono, actualizar también el campo phone directamente
+            if (phoneNumber) {
+                await db.collection('users').doc(user.uid).update({
+                    'phone': phoneNumber
+                });
+            }
         }
 
-        /* … resto del código tal cual … */
-
+        // Show success message
         messageDiv.style.color = 'var(--success)';
-        messageDiv.textContent = '¡Inicio de sesión con Google exitoso!';
-        setTimeout(closeModals, 1500);
+        messageDiv.textContent = 'Inicio de sesión con Google exitoso!';
+
+        // Close modal after short delay
+        setTimeout(() => {
+            closeModals();
+        }, 1500);
 
     } catch (error) {
         console.error('Error en autenticación con Google:', error);
         messageDiv.textContent = getAuthErrorMessage(error.code);
     } finally {
-        googleBtn.innerHTML = originalTxt;
-        googleBtn.disabled  = false;
+        if (googleBtn) {
+            googleBtn.innerHTML = originalText;
+            googleBtn.disabled = false;
+        }
     }
 }
-
 
 // Handle quote form submission
 // Modificar la función handleQuoteSubmission para guardar en subcolección de usuario
