@@ -203,9 +203,9 @@
 
   /* Services Section */
 
-.services-Box {
-    padding: 3rem 2rem;
-}
+  .services-Box {
+      padding: 3rem 2rem;
+  }
 
   .section-title {
       text-align: center;
@@ -393,10 +393,10 @@
       flex: 1;
   }
 
-.contact-info a {
-    text-decoration: none;
-    color: #2377b5;
-}
+  .contact-info a {
+      text-decoration: none;
+      color: #2377b5;
+  }
 
 
   .package-type {
@@ -602,7 +602,7 @@
   }
 
   .close-modal:hover {
-      background-color: #2980b9;
+      background-color: #1ea740;
   }
 
 
@@ -720,7 +720,6 @@
       width: 100%;
       background: rgb(231 231 231);
       min-height: 40px;
-      pointer-events: none;
       border-bottom: 1px solid rgb(221 221 221);
       display: inline-flex;
       align-items: center;
@@ -743,8 +742,16 @@
       padding: 20px;
   }
 
-
-
+  .modal-footer {
+      color: white;
+      border: none;
+      padding: 8px 8px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+  }
 
 
 
@@ -1079,16 +1086,16 @@
       }
 
       .services-grid {
-    gap: 1rem;
-}
+          gap: 1rem;
+      }
 
       .services-Box {
-    padding: 3rem 0rem;
-}
+          padding: 3rem 0rem;
+      }
 
-    .service-card {
-        padding: 1rem 1rem;
-    }
+      .service-card {
+          padding: 1rem 1rem;
+      }
 
       .container {
           padding: 0px 0.5rem;
@@ -1261,19 +1268,19 @@
 
   }
 
-    @media (max-width: 550px) {
+  @media (max-width: 550px) {
       .modal-content {
           width: 100%;
       }
 
-          .service-card {
-        padding: 1rem 1rem;
-        margin: 0rem 2rem;
-    }
+      .service-card {
+          padding: 1rem 1rem;
+          margin: 0rem 2rem;
+      }
 
-        .btn {
-        padding: 0.6rem 1.5rem;
-    }
+      .btn {
+          padding: 0.6rem 1.5rem;
+      }
   }
 
   /* Para pantallas muy pequeñas */
@@ -1296,6 +1303,3 @@
           font-size: 1.5rem;
       }
   }
-
-
-  

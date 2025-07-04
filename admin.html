@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrativo - Meetransportation</title>
+    <link rel="stylesheet" href="./css/style-admin.css">
+    <!-- Firebase SDK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-firestore-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-auth-compat.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Mee<span style="color:#5cc528;">Transportation</span></h3>
+            </div>
+            <div class="sidebar-menu">
+                <div class="menu-item active" data-tab="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="menu-item" data-tab="orders">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="flex1">Órdenes</span>
+                    <span class="menu-badge" id="pendingOrdersBadge">0</span>
+                </div>
+                <div class="menu-item" data-tab="quotes">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span id="flex1">Cotizaciones</span>
+                    <span class="menu-badge" id="pendingQuotesBadge">0</span>
+                </div>
+
+                <div class="menu-item" data-tab="in-transit">
+                    <i class="fas fa-shipping-fast"></i>
+                    <span id="flex1">Envíos en Tránsito</span>
+                    <span class="menu-badge" id="inTransitBadge">0</span>
+                </div>
+                <div class="menu-item" data-tab="completed-orders">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="flex1">Órdenes Completadas</span>
+                    <span class="menu-badge" id="completedOrdersBadge">0</span>
+                </div>
+
+
+                <div class="menu-item" data-tab="services">
+                    <i class="fa-solid fa-box"></i>
+                    <span>Servicios</span>
+                </div>
+                <div class="menu-item" data-tab="products">
+                    <i class="fas fa-box-open"></i>
+                    <span>Productos</span>
+                </div>
+                <div class="menu-item" data-tab="customers">
+                    <i class="fas fa-users"></i>
+                    <span>Clientes</span>
+                </div>
+
+                <div class="menu-item" data-tab="employees">
+                    <i class="fas fa-user-tie"></i>
+                    <span>Empleados</span>
+                </div>
+
+
+                <div class="menu-item" data-tab="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Configuración</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>Panel Administrativo</h1>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/40" alt="Admin" id="adminPhoto">
+                    <span id="adminName">Administrador</span>
+                    <button class="logout-btn" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Salir
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div class="tab-content" id="dashboardTab">
+                <div class="stats-cards">
+                    <div class="stat-card card-1">
+                        <div class="stat-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalOrders">0</h3>
+                            <p>Órdenes Totales</p>
+                        </div>
+                    </div>
+                    <div class="stat-card card-2">
+                        <div class="stat-icon">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalQuotes">0</h3>
+                            <p>Cotizaciones</p>
+                        </div>
+                    </div>
+                    <div class="stat-card card-3">
+                        <div class="stat-icon">
+                            <i class="fas fa-spinner"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="pendingItems">0</h3>
+                            <p>Pendientes</p>
+                        </div>
+                    </div>
+                    <div class="stat-card card-4">
+                        <div class="stat-icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="inTransitOrders">0</h3>
+                            <p>Envíos en Tránsito</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="data-table-container">
+                    <div class="table-header">
+                        <h2>Órdenes Recientes</h2>
+                        <!--  <div class="table-actions">
+                            <button class="btn btn-outline" id="refreshOrders">
+                                <i class="fas fa-sync-alt"></i> Actualizar
+                            </button>
+                        </div> -->
+                    </div>
+                    <table id="recentOrdersTable" class="display" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Servicio</th>
+                                <th>Fecha</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Datos se cargarán dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Orders Tab -->
+            <div class="tab-content" id="ordersTab" style="display: none;">
+                <div class="data-table-container">
+                    <div class="table-header">
+                        <h2>Todas las Órdenes</h2>
+                       <!-- <div class="table-actions">
+                            <button class="btn btn-primary" id="exportOrders">
+                                <i class="fas fa-file-export"></i> Exportar
+                            </button>
+                            <button class="btn btn-outline" id="filterOrders">
+                                <i class="fas fa-filter"></i> Filtrar
+                            </button>
+                        </div> -->
+                    </div>
+                    <table id="ordersTable" class="display" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Servicio</th>
+                                <th>Fecha</th>
+                                <th>Total</th>
+                                <th>Método Pago</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Datos se cargarán dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Quotes Tab -->
+            <div class="tab-content" id="quotesTab" style="display: none;">
+                <div class="data-table-container">
+                    <div class="table-header">
+                        <h2>Cotizaciones</h2>
+                       <!-- <div class="table-actions">
+                            <button class="btn btn-primary" id="exportQuotes">
+                                <i class="fas fa-file-export"></i> Exportar
+                            </button>
+                            <button class="btn btn-outline" id="filterQuotes">
+                                <i class="fas fa-filter"></i> Filtrar
+                            </button>
+                        </div> -->
+                    </div>
+                    <table id="quotesTable" class="display" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Teléfono</th>
+                                <th>Tipo</th>
+                                <th>Destino</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Datos se cargarán dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+            <!-- Envíos en Tránsito Tab -->
+            <div class="tab-content" id="in-transitTab" style="display: none;">
+
+                <div class="data-table-container">
+                    <div class="table-header">
+                        <h2>Envíos en Tránsito</h2>
+                        <div class="table-actions">
+                            <button class="btn btn-outline" id="refreshInTransit">
+                                <i class="fas fa-sync-alt"></i> Actualizar
+                            </button>
+                        </div>
+                    </div>
+                    <table id="inTransitTable" class="display" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Servicio</th>
+                                <th>Fecha</th>
+                                <th>Total</th>
+                                <th>Estado Actual</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Datos se cargarán dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Órdenes Completadas Tab -->
+            <div class="tab-content" id="completed-ordersTab" style="display: none;">
+
+                <div class="data-table-container">
+                    <div class="table-header">
+                        <h2>Órdenes Completadas</h2>
+                       <!--  <div class="table-actions">
+                            <button class="btn btn-outline" id="refreshCompleted">
+                                <i class="fas fa-sync-alt"></i> Actualizar
+                            </button>
+                            <button class="btn btn-primary" id="exportCompleted">
+                                <i class="fas fa-file-export"></i> Exportar
+                            </button>
+                        </div> -->
+                    </div>
+                    <table id="completedOrdersTable" class="display" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Servicio</th>
+                                <th>Fecha</th>
+                                <th>Total</th>
+                                <th>Método Pago</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Datos se cargarán dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+
+            <!-- Services Tab -->
+            <div class="tab-content" id="servicesTab" style="display: none;">
+                <div class="data-table-container">
+                    <div class="table-header">
+                        <h2>Servicios</h2>
+                        <div class="table-actions">
+                            <button class="btn btn-primary" id="addService">
+                                <i class="fas fa-plus"></i> Agregar
+                            </button>
+                        </div>
+                    </div>
+                    <table id="servicesTable" class="display" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Precio</th>
+                                <th>Tipo</th>
+                                <th>Posición</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Datos se cargarán dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Products Tab -->
+            <div class="tab-content" id="productsTab" style="display: none;">
+                <div class="data-table-container">
+                    <div class="table-header">
+                        <h2>Productos</h2>
+                        <div class="table-actions">
+                            <button class="btn btn-primary" id="addProduct">
+                                <i class="fas fa-plus"></i> Agregar
+                            </button>
+                        </div>
+                    </div>
+                    <table id="productsTable" class="display" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Imagen</th>
+                                <th>Nombre</th>
+                                <th>Dimensiones</th>
+                                <th>Peso</th>
+                                <th>Precio</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Datos se cargarán dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Customers Tab -->
+            <div class="tab-content" id="customersTab" style="display: none;">
+                <div class="data-table-container">
+                    <div class="table-header">
+                        <h2>Clientes</h2>
+                      <!--  <div class="table-actions">
+                            <button class="btn btn-primary" id="exportCustomers">
+                                <i class="fas fa-file-export"></i> Exportar
+                            </button>
+                            <button class="btn btn-outline" id="filterCustomers">
+                                <i class="fas fa-filter"></i> Filtrar
+                            </button>
+                        </div> -->
+                    </div>
+                    <table id="customersTable" class="display" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Teléfono</th>
+                                <th>Registro</th>
+                                <th>Órdenes</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Datos se cargarán dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+
+
+            <!-- Employees Tab -->
+            <div class="tab-content" id="employeesTab" style="display: none;">
+                <div class="data-table-container">
+                    <div class="table-header">
+                        <h2>Gestión de Empleados</h2>
+                        <div class="table-actions">
+                            <button class="btn btn-primary" id="addEmployee">
+                                <i class="fas fa-plus"></i> Agregar Empleado
+                            </button>
+                        </div>
+                    </div>
+                    <table id="employeesTable" class="display" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Teléfono</th>
+                                <th>Rol</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Datos se cargarán dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+
+
+            <!-- Settings Tab -->
+            <div class="tab-content" id="settingsTab" style="display: none;">
+                <div class="data-table-container">
+                    <h2>Configuración del Sistema</h2>
+                    <form id="settingsForm">
+                        <div class="detail-section">
+                            <h4>Configuración General</h4>
+                            <div class="detail-row">
+                                <label class="detail-label">Nombre de la Empresa:</label>
+                                <div class="detail-value">
+                                    <input type="text" class="form-control" id="companyName" required>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Email de Contacto:</label>
+                                <div class="detail-value">
+                                    <input type="email" class="form-control" id="contactEmail" required>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Teléfono:</label>
+                                <div class="detail-value">
+                                    <input type="tel" class="form-control" id="contactPhone" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="detail-section">
+                            <h4>Configuración de Envíos</h4>
+                            <div class="detail-row">
+                                <label class="detail-label">Origen Predeterminado:</label>
+                                <div class="detail-value">
+                                    <input type="text" class="form-control" id="defaultOrigin" required>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Días de Procesamiento:</label>
+                                <div class="detail-value">
+                                    <input type="number" class="form-control" id="processingDays" min="1" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="detail-section">
+                            <h4>Configuración de Pagos</h4>
+                            <div class="detail-row">
+                                <label class="detail-label">Habilitar Pagos en Línea:</label>
+                                <div class="detail-value">
+                                    <input type="checkbox" id="enableOnlinePayments">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline" id="cancelSettings">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div class="modal" id="orderModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Detalles de la Orden</h3>
+                <!-- <button class="close-modal">&times;</button> -->
+            </div>
+            <div class="modal-body">
+                <div class="order-details">
+                    <div>
+                        <div class="detail-section">
+                            <h4>Información de la Orden</h4>
+                            <div class="detail-row">
+                                <label class="detail-label">ID:</label>
+                                <div class="detail-value" id="modalOrderId"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Fecha:</label>
+                                <div class="detail-value" id="modalOrderDate"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Estado:</label>
+                                <div class="detail-value">
+                                    <select id="modalOrderStatus" class="status-select">
+                                        <option value="order-pending">0-Pendiente</option>
+                                        <option value="processing">1-Procesando</option>
+                                        <option value="shipped">2-Enviado</option>
+                                        <option value="completed">3-Completado</option>
+                                        <option value="cancelled">4-Cancelado</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Método de Pago:</label>
+                                <div class="detail-value" id="modalPaymentMethod"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Total:</label>
+                                <div class="detail-value" id="modalOrderTotal"></div>
+                            </div>
+                        </div>
+
+                        <div class="detail-section">
+                            <h4>Información del Remitente</h4>
+                            <div class="detail-row">
+                                <label class="detail-label">Nombre:</label>
+                                <div class="detail-value" id="modalSenderName"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Email:</label>
+                                <div class="detail-value" id="modalSenderEmail"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Teléfono:</label>
+                                <div class="detail-value" id="modalSenderPhone"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Dirección:</label>
+                                <div class="detail-value" id="modalSenderAddress"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="detail-section">
+                            <h4>Información del Destinatario</h4>
+                            <div class="detail-row">
+                                <label class="detail-label">Nombre:</label>
+                                <div class="detail-value" id="modalReceiverName"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Teléfono:</label>
+                                <div class="detail-value" id="modalReceiverPhone"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Cédula:</label>
+                                <div class="detail-value" id="modalReceiverCedula"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Dirección:</label>
+                                <div class="detail-value" id="modalReceiverAddress"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Provincia:</label>
+                                <div class="detail-value" id="modalReceiverProvince"></div>
+                            </div>
+                        </div>
+
+                        <div class="detail-section">
+                            <h4>Servicio</h4>
+                            <div class="detail-row">
+                                <label class="detail-label">Tipo:</label>
+                                <div class="detail-value" id="modalServiceType"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Nombre:</label>
+                                <div class="detail-value" id="modalServiceName"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Precio:</label>
+                                <div class="detail-value" id="modalServicePrice"></div>
+                            </div>
+                        </div>
+
+                        <div class="detail-section">
+                            <h4>Notas Adicionales</h4>
+                            <div class="detail-value" id="modalAdditionalNotes"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h4>Artículos</h4>
+                    <div class="items-list" id="modalItemsList">
+                        <!-- Items will be loaded here -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelOrderChanges">Cancelar</button>
+                <button class="btn btn-primary" id="saveOrderChanges">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quote Details Modal -->
+    <div class="modal" id="quoteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Detalles de la Cotización</h3>
+            </div>
+            <div class="modal-body">
+                <div class="order-details">
+                    <div>
+                        <div class="detail-section">
+                            <h4>Información Básica</h4>
+                            <div class="detail-row">
+                                <label class="detail-label">ID:</label>
+                                <div class="detail-value" id="modalQuoteId"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Fecha:</label>
+                                <div class="detail-value" id="modalQuoteDate"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Estado:</label>
+                                <div class="detail-value">
+                                    <span class="status-badge status-pending">Cotización Pendiente</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="detail-section">
+                            <h4>Información del Cliente</h4>
+                            <div class="detail-row">
+                                <label class="detail-label">Nombre:</label>
+                                <div class="detail-value" id="modalQuoteName"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Email:</label>
+                                <div class="detail-value" id="modalQuoteEmail"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Teléfono:</label>
+                                <div class="detail-value" id="modalQuotePhone"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="detail-section">
+                            <h4>Detalles del Envío</h4>
+                            <div class="detail-row">
+                                <label class="detail-label">Tipo:</label>
+                                <div class="detail-value" id="modalQuoteType"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Origen:</label>
+                                <div class="detail-value" id="modalQuoteOrigin"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Destino:</label>
+                                <div class="detail-value" id="modalQuoteDestination"></div>
+                            </div>
+                        </div>
+
+                        <div class="detail-section">
+                            <h4>Precio Estimado</h4>
+                            <div class="detail-row">
+                                <label class="detail-label">Total (USD):</label>
+                                <div class="detail-value">
+                                    <input type="number" id="quotePriceInput" class="form-control" min="0" step="0.01"
+                                        required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h4>Información del Destinatario</h4>
+                    <div class="detail-row">
+                        <label class="detail-label">Nombre Completo:</label>
+                        <div class="detail-value">
+                            <input type="text" id="quoteReceiverName" class="form-control required-field" required>
+                        </div>
+                    </div>
+                    <div class="detail-row">
+                        <label class="detail-label">Teléfono:</label>
+                        <div class="detail-value">
+                            <input type="tel" id="quoteReceiverPhone" class="form-control required-field" required>
+                        </div>
+                    </div>
+                    <div class="detail-row">
+                        <label class="detail-label">Cédula:</label>
+                        <div class="detail-value">
+                            <input type="text" id="quoteReceiverCedula" class="form-control required-field" required>
+                        </div>
+                    </div>
+                    <div class="detail-row">
+                        <label class="detail-label">Dirección Completa (RD):</label>
+                        <div class="detail-value">
+                            <input type="text" id="quoteReceiverAddress" class="form-control required-field" required>
+                        </div>
+                    </div>
+                    <div class="detail-row">
+                        <label class="detail-label">Provincia:</label>
+                        <div class="detail-value">
+                            <input type="text" id="quoteReceiverProvince" class="form-control required-field" required>
+                        </div>
+                    </div>
+                    <div class="detail-row">
+                        <label class="detail-label">Notas Adicionales:</label>
+                        <div class="detail-value">
+                            <textarea id="quoteAdditionalNotes" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h4>Artículos</h4>
+                    <div class="items-list" id="modalQuoteItemsList">
+                        <!-- Items will be loaded here -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelQuoteChanges">Cancelar</button>
+                <button class="btn btn-primary" id="saveQuoteChanges">Guardar Cambios</button>
+                <button class="btn btn-success" id="convertToOrderBtn">Convertir a Orden</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Service Modal -->
+    <div class="modal" id="serviceModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="serviceModalTitle">Agregar Nuevo Servicio</h3>
+                <!-- <button class="close-modal">&times;</button> -->
+            </div>
+            <div class="modal-body">
+                <form id="serviceForm">
+                    <div class="detail-section">
+                        <h4>Información del Servicio</h4>
+                        <div class="detail-row">
+                            <label class="detail-label">Nombre:</label>
+                            <div class="detail-value">
+                                <input type="text" id="serviceName" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Tipo:</label>
+                            <div class="detail-value">
+                                <select id="serviceType" class="form-control" required>
+                                    <option value="regular">Regular</option>
+                                    <option value="promo">Promoción</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Precio:</label>
+                            <div class="detail-value">
+                                <input type="text" id="servicePrice" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Posición:</label>
+                            <div class="detail-value">
+                                <input type="number" id="servicePosition" class="form-control" min="1" required>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Icono (URL):</label>
+                            <div class="detail-value">
+                                <input type="text" id="serviceIcon" class="form-control">
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Estado:</label>
+                            <div class="detail-value">
+                                <select id="serviceStatus" class="form-control" required>
+                                    <option value="active">Activo</option>
+                                    <option value="inactive">Inactivo</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4>Detalles del Servicio</h4>
+                        <div class="detail-row">
+                            <label class="detail-label">Detalle 1:</label>
+                            <div class="detail-value">
+                                <input type="text" id="serviceSlot1" class="form-control">
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Detalle 2:</label>
+                            <div class="detail-value">
+                                <input type="text" id="serviceSlot2" class="form-control">
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Detalle 3:</label>
+                            <div class="detail-value">
+                                <input type="text" id="serviceSlot3" class="form-control">
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Detalle 4:</label>
+                            <div class="detail-value">
+                                <input type="text" id="serviceSlot4" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelService">Cancelar</button>
+                <button class="btn btn-primary" id="saveService">Guardar Servicio</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="productModalTitle">Agregar Nuevo Producto</h3>
+                <!-- <button class="close-modal">&times;</button> -->
+            </div>
+            <div class="modal-body">
+                <form id="productForm">
+                    <div class="detail-section">
+                        <h4>Información del Producto</h4>
+                        <div class="detail-row">
+                            <label class="detail-label">Nombre:</label>
+                            <div class="detail-value">
+                                <input type="text" id="productName" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Imagen (URL):</label>
+                            <div class="detail-value">
+                                <input type="text" id="productImage" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Dimensiones (LxAxA):</label>
+                            <div class="detail-value">
+                                <input type="text" id="productDimensions" class="form-control"
+                                    placeholder="Ej: 20x15x10" required>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Peso (lbs):</label>
+                            <div class="detail-value">
+                                <input type="number" id="productWeight" class="form-control" min="0.1" step="0.1"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Precio (USD):</label>
+                            <div class="detail-value">
+                                <input type="number" id="productPrice" class="form-control" min="0" step="0.01"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Estado:</label>
+                            <div class="detail-value">
+                                <select id="productStatus" class="form-control" required>
+                                    <option value="active">Activo</option>
+                                    <option value="inactive">Inactivo</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelProduct">Cancelar</button>
+                <button class="btn btn-primary" id="saveProduct">Guardar Producto</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Employee Modal -->
+    <div class="modal" id="employeeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="employeeModalTitle">Agregar Nuevo Empleado</h3>
+                <!-- <button class="close-modal">&times;</button> -->
+            </div>
+            <div class="modal-body">
+                <form id="employeeForm">
+                    <div class="detail-section">
+                        <h4>Información Personal</h4>
+                        <div class="detail-row">
+                            <label class="detail-label">Nombre Completo:</label>
+                            <div class="detail-value">
+                                <input type="text" id="employeeName" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Email:</label>
+                            <div class="detail-value">
+                                <input type="email" id="employeeEmail" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Teléfono:</label>
+                            <div class="detail-value">
+                                <input type="tel" id="employeePhone" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4>Información Laboral</h4>
+                        <div class="detail-row">
+                            <label class="detail-label">Rol:</label>
+                            <div class="detail-value">
+                                <select id="employeeRole" class="form-control" required>
+                                    <option value="admin">Administrador</option>
+                                    <option value="driver">Chofer</option>
+                                    <option value="warehouse">Almacén</option>
+                                    <option value="customer_service">Servicio al Cliente</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Contraseña Temporal:</label>
+                            <div class="detail-value">
+                                <input type="password" id="employeePassword" class="form-control" required>
+                                <small>La contraseña debe tener al menos 6 caracteres</small>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelEmployee">Cancelar</button>
+                <button class="btn btn-primary" id="saveEmployee">Guardar Empleado</button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- jQuery and DataTables -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
+
+
+    <script src="./js/admin-main.js"></script>
+
+    <script src="./js/admin-services-products.js"></script>
+
+</body>
+
+</html>

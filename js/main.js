@@ -269,6 +269,16 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+
+        // Address country change listeners
+    document.getElementById('country')?.addEventListener('change', function() {
+        loadStates(this.value, 'state');
+    });
+    
+    document.getElementById('profileCountry')?.addEventListener('change', function() {
+        loadStates(this.value, 'profileState');
+    });
+
     // Quote form submission
     quoteForm.addEventListener('submit', handleQuoteSubmission);
 
@@ -371,28 +381,18 @@ async function signInWithGoogle() {
 
         // Check if new user
         if (result.additionalUserInfo?.isNewUser) {
-            // Obtener el número de teléfono de la cuenta de Google si está disponible
-            const phoneNumber = user.phoneNumber || '';
-            
             // Create user profile in Firestore
             await db.collection('users').doc(user.uid).set({
                 email: user.email,
                 registrationDate: firebase.firestore.FieldValue.serverTimestamp(),
                 profile: {
                     name: user.displayName || user.email.split('@')[0],
-                    phone: phoneNumber, // Guardar el número de teléfono si existe
+                    phone: user.phoneNumber || '',
                     photoURL: user.photoURL || ''
                 },
                 termsAccepted: true,
                 termsAcceptanceDate: firebase.firestore.FieldValue.serverTimestamp()
             });
-
-            // Si hay número de teléfono, actualizar también el campo phone directamente
-            if (phoneNumber) {
-                await db.collection('users').doc(user.uid).update({
-                    'phone': phoneNumber
-                });
-            }
         }
 
         // Show success message
@@ -427,15 +427,19 @@ async function handleQuoteSubmission(e) {
     submitBtn.disabled = true;
 
     try {
-        const formData = await collectFormData(); // Asegúrate de usar await aquí
-
+        const formData = await collectFormData();
+        
         if (!validateFormData(formData)) {
             throw new Error('Please fill all required fields');
         }
 
+        // Generar el ID único usando la nueva función
+        const orderId = await generateId('mt');
+        
         // Crear objeto de orden con status "quotes-pending"
         const orderData = {
             ...formData,
+            orderId: orderId,
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             status: 'quotes-pending',
             estimatedPrice: calculateEstimatedPrice(formData.packageType, formData.commonItems || formData.customItem)
@@ -447,13 +451,11 @@ async function handleQuoteSubmission(e) {
         }
 
         // Guardar en la colección principal de quotes
-        const docRef = await db.collection('quotes').add(orderData);
+        await db.collection('quotes').doc(orderId).set(orderData);
 
         // Si el usuario está autenticado, guardar también en su subcolección
         if (currentUser) {
-            await db.collection('users').doc(currentUser.uid).collection('orders').doc(docRef.id).set(orderData);
-
-            // Actualizar el perfil del usuario
+            await db.collection('users').doc(currentUser.uid).collection('orders').doc(orderId).set(orderData);
             await updateUserProfile(formData);
         }
 
@@ -468,6 +470,139 @@ async function handleQuoteSubmission(e) {
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
     }
+}
+
+// Función para generar el ID único
+// Función para generar el ID único (ahora compartido entre quotes y orders)
+async function generateId(prefix = 'mt') {
+    const now = new Date();
+    const year = now.getFullYear().toString().slice(-2);
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const datePart = year + month + day;
+    
+    const counterRef = db.collection('counters').doc('orders');
+    
+    return db.runTransaction(async (transaction) => {
+        const doc = await transaction.get(counterRef);
+        
+        // Caso 1: El contador NO existe (primera vez o fue eliminado)
+        if (!doc.exists) {
+            console.warn('Contador no encontrado. Regenerando desde la colección "orders/quote"...');
+            
+            // Primero intentamos buscar en orders
+            const lastOrder = await db.collection('orders')
+                .orderBy('timestamp', 'desc')
+                .limit(1)
+                .get();
+
+            if (!lastOrder.empty) {
+                const lastId = lastOrder.docs[0].id;
+                console.log(`Último ID de orden encontrado: ${lastId}`);
+                
+                const regex = /^mt\d{6}([a-z])(\d{2})$/;
+                const match = lastId.match(regex);
+                
+                if (match) {
+                    const lastLetter = match[1];
+                    const lastNumber = parseInt(match[2]);
+                    const lastDate = lastId.substring(2, 8);
+                    
+                    if (lastDate === datePart) {
+                        transaction.set(counterRef, {
+                            lastLetter,
+                            lastNumber: lastNumber + 1,
+                            lastDate
+                        });
+                        return generateNextId(datePart, lastLetter, lastNumber);
+                    }
+                }
+            }
+            
+            // Si no hay orders, buscamos en quotes
+            const lastQuote = await db.collection('quotes')
+                .orderBy('timestamp', 'desc')
+                .limit(1)
+                .get();
+
+            if (!lastQuote.empty) {
+                const lastId = lastQuote.docs[0].id;
+                console.log(`Último ID de cotización encontrado: ${lastId}`);
+                
+                const regex = /^mt\d{6}([a-z])(\d{2})$/;
+                const match = lastId.match(regex);
+                
+                if (match) {
+                    const lastLetter = match[1];
+                    const lastNumber = parseInt(match[2]);
+                    const lastDate = lastId.substring(2, 8);
+                    
+                    if (lastDate === datePart) {
+                        transaction.set(counterRef, {
+                            lastLetter,
+                            lastNumber: lastNumber + 1,
+                            lastDate
+                        });
+                        return generateNextId(datePart, lastLetter, lastNumber);
+                    }
+                }
+            }
+            
+            // Si no hay documentos o el formato no coincide, iniciar nueva secuencia
+            transaction.set(counterRef, {
+                lastLetter: 'a',
+                lastNumber: 1,
+                lastDate: datePart
+            });
+            return `${prefix}${datePart}a01`;
+        }
+        
+        // Caso 2: El contador existe (flujo normal)
+        const data = doc.data();
+        let { lastLetter, lastNumber, lastDate } = data;
+        
+        // Reiniciar contadores si es un nuevo día
+        if (lastDate !== datePart) {
+            lastLetter = 'a';
+            lastNumber = 1;
+            lastDate = datePart;
+        } else {
+            // Incrementar número (y letra si es necesario)
+            lastNumber++;
+            if (lastNumber > 99) {
+                lastNumber = 1;
+                lastLetter = String.fromCharCode(lastLetter.charCodeAt(0) + 1);
+                if (lastLetter > 'z') lastLetter = 'a'; // Reiniciar letras
+            }
+        }
+        
+        // Actualizar contador
+        transaction.update(counterRef, {
+            lastLetter,
+            lastNumber,
+            lastDate
+        });
+        
+        // Generar el nuevo ID
+        return `${prefix}${datePart}${lastLetter}${String(lastNumber).padStart(2, '0')}`;
+    }).catch(error => {
+        console.error('Error en la transacción:', error);
+        throw new Error('No se pudo generar el ID. Intente nuevamente.');
+    });
+}
+
+// Función auxiliar para generar el siguiente ID basado en el último encontrado
+function generateNextId(datePart, lastLetter, lastNumber) {
+    let nextLetter = lastLetter;
+    let nextNumber = lastNumber + 1;
+    
+    if (nextNumber > 99) {
+        nextNumber = 1;
+        nextLetter = String.fromCharCode(nextLetter.charCodeAt(0) + 1);
+        if (nextLetter > 'z') nextLetter = 'a';
+    }
+    
+    return `mt${datePart}${nextLetter}${String(nextNumber).padStart(2, '0')}`;
 }
 
 // Collect form data
@@ -594,7 +729,7 @@ function showLoginForm() {
 
     // Restaurar completamente el botón de registro
     const registerBtn = document.getElementById('registerUserBtn');
-    registerBtn.textContent = 'Registrarse'; // Cambiar texto a español
+    registerBtn.textContent = 'Crear cuenta'; // Cambiar texto a español
     registerBtn.style.backgroundColor = ''; // Quitar color de fondo
     registerBtn.style.color = ''; // Quitar color de texto
     registerBtn.style.border = ''; // Restaurar borde
@@ -658,7 +793,7 @@ async function registerUser() {
     if (registerFields.style.display === 'none' || !registerFields.style.display) {
         registerFields.style.display = 'block';
         loginBtn.style.display = 'none';
-        registerBtn.textContent = 'Completar Registro'; // Cambiado a español
+        registerBtn.textContent = 'Completar Registro';
         registerBtn.style.backgroundColor = 'var(--secondary)';
         registerBtn.style.color = 'white';
         registerBtn.style.border = 'none';
@@ -673,45 +808,56 @@ async function registerUser() {
     const phoneInput = document.getElementById('phoneNumber');
     const phoneIti = window.intlTelInputGlobals.getInstance(phoneInput);
     const phoneNumber = phoneIti.getNumber(intlTelInputUtils.numberFormat.E164);
-    const address = document.getElementById('address').value;
+    
+    // New address fields
+    const country = document.getElementById('country').value;
+    const state = document.getElementById('state').value;
+    const city = document.getElementById('city').value.trim();
+    const street = document.getElementById('street').value.trim();
+    const zipCode = document.getElementById('zipCode').value.trim();
+    
     const termsChecked = document.getElementById('termsCheckbox').checked;
     const messageDiv = document.getElementById('authMessage');
 
-
-
     // Validations
-    if (!email || !password || !fullName || !phoneNumber || !address) {
-        messageDiv.textContent = 'Please complete all fields';
+    if (!email || !password || !fullName || !phoneNumber || !country || !state || !city || !street || !zipCode) {
+        messageDiv.textContent = 'Por favor complete todos los campos';
         return;
     }
 
     if (!termsChecked) {
-        messageDiv.textContent = 'You must accept the terms and conditions';
+        messageDiv.textContent = 'Debe aceptar los términos y condiciones';
         return;
     }
 
     if (password.length < 6) {
-        messageDiv.textContent = 'Password must be at least 6 characters';
+        messageDiv.textContent = 'La contraseña debe tener al menos 6 caracteres';
         return;
     }
 
     try {
         // Show loading indicator
         const originalText = registerBtn.textContent;
-        registerBtn.textContent = 'Registering...';
+        registerBtn.textContent = 'Registrando...';
         registerBtn.disabled = true;
 
         // Create user
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
 
-        // Create user document
+        // Create user document with complete address
         await db.collection('users').doc(userCredential.user.uid).set({
             email: email,
             registrationDate: firebase.firestore.FieldValue.serverTimestamp(),
             profile: {
                 name: fullName,
-                phone: phoneNumber, // Número limpio
-                address: address
+                phone: phoneNumber,
+                address: {
+                    country: country,
+                    state: state,
+                    city: city,
+                    street: street,
+                    zipCode: zipCode
+                }
             },
             termsAccepted: true,
             termsAcceptanceDate: firebase.firestore.FieldValue.serverTimestamp()
@@ -719,7 +865,7 @@ async function registerUser() {
 
         // Show success message
         messageDiv.style.color = 'var(--success)';
-        messageDiv.textContent = 'Registration successful! Logging in...';
+        messageDiv.textContent = '¡Registro exitoso! Iniciando sesión...';
 
         // Close modal after short delay
         setTimeout(() => {
@@ -761,7 +907,7 @@ async function updateUserProfile(formData) {
     }
 }
 
-// UI Functions
+// En la función updateUIForLoggedInUser, añade el event listener para el modal de perfil
 function updateUIForLoggedInUser(user) {
     loginBtn.style.display = 'none';
     userProfile.style.display = 'inline-block';
@@ -780,6 +926,11 @@ function updateUIForLoggedInUser(user) {
             } else {
                 userProfile.textContent = firstName;
             }
+
+            // Set click event for profile modal
+            userProfile.addEventListener('click', () => {
+                showProfileModal(user.uid);
+            });
         } else {
             // If no data in Firestore but user has Google photo
             if (user.photoURL) {
@@ -792,6 +943,169 @@ function updateUIForLoggedInUser(user) {
         console.error("Error getting user data:", error);
         userProfile.textContent = user.email.split('@')[0];
     });
+}
+
+// Nueva función para mostrar el modal de perfil con datos editables
+async function showProfileModal(userId) {
+    try {
+        const userDoc = await db.collection('users').doc(userId).get();
+        const user = auth.currentUser;
+        
+        if (userDoc.exists) {
+            const userData = userDoc.data();
+            
+            // Fill basic info
+            document.getElementById('profileName').value = userData.profile?.name || '';
+            document.getElementById('profileEmail').value = user.email;
+            
+            // Fill phone
+            const phoneInput = document.getElementById('profilePhone');
+            if (window.intlTelInput) {
+                const phoneIti = window.intlTelInput(phoneInput, {
+                    preferredCountries: ['us', 'do'],
+                    separateDialCode: true,
+                    initialCountry: "us",
+                    utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+                });
+                
+                if (userData.profile?.phone) {
+                    phoneIti.setNumber(userData.profile.phone);
+                }
+            } else {
+                phoneInput.value = userData.profile?.phone || '';
+            }
+            
+            // Fill address
+            if (userData.profile?.address) {
+                const address = userData.profile.address;
+                document.getElementById('profileCountry').value = address.country || '';
+                loadStates(address.country, 'profileState');
+                
+                // Need timeout to ensure states are loaded before setting value
+                setTimeout(() => {
+                    document.getElementById('profileState').value = address.state || '';
+                }, 100);
+                
+                document.getElementById('profileCity').value = address.city || '';
+                document.getElementById('profileStreet').value = address.street || '';
+                document.getElementById('profileZipCode').value = address.zipCode || '';
+            }
+            
+            // Configurar event listeners para los botones
+            document.getElementById('saveProfileBtn').addEventListener('click', () => saveProfileChanges(userId));
+            document.getElementById('deleteAccountBtn').addEventListener('click', () => confirmDeleteAccount(userId));
+            
+            // Mostrar el modal
+            showModal(document.getElementById('profileModal'));
+        }
+    } catch (error) {
+        console.error('Error loading profile:', error);
+    }
+}
+
+// Función para guardar los cambios del perfil
+async function saveProfileChanges(userId) {
+    try {
+        const name = document.getElementById('profileName').value.trim();
+        const phoneInput = document.getElementById('profilePhone');
+        const phoneIti = window.intlTelInputGlobals.getInstance(phoneInput);
+        const phone = phoneIti.getNumber();
+        
+        const country = document.getElementById('profileCountry').value;
+        const state = document.getElementById('profileState').value;
+        const city = document.getElementById('profileCity').value.trim();
+        const street = document.getElementById('profileStreet').value.trim();
+        const zipCode = document.getElementById('profileZipCode').value.trim();
+        
+        if (!name || !country || !state || !city || !street || !zipCode) {
+            alert('Por favor complete todos los campos obligatorios');
+            return;
+        }
+        
+        // Actualizar en Firestore
+        await db.collection('users').doc(userId).update({
+            'profile.name': name,
+            'profile.phone': phone,
+            'profile.address': {
+                country: country,
+                state: state,
+                city: city,
+                street: street,
+                zipCode: zipCode
+            }
+        });
+        
+        // Actualizar la UI
+        const firstName = name.split(' ')[0];
+        userProfile.textContent = firstName;
+        
+        alert('Cambios guardados exitosamente');
+        closeModals();
+    } catch (error) {
+        console.error('Error saving profile:', error);
+        alert('Error al guardar los cambios: ' + error.message);
+    }
+}
+
+// Función para confirmar la eliminación de la cuenta
+function confirmDeleteAccount(userId) {
+    if (confirm('¿Está seguro que desea eliminar su cuenta? Esta acción no se puede deshacer.')) {
+        deleteAccount(userId);
+    }
+}
+
+// Función para eliminar la cuenta
+async function deleteAccount(userId) {
+    try {
+        const user = auth.currentUser;
+        
+        // Primero eliminar los datos de Firestore
+        await db.collection('users').doc(userId).delete();
+        
+        // Luego eliminar la cuenta de autenticación
+        await user.delete();
+        
+        // Cerrar sesión y actualizar UI
+        await auth.signOut();
+        updateUIForLoggedOutUser();
+        closeModals();
+        
+        alert('Su cuenta ha sido eliminada exitosamente');
+    } catch (error) {
+        console.error('Error deleting account:', error);
+        
+        // Si el error es que necesita reautenticación
+        if (error.code === 'auth/requires-recent-login') {
+            if (confirm('Por seguridad, necesita volver a autenticarse para eliminar la cuenta. ¿Desea hacerlo ahora?')) {
+                reauthenticateAndDelete(userId);
+            }
+        } else {
+            alert('Error al eliminar la cuenta: ' + error.message);
+        }
+    }
+}
+
+// Función para reautenticar antes de eliminar la cuenta
+async function reauthenticateAndDelete(userId) {
+    const user = auth.currentUser;
+    const email = user.email;
+    const password = prompt('Por favor ingrese su contraseña para confirmar la eliminación de la cuenta:');
+    
+    if (!password) return;
+    
+    try {
+        // Crear credenciales
+        const credential = firebase.auth.EmailAuthProvider.credential(email, password);
+        
+        // Reautenticar
+        await user.reauthenticateWithCredential(credential);
+        
+        // Ahora eliminar la cuenta
+        await deleteAccount(userId);
+    } catch (error) {
+        console.error('Reauthentication error:', error);
+        alert('Error al autenticar: ' + error.message);
+    }
 }
 
 function updateUIForLoggedOutUser() {

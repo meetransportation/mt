@@ -16,6 +16,13 @@
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
 
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+
+
     <style>
         :root {
             --primary: #2c3e50;
@@ -112,7 +119,8 @@
             width: 100%;
             padding: 0.8rem 1rem;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 14px;
+            background: #f3f3f3;
             font-family: 'Poppins', sans-serif;
             font-size: 1rem;
             transition: border-color 0.3s;
@@ -349,19 +357,59 @@
 
         @media (max-width: 768px) {
             .checkout-container {
-    margin: 0px;
-    flex-direction: column-reverse;
-}
+                margin: 0px;
+                flex-direction: column-reverse;
+            }
 
-    .order-summary {
-        top: 0rem;
-        border-radius: 0px;
-    }
+            .order-summary {
+                top: 0rem;
+                border-radius: 0px;
+            }
 
-    .form-section {
-    border-radius: 0px;
-}
+            .form-section {
+                border-radius: 0px;
+            }
         }
+
+
+/* Estilos para el input de teléfono */
+.intl-tel-input {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.intl-tel-input .selected-flag {
+    background: #f8f9fa;
+    border-radius: 5px 0 0 5px;
+    padding: 0 8px;
+}
+
+.intl-tel-input input {
+    padding-left: 60px !important;
+    height: 45px;
+    border: 1px solid #ced4da;
+    border-radius: 0 5px 5px 0;
+}
+
+.intl-tel-input .country-list {
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+
+/* Estilo para inputs con contenido */
+.input-has-content {
+    background-color: rgb(52 161 30 / 6%);
+    border-color: var(--secondary);
+    transition: all 0.3s ease;
+}
+
+.form-control {
+    transition: all 0.3s ease;
+}
+
+
+    
     </style>
 </head>
 
@@ -375,54 +423,77 @@
                 </div>
 
                 <form id="orderForm">
-                    <h2>Información del Remitente</h2>
+                    <h2 style="display: inline-flex;align-items: center;width: 100%;">Información del Remitente <img
+                            src="./img/Bandera_USA_1.png" style="height: 24px;margin: 0px 5px;"></h2>
 
                     <div class="form-group">
-                        <label for="senderName">Nombre Completo</label>
-                        <input type="text" id="senderName" class="form-control" required>
+                        <label for="senderName">Nombre Completo:</label>
+                        <input type="text" id="senderName" class="form-control" placeholder="Nombre y Apellido" required>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="senderEmail">Correo Electrónico</label>
+                            <label for="senderEmail">Correo Electrónico:</label>
                             <input type="email" id="senderEmail" class="form-control" required>
                         </div>
-                        <div class="form-group">
-                            <label for="senderPhone">Teléfono</label>
-                            <input type="tel" id="senderPhone" class="form-control" required>
+<div class="form-group">
+    <label for="senderPhone">Número de Teléfono:</label>
+    <input type="tel" id="senderPhone" class="form-control" required>
+</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="color: #5cc528;">Dirección Completa (USA):</label>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="senderStreet">Calle y Número:</label>
+                                <input type="text" id="senderStreet" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="senderApt">Apt/Suite (opcional):</label>
+                                <input type="text" id="senderApt" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="senderCity">Ciudad:</label>
+                                <input type="text" id="senderCity" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="senderState">Estado:</label>
+                                <select id="senderState" class="form-control" required>
+                                    <option value="" disabled selected>Seleccione un estado</option>
+                                    <!-- Los estados se cargarán dinámicamente -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="senderZipCode">Código Postal:</label>
+                                <input type="text" id="senderZipCode" class="form-control" required>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="senderAddress">Dirección Completa (USA)</label>
-                        <input type="text" id="senderAddress" class="form-control" required>
-                    </div>
-
-                    <h2 style="margin-top: 2rem;">Información del Destinatario</h2>
+                    <h2 style="display: inline-flex;align-items: center;width: 100%;">Información del Destinatario <img
+                            src="./img/Bandera_RD_1.png" style="height: 24px;margin: 0px 5px;"></h2>
 
                     <div class="form-group">
-                        <label for="receiverName">Nombre Completo</label>
-                        <input type="text" id="receiverName" class="form-control" required>
+                        <label for="receiverName">Nombre Completo:</label>
+                        <input type="text" id="receiverName" class="form-control" placeholder="Nombre y Apellido" required>
                     </div>
 
                     <div class="form-row">
+<div class="form-group">
+    <label for="receiverPhone">Teléfono del Destinatario:</label>
+    <input type="tel" id="receiverPhone" class="form-control" required>
+</div>
                         <div class="form-group">
-                            <label for="receiverPhone">Teléfono</label>
-                            <input type="tel" id="receiverPhone" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="receiverCedula">Cédula</label>
+                            <label for="receiverCedula">Cédula:</label>
                             <input type="text" id="receiverCedula" class="form-control" required>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="receiverAddress">Dirección Completa (RD)</label>
-                        <input type="text" id="receiverAddress" class="form-control" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="receiverProvince">Provincia</label>
+                        <label for="receiverProvince">Provincia:</label>
                         <select id="receiverProvince" class="form-control" required>
                             <option value="" disabled selected>Seleccione una provincia</option>
                             <option value="Distrito Nacional">Distrito Nacional</option>
@@ -462,7 +533,12 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="additionalNotes">Notas adicionales (opcional)</label>
+                        <label for="receiverAddress">Dirección Completa (RD):</label>
+                        <input type="text" id="receiverAddress" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="additionalNotes">Notas adicionales (opcional):</label>
                         <textarea id="additionalNotes" class="form-control" rows="3"></textarea>
                     </div>
 
@@ -534,205 +610,568 @@
         </div>
     </div>
 
-    <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyDUPUM36QOLPGb-FmPx6-qMZoS2pCZdurI",
-            authDomain: "meetransportation.firebaseapp.com",
-            projectId: "meetransportation",
-            storageBucket: "meetransportation.appspot.com",
-            messagingSenderId: "1087042032724",
-            appId: "1:1087042032724:web:0975e57ca30ff342f349c1",
-            measurementId: "G-8XHXKXL0CV"
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyDUPUM36QOLPGb-FmPx6-qMZoS2pCZdurI",
+        authDomain: "meetransportation.firebaseapp.com",
+        projectId: "meetransportation",
+        storageBucket: "meetransportation.appspot.com",
+        messagingSenderId: "1087042032724",
+        appId: "1:1087042032724:web:0975e57ca30ff342f349c1",
+        measurementId: "G-8XHXKXL0CV"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    // Función para cargar estados
+    function loadStates(countryCode, targetSelectId) {
+        const stateSelect = document.getElementById(targetSelectId);
+        stateSelect.innerHTML = '<option value="" disabled selected>Seleccione un estado/provincia</option>';
+
+        const states = {
+            US: [
+                'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware',
+                'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky',
+                'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi',
+                'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico',
+                'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania',
+                'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont',
+                'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'
+            ]
         };
 
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-
-        // Seleccionar método de pago
-        function selectPayment(method) {
-            document.querySelectorAll('.payment-option').forEach(option => {
-                option.classList.remove('payment-selected');
+        if (countryCode && states[countryCode]) {
+            states[countryCode].forEach(state => {
+                const option = document.createElement('option');
+                option.value = state;
+                option.textContent = state;
+                stateSelect.appendChild(option);
             });
-
-            document.querySelector(`.payment-option[onclick="selectPayment('${method}')"]`).classList.add('payment-selected');
-            document.querySelector(`#${method}Payment`).checked = true;
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            // Obtener el servicio seleccionado del localStorage
-            const selectedService = JSON.parse(localStorage.getItem('selectedService'));
-            const orderItemContainer = document.getElementById('orderItemContainer');
+        stateSelect.addEventListener('change', function() {
+            checkInputContent();
+            if (this.value === "") {
+                this.classList.remove('input-has-content');
+            } else {
+                this.classList.add('input-has-content');
+            }
+        });
 
-            if (selectedService) {
-                const isPromo = selectedService.type === 'promo';
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList') {
+                    checkInputContent();
+                }
+            });
+        });
 
-                if (!isPromo) {
-                    // Mostrar detalles completos para servicios regulares
-                    orderItemContainer.innerHTML = `
-                        <div class="order-item">
-                            ${selectedService.icon ? `<img src="${selectedService.icon}" alt="${selectedService.name}">` : ''}
-                            <div class="order-details">
-                                <div class="order-title">${selectedService.name}</div>
-                                <div>
-                                    ${selectedService.slot1 ? `<p><strong>${selectedService.slot1.split(':')[0]}:</strong> ${selectedService.slot1.split(':').slice(1).join(':')}</p>` : ''}
-                                    ${selectedService.slot2 ? `<p><strong>${selectedService.slot2.split(':')[0]}:</strong> ${selectedService.slot2.split(':').slice(1).join(':')}</p>` : ''}
-                                    ${selectedService.slot3 ? `<p><strong>${selectedService.slot3.split(':')[0]}:</strong> ${selectedService.slot3.split(':').slice(1).join(':')}</p>` : ''}
-                                    ${selectedService.slot4 ? `<p><strong>${selectedService.slot4.split(':')[0]}:</strong> ${selectedService.slot4.split(':').slice(1).join(':')}</p>` : ''}
-                                </div>
-                                <div class="order-price">
-                                    <span>Precio:</span>
-                                    <span>US$${selectedService.price}</span>
-                                    <div class="order-tax">
-                                        <span>Tax:</span>
-                                        <span>US$0</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+        observer.observe(stateSelect, {
+            childList: true,
+            subtree: true
+        });
+    }
 
-                    document.getElementById('orderTotal').textContent = `US$${selectedService.price}`;
+    // Seleccionar método de pago
+    function selectPayment(method) {
+        document.querySelectorAll('.payment-option').forEach(option => {
+            option.classList.remove('payment-selected');
+        });
+
+        document.querySelector(`.payment-option[onclick="selectPayment('${method}')"]`).classList.add('payment-selected');
+        document.querySelector(`#${method}Payment`).checked = true;
+    }
+
+    // Función para generar ID único compartido
+    async function generateId(prefix = 'mt') {
+        const now = new Date();
+        const year = now.getFullYear().toString().slice(-2);
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const datePart = year + month + day;
+        
+        const counterRef = db.collection('counters').doc('orders');
+        
+        return db.runTransaction(async (transaction) => {
+            const doc = await transaction.get(counterRef);
+            
+            if (!doc.exists) {
+                console.warn('Contador no encontrado. Regenerando desde colecciones...');
+                
+                // Buscar en orders primero
+                const lastOrder = await db.collection('orders')
+                    .orderBy('timestamp', 'desc')
+                    .limit(1)
+                    .get();
+
+                if (!lastOrder.empty) {
+                    const lastId = lastOrder.docs[0].id;
+                    console.log(`Último ID de orden encontrado: ${lastId}`);
+                    
+                    const regex = /^mt\d{6}([a-z])(\d{2})$/;
+                    const match = lastId.match(regex);
+                    
+                    if (match) {
+                        const lastLetter = match[1];
+                        const lastNumber = parseInt(match[2]);
+                        const lastDate = lastId.substring(2, 8);
+                        
+                        if (lastDate === datePart) {
+                            transaction.set(counterRef, {
+                                lastLetter,
+                                lastNumber: lastNumber + 1,
+                                lastDate
+                            });
+                            return generateNextId(datePart, lastLetter, lastNumber);
+                        }
+                    }
+                }
+                
+                // Si no hay orders, buscar en quotes
+                const lastQuote = await db.collection('quotes')
+                    .orderBy('timestamp', 'desc')
+                    .limit(1)
+                    .get();
+
+                if (!lastQuote.empty) {
+                    const lastId = lastQuote.docs[0].id;
+                    console.log(`Último ID de cotización encontrado: ${lastId}`);
+                    
+                    const regex = /^mt\d{6}([a-z])(\d{2})$/;
+                    const match = lastId.match(regex);
+                    
+                    if (match) {
+                        const lastLetter = match[1];
+                        const lastNumber = parseInt(match[2]);
+                        const lastDate = lastId.substring(2, 8);
+                        
+                        if (lastDate === datePart) {
+                            transaction.set(counterRef, {
+                                lastLetter,
+                                lastNumber: lastNumber + 1,
+                                lastDate
+                            });
+                            return generateNextId(datePart, lastLetter, lastNumber);
+                        }
+                    }
+                }
+                
+                // Si no hay documentos, iniciar nueva secuencia
+                transaction.set(counterRef, {
+                    lastLetter: 'a',
+                    lastNumber: 1,
+                    lastDate: datePart
+                });
+                return `${prefix}${datePart}a01`;
+            }
+            
+            // Caso normal: contador existe
+            const data = doc.data();
+            let { lastLetter, lastNumber, lastDate } = data;
+            
+            if (lastDate !== datePart) {
+                lastLetter = 'a';
+                lastNumber = 1;
+                lastDate = datePart;
+            } else {
+                lastNumber++;
+                if (lastNumber > 99) {
+                    lastNumber = 1;
+                    lastLetter = String.fromCharCode(lastLetter.charCodeAt(0) + 1);
+                    if (lastLetter > 'z') lastLetter = 'a';
+                }
+            }
+            
+            transaction.update(counterRef, {
+                lastLetter,
+                lastNumber,
+                lastDate
+            });
+            
+            return `${prefix}${datePart}${lastLetter}${String(lastNumber).padStart(2, '0')}`;
+        }).catch(error => {
+            console.error('Error en la transacción:', error);
+            throw new Error('No se pudo generar el ID. Intente nuevamente.');
+        });
+    }
+
+    function generateNextId(datePart, lastLetter, lastNumber) {
+        let nextLetter = lastLetter;
+        let nextNumber = lastNumber + 1;
+        
+        if (nextNumber > 99) {
+            nextNumber = 1;
+            nextLetter = String.fromCharCode(nextLetter.charCodeAt(0) + 1);
+            if (nextLetter > 'z') nextLetter = 'a';
+        }
+        
+        return `mt${datePart}${nextLetter}${String(nextNumber).padStart(2, '0')}`;
+    }
+
+    // Función para verificar y aplicar estilo a inputs con contenido
+    function checkInputContent() {
+        const inputs = document.querySelectorAll('.form-control');
+        
+        inputs.forEach(input => {
+            if (input.tagName === 'SELECT') {
+                if (input.value && input.value !== '') {
+                    input.classList.add('input-has-content');
                 } else {
-                    // Para promociones, mostrar solo el título y el precio especial
-                    orderItemContainer.innerHTML = `
-                        <div class="order-item promo-summary" style="text-align: center; padding: 1rem;">
+                    input.classList.remove('input-has-content');
+                }
+            } else {
+                if (input.value.trim() !== '') {
+                    input.classList.add('input-has-content');
+                } else {
+                    input.classList.remove('input-has-content');
+                }
+            }
+        });
+    }
+
+    // Observar cambios en los atributos de los inputs
+    function setupInputObservers() {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
+                    checkInputContent();
+                }
+            });
+        });
+
+        document.querySelectorAll('.form-control').forEach(input => {
+            observer.observe(input, {
+                attributes: true,
+                attributeFilter: ['value']
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Cargar estados de USA al iniciar
+        loadStates('US', 'senderState');
+
+        // Inicialización del input de teléfono para el remitente
+        if (document.getElementById('senderPhone')) {
+            window.senderPhoneIti = window.intlTelInput(document.getElementById('senderPhone'), {
+                preferredCountries: ['us', 'do'],
+                separateDialCode: true,
+                initialCountry: "us",
+                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+            });
+
+            document.getElementById('senderPhone').addEventListener('input', function() {
+                const value = this.value.replace(/\D/g, '');
+                let formatted = '';
+                
+                if (value.length > 3 && value.length <= 6) {
+                    formatted = value.substring(0, 3) + '-' + value.substring(3);
+                } else if (value.length > 6) {
+                    formatted = value.substring(0, 3) + '-' + value.substring(3, 6) + '-' + value.substring(6, 10);
+                } else {
+                    formatted = value;
+                }
+                
+                this.value = formatted;
+            });
+
+            document.getElementById('senderPhone').addEventListener('keydown', function(e) {
+                if (!/[\d-]|Backspace|Delete|ArrowLeft|ArrowRight|Tab/.test(e.key)) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        // Inicialización del input de teléfono del destinatario
+        if (document.getElementById('receiverPhone')) {
+            window.receiverPhoneIti = window.intlTelInput(document.getElementById('receiverPhone'), {
+                preferredCountries: ['do', 'us'],
+                separateDialCode: true,
+                initialCountry: "do",
+                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+            });
+
+            document.getElementById('receiverPhone').addEventListener('input', function() {
+                const value = this.value.replace(/\D/g, '');
+                let formatted = '';
+                
+                if (value.length > 3 && value.length <= 6) {
+                    formatted = value.substring(0, 3) + '-' + value.substring(3);
+                } else if (value.length > 6) {
+                    formatted = value.substring(0, 3) + '-' + value.substring(3, 6) + '-' + value.substring(6, 10);
+                } else {
+                    formatted = value;
+                }
+                
+                this.value = formatted;
+            });
+
+            document.getElementById('receiverPhone').addEventListener('keydown', function(e) {
+                if (!/[\d-]|Backspace|Delete|ArrowLeft|ArrowRight|Tab/.test(e.key)) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        // Obtener el servicio seleccionado del localStorage
+        const selectedService = JSON.parse(localStorage.getItem('selectedService'));
+        const orderItemContainer = document.getElementById('orderItemContainer');
+
+        if (selectedService) {
+            const isPromo = selectedService.type === 'promo';
+
+            if (!isPromo) {
+                orderItemContainer.innerHTML = `
+                    <div class="order-item">
+                        ${selectedService.icon ? `<img src="${selectedService.icon}" alt="${selectedService.name}">` : ''}
+                        <div class="order-details">
                             <div class="order-title">${selectedService.name}</div>
+                            <div>
+                                ${selectedService.slot1 ? `<p><strong>${selectedService.slot1.split(':')[0]}:</strong> ${selectedService.slot1.split(':').slice(1).join(':')}</p>` : ''}
+                                ${selectedService.slot2 ? `<p><strong>${selectedService.slot2.split(':')[0]}:</strong> ${selectedService.slot2.split(':').slice(1).join(':')}</p>` : ''}
+                                ${selectedService.slot3 ? `<p><strong>${selectedService.slot3.split(':')[0]}:</strong> ${selectedService.slot3.split(':').slice(1).join(':')}</p>` : ''}
+                                ${selectedService.slot4 ? `<p><strong>${selectedService.slot4.split(':')[0]}:</strong> ${selectedService.slot4.split(':').slice(1).join(':')}</p>` : ''}
+                            </div>
                             <div class="order-price">
                                 <span>Precio:</span>
-                                <span>${selectedService.price}</span>
+                                <span>US$${selectedService.price}</span>
                                 <div class="order-tax">
                                     <span>Tax:</span>
                                     <span>US$0</span>
                                 </div>
                             </div>
                         </div>
-                    `;
+                    </div>
+                `;
 
-                    document.getElementById('orderTotal').textContent = selectedService.price.includes('US$')
-                        ? `${selectedService.price}`
-                        : `${selectedService.price}`;
-                }
+                document.getElementById('orderTotal').textContent = `US$${selectedService.price}`;
             } else {
-                // Si no hay servicio seleccionado, redirigir al inicio
-                window.location.href = 'index.html';
+                orderItemContainer.innerHTML = `
+                    <div class="order-item promo-summary" style="text-align: center; padding: 1rem;">
+                        <div class="order-title">${selectedService.name}</div>
+                        <div class="order-price">
+                            <span>Precio:</span>
+                            <span>${selectedService.price}</span>
+                            <div class="order-tax">
+                                <span>Tax:</span>
+                                <span>US$0</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('orderTotal').textContent = selectedService.price.includes('US$')
+                    ? `${selectedService.price}`
+                    : `${selectedService.price}`;
+            }
+        } else {
+            window.location.href = 'index.html';
+            return;
+        }
+
+        // Verificar autenticación y cargar datos del usuario si está logueado
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                db.collection('users').doc(user.uid).get().then(doc => {
+                    if (doc.exists) {
+                        const userData = doc.data();
+                        document.getElementById('senderName').value = userData.profile?.name || '';
+                        document.getElementById('senderEmail').value = user.email;
+                        
+                        if (userData.profile?.phone) {
+                            const phoneInput = document.getElementById('senderPhone');
+                            phoneInput.value = userData.profile.phone;
+                            if (window.senderPhoneIti) {
+                                window.senderPhoneIti.setNumber(userData.profile.phone);
+                            }
+                        }
+
+                        if (userData.profile?.address) {
+                            const address = userData.profile.address;
+                            document.getElementById('senderStreet').value = address.street || '';
+                            document.getElementById('senderCity').value = address.city || '';
+                            document.getElementById('senderZipCode').value = address.zipCode || '';
+
+                            setTimeout(() => {
+                                if (address.state) {
+                                    document.getElementById('senderState').value = address.state;
+                                }
+                            }, 100);
+                        }
+                    }
+                });
+            }
+        });
+
+        // Configurar event listeners para los métodos de pago
+        document.querySelectorAll('.payment-option').forEach(option => {
+            option.addEventListener('click', function () {
+                const method = this.querySelector('input').value;
+                selectPayment(method);
+            });
+        });
+
+        // Manejar envío del formulario
+        document.getElementById('orderForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitOrderBtn');
+            submitBtn.textContent = 'Procesando...';
+            submitBtn.disabled = true;
+
+            // Validar formulario
+            const requiredFields = [
+                'senderName', 'senderEmail', 'senderPhone', 'senderStreet',
+                'senderCity', 'senderState', 'senderZipCode',
+                'receiverName', 'receiverPhone', 'receiverCedula', 'receiverAddress', 'receiverProvince'
+            ];
+
+            let isValid = true;
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    field.style.borderColor = 'red';
+                    isValid = false;
+                } else {
+                    field.style.borderColor = '#ddd';
+                }
+            });
+
+            if (!isValid) {
+                alert('Por favor complete todos los campos requeridos');
+                submitBtn.textContent = 'Confirmar Pedido';
+                submitBtn.disabled = false;
                 return;
             }
 
-            // Verificar autenticación y cargar datos del usuario si está logueado
-            auth.onAuthStateChanged(user => {
-                if (user) {
-                    db.collection('users').doc(user.uid).get().then(doc => {
-                        if (doc.exists) {
-                            const userData = doc.data();
-                            document.getElementById('senderName').value = userData.profile?.name || '';
-                            document.getElementById('senderEmail').value = user.email;
-                            document.getElementById('senderPhone').value = userData.profile?.phone || '';
-                            document.getElementById('senderAddress').value = userData.profile?.address || '';
-                        }
-                    });
-                }
-            });
-
-            // Configurar event listeners para los métodos de pago
-            document.querySelectorAll('.payment-option').forEach(option => {
-                option.addEventListener('click', function () {
-                    const method = this.querySelector('input').value;
-                    selectPayment(method);
-                });
-            });
-
-            // Manejar envío del formulario
-            document.getElementById('orderForm').addEventListener('submit', function (e) {
-                e.preventDefault();
-
-                const submitBtn = document.getElementById('submitOrderBtn');
-                submitBtn.textContent = 'Procesando...';
-                submitBtn.disabled = true;
-
-                // Validar formulario
-                const requiredFields = [
-                    'senderName', 'senderEmail', 'senderPhone', 'senderAddress',
-                    'receiverName', 'receiverPhone', 'receiverCedula', 'receiverAddress', 'receiverProvince'
-                ];
-
-                let isValid = true;
-                requiredFields.forEach(fieldId => {
-                    const field = document.getElementById(fieldId);
-                    if (!field.value.trim()) {
-                        field.style.borderColor = 'red';
-                        isValid = false;
-                    } else {
-                        field.style.borderColor = '#ddd';
+            try {
+                // Obtener y formatear números de teléfono
+                const senderPhoneInput = document.getElementById('senderPhone');
+                let senderPhoneNumber = '';
+                
+                if (window.senderPhoneIti) {
+                    senderPhoneNumber = window.senderPhoneIti.getNumber(intlTelInputUtils.numberFormat.E164);
+                    senderPhoneNumber = senderPhoneNumber.replace(/[-\s]/g, '');
+                } else {
+                    senderPhoneNumber = senderPhoneInput.value.replace(/[-\s]/g, '');
+                    if (!senderPhoneNumber.startsWith('+')) {
+                        senderPhoneNumber = '+1' + senderPhoneNumber;
                     }
-                });
-
-                if (!isValid) {
-                    alert('Por favor complete todos los campos requeridos');
-                    submitBtn.textContent = 'Confirmar Pedido';
-                    submitBtn.disabled = false;
-                    return;
                 }
 
-                // Crear objeto con los datos del pedido
+                const receiverPhoneInput = document.getElementById('receiverPhone');
+                let receiverPhoneNumber = '';
+                
+                if (window.receiverPhoneIti) {
+                    receiverPhoneNumber = window.receiverPhoneIti.getNumber(intlTelInputUtils.numberFormat.E164);
+                    receiverPhoneNumber = receiverPhoneNumber.replace(/[-\s]/g, '');
+                } else {
+                    receiverPhoneNumber = receiverPhoneInput.value.replace(/[-\s]/g, '');
+                    if (!receiverPhoneNumber.startsWith('+')) {
+                        receiverPhoneNumber = '+1' + receiverPhoneNumber;
+                    }
+                }
+
+                // Generar ID único
+                const orderId = await generateId('mt');
+
+                // Crear objeto de orden
                 const orderData = {
+                    id: orderId,
                     service: {
                         id: selectedService.id,
                         name: selectedService.name,
                         price: selectedService.price,
-                        type: selectedService.type
+                        type: selectedService.type,
+                        icon: selectedService.icon || null
                     },
                     sender: {
                         name: document.getElementById('senderName').value.trim(),
                         email: document.getElementById('senderEmail').value.trim(),
-                        phone: document.getElementById('senderPhone').value.trim(),
-                        address: document.getElementById('senderAddress').value.trim()
+                        phone: senderPhoneNumber,
+                        address: {
+                            street: document.getElementById('senderStreet').value.trim(),
+                            apt: document.getElementById('senderApt').value.trim(),
+                            city: document.getElementById('senderCity').value.trim(),
+                            state: document.getElementById('senderState').value,
+                            zipCode: document.getElementById('senderZipCode').value.trim(),
+                            country: 'US'
+                        }
                     },
                     receiver: {
                         name: document.getElementById('receiverName').value.trim(),
-                        phone: document.getElementById('receiverPhone').value.trim(),
+                        phone: receiverPhoneNumber,
                         cedula: document.getElementById('receiverCedula').value.trim(),
                         address: document.getElementById('receiverAddress').value.trim(),
-                        province: document.getElementById('receiverProvince').value
+                        province: document.getElementById('receiverProvince').value,
+                        country: 'DO'
                     },
                     paymentMethod: document.querySelector('input[name="payment"]:checked').value,
                     additionalNotes: document.getElementById('additionalNotes').value.trim(),
-                    status: 'pending',
+                    status: 'order-pending',
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     userId: auth.currentUser ? auth.currentUser.uid : null
                 };
 
                 // Guardar en Firestore
-                db.collection('orders').add(orderData)
-                    .then((docRef) => {
-                        // Limpiar localStorage después de guardar
-                        localStorage.removeItem('selectedService');
+                await db.collection('orders').doc(orderId).set(orderData);
 
-                        // Mostrar mensaje de éxito
-                        document.getElementById('orderForm').style.display = 'none';
-                        document.getElementById('successMessage').style.display = 'block';
-
-                        // Opcional: Guardar referencia del pedido en el perfil del usuario
-                        if (auth.currentUser) {
-                            db.collection('users').doc(auth.currentUser.uid).update({
-                                orders: firebase.firestore.FieldValue.arrayUnion(docRef.id)
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error al guardar el pedido:', error);
-                        alert('Hubo un error al procesar tu pedido. Por favor intenta nuevamente.');
-                        submitBtn.textContent = 'Confirmar Pedido';
-                        submitBtn.disabled = false;
+                // Si el usuario está autenticado, agregar a su subcolección
+                if (auth.currentUser) {
+                    await db.collection('users').doc(auth.currentUser.uid).collection('userOrders').doc(orderId).set({
+                        orderId: orderId,
+                        timestamp: orderData.timestamp,
+                        status: 'order-pending',
+                        serviceName: selectedService.name,
+                        servicePrice: selectedService.price
                     });
-            });
+                }
 
-            // Inicializar selección de método de pago
-            selectPayment('online');
+                // Limpiar y mostrar éxito
+                localStorage.removeItem('selectedService');
+                document.getElementById('orderForm').style.display = 'none';
+                document.getElementById('successMessage').style.display = 'block';
+
+            } catch (error) {
+                console.error('Error al guardar el pedido:', error);
+                alert('Hubo un error al procesar tu pedido. Por favor intenta nuevamente.');
+            } finally {
+                submitBtn.textContent = 'Confirmar Pedido';
+                submitBtn.disabled = false;
+            }
         });
-    </script>
+
+        // Inicializar selección de método de pago
+        selectPayment('online');
+
+        // Configurar observadores de inputs
+        checkInputContent();
+        setupInputObservers();
+        
+        document.querySelectorAll('.form-control').forEach(input => {
+            input.addEventListener('input', checkInputContent);
+            input.addEventListener('change', checkInputContent);
+        });
+        
+        document.querySelectorAll('select.form-control').forEach(select => {
+            select.addEventListener('change', checkInputContent);
+        });
+
+        setTimeout(checkInputContent, 500);
+    });
+
+    // Verificación final al cargar completamente
+    window.addEventListener('load', function() {
+        checkInputContent();
+        setTimeout(checkInputContent, 1000);
+    });
+</script>
 </body>
 
 </html>
+
+<!-- 2 -->

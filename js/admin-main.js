@@ -133,6 +133,25 @@ function loadAdminProfile(user) {
 
 // Show selected tab
 function showTab(tabName) {
+    // Limpiar listeners anteriores si existen
+    const tabUnsubscribers = {
+        'dashboard': () => {
+            if (window.recentOrdersUnsubscribe) window.recentOrdersUnsubscribe();
+            if (window.statsOrdersUnsubscribe) window.statsOrdersUnsubscribe();
+            if (window.statsQuotesUnsubscribe) window.statsQuotesUnsubscribe();
+        },
+        'orders': () => { if (window.ordersUnsubscribe) window.ordersUnsubscribe(); },
+        'quotes': () => { if (window.quotesUnsubscribe) window.quotesUnsubscribe(); },
+        'customers': () => { if (window.customersUnsubscribe) window.customersUnsubscribe(); },
+        'employees': () => { if (window.employeesUnsubscribe) window.employeesUnsubscribe(); },
+        'in-transit': () => { if (window.inTransitUnsubscribe) window.inTransitUnsubscribe(); },
+        'completed-orders': () => { if (window.completedOrdersUnsubscribe) window.completedOrdersUnsubscribe(); }
+    };
+    
+    if (tabUnsubscribers[tabName]) {
+        tabUnsubscribers[tabName]();
+    }
+    
     document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
     
     const tabId = `${tabName}Tab`;
@@ -169,7 +188,8 @@ function initDashboard() {
     loadRecentOrders();
 }
 
-function loadStats() {
+// Función original de loadStats (se mantiene como respaldo)
+function loadStatsOriginal() {
     // Total orders
     db.collection('orders').get().then(snapshot => {
         document.getElementById('totalOrders').textContent = snapshot.size;
@@ -203,8 +223,67 @@ function loadStats() {
     });
 }
 
-// Recent Orders
-function loadRecentOrders() {
+// Nueva versión de loadStats con actualización en tiempo real
+function loadStats() {
+    // Escuchar cambios en las órdenes
+    const ordersUnsubscribe = db.collection('orders').onSnapshot(snapshot => {
+        document.getElementById('totalOrders').textContent = snapshot.size;
+        
+        // Calcular órdenes pendientes
+        let pendingOrders = 0;
+        snapshot.forEach(doc => {
+            if (doc.data().status === 'order-pending') {
+                pendingOrders++;
+            }
+        });
+        document.getElementById('pendingOrdersBadge').textContent = pendingOrders;
+        
+        // Calcular órdenes en tránsito
+        let inTransitOrders = 0;
+        snapshot.forEach(doc => {
+            const status = doc.data().status;
+            if (['recogidaUSA', 'enTransito', 'enAduana', 'repartoLocal'].includes(status)) {
+                inTransitOrders++;
+            }
+        });
+        document.getElementById('inTransitOrders').textContent = inTransitOrders;
+        document.getElementById('inTransitBadge').textContent = inTransitOrders;
+        
+        // Calcular órdenes completadas
+        let completedOrders = 0;
+        snapshot.forEach(doc => {
+            if (doc.data().status === 'completed') {
+                completedOrders++;
+            }
+        });
+        document.getElementById('completedOrdersBadge').textContent = completedOrders;
+    });
+    
+    // Escuchar cambios en las cotizaciones
+    const quotesUnsubscribe = db.collection('quotes').onSnapshot(snapshot => {
+        document.getElementById('totalQuotes').textContent = snapshot.size;
+        
+        // Calcular cotizaciones pendientes
+        let pendingQuotes = 0;
+        snapshot.forEach(doc => {
+            if (doc.data().status === 'quotes-pending') {
+                pendingQuotes++;
+            }
+        });
+        document.getElementById('pendingQuotesBadge').textContent = pendingQuotes;
+        
+        // Actualizar contador total de pendientes
+        const pendingOrders = parseInt(document.getElementById('pendingOrdersBadge').textContent) || 0;
+        document.getElementById('pendingItems').textContent = pendingOrders + pendingQuotes;
+    });
+    
+    // Guardar las funciones unsubscribe para limpiar cuando sea necesario
+    window.statsOrdersUnsubscribe = ordersUnsubscribe;
+    window.statsQuotesUnsubscribe = quotesUnsubscribe;
+}
+
+// Función original de loadRecentOrders (se mantiene como respaldo)
+function loadRecentOrdersOriginal() {
     const table = $('#recentOrdersTable').DataTable();
     table.clear().draw();
     
@@ -221,8 +300,30 @@ function loadRecentOrders() {
         });
 }
 
+// Nueva versión de loadRecentOrders con actualización en tiempo real
+function loadRecentOrders() {
+    const table = $('#recentOrdersTable').DataTable();
+    table.clear().draw();
+    
+    const unsubscribe = db.collection('orders')
+        .orderBy('timestamp', 'desc')
+        .limit(10)
+        .onSnapshot(snapshot => {
+            table.clear();
+            
+            snapshot.forEach(doc => {
+                const order = doc.data();
+                table.row.add(createOrderRowData(doc.id, order)).draw(false);
+            });
+            
+            addViewOrderHandlers();
+        });
+    
+    window.recentOrdersUnsubscribe = unsubscribe;
+}
+
 // Order Table Functions
-function loadOrdersTable() {
+function loadOrdersTableOriginal() {
     const table = $('#ordersTable').DataTable();
     table.clear().draw();
     
@@ -236,6 +337,27 @@ function loadOrdersTable() {
             });
             addViewOrderHandlers();
         });
+}
+
+// Nueva versión de loadOrdersTable con actualización en tiempo real
+function loadOrdersTable() {
+    const table = $('#ordersTable').DataTable();
+    table.clear().draw();
+    
+    const unsubscribe = db.collection('orders')
+        .orderBy('timestamp', 'desc')
+        .onSnapshot(snapshot => {
+            table.clear();
+            
+            snapshot.forEach(doc => {
+                const order = doc.data();
+                table.row.add(createOrderRowData(doc.id, order, true)).draw(false);
+            });
+            
+            addViewOrderHandlers();
+        });
+    
+    window.ordersUnsubscribe = unsubscribe;
 }
 
 function createOrderRowData(id, order, showPaymentMethod = false) {
@@ -266,8 +388,8 @@ function addViewOrderHandlers() {
     });
 }
 
-// In Transit Orders
-function loadInTransitTable() {
+// Función original de loadInTransitTable (se mantiene como respaldo)
+function loadInTransitTableOriginal() {
     const table = $('#inTransitTable').DataTable();
     table.clear().draw();
     
@@ -284,8 +406,30 @@ function loadInTransitTable() {
         });
 }
 
-// Completed Orders
-function loadCompletedOrdersTable() {
+// Nueva versión de loadInTransitTable con actualización en tiempo real
+function loadInTransitTable() {
+    const table = $('#inTransitTable').DataTable();
+    table.clear().draw();
+    
+    const unsubscribe = db.collection('orders')
+        .where('status', 'in', ['recogidaUSA', 'enTransito', 'enAduana', 'repartoLocal'])
+        .orderBy('timestamp', 'desc')
+        .onSnapshot(snapshot => {
+            table.clear();
+            
+            snapshot.forEach(doc => {
+                const order = doc.data();
+                table.row.add(createOrderRowData(doc.id, order)).draw(false);
+            });
+            
+            addViewOrderHandlers();
+        });
+    
+    window.inTransitUnsubscribe = unsubscribe;
+}
+
+// Función original de loadCompletedOrdersTable (se mantiene como respaldo)
+function loadCompletedOrdersTableOriginal() {
     const table = $('#completedOrdersTable').DataTable();
     table.clear().draw();
     
@@ -302,8 +446,30 @@ function loadCompletedOrdersTable() {
         });
 }
 
-// Quotes Table
-function loadQuotesTable() {
+// Nueva versión de loadCompletedOrdersTable con actualización en tiempo real
+function loadCompletedOrdersTable() {
+    const table = $('#completedOrdersTable').DataTable();
+    table.clear().draw();
+    
+    const unsubscribe = db.collection('orders')
+        .where('status', '==', 'completed')
+        .orderBy('timestamp', 'desc')
+        .onSnapshot(snapshot => {
+            table.clear();
+            
+            snapshot.forEach(doc => {
+                const order = doc.data();
+                table.row.add(createOrderRowData(doc.id, order, true)).draw(false);
+            });
+            
+            addViewOrderHandlers();
+        });
+    
+    window.completedOrdersUnsubscribe = unsubscribe;
+}
+
+// Función original de loadQuotesTable (se mantiene como respaldo)
+function loadQuotesTableOriginal() {
     const table = $('#quotesTable').DataTable();
     table.clear().draw();
     
@@ -336,8 +502,45 @@ function loadQuotesTable() {
         });
 }
 
-// Customers Table
-function loadCustomersTable() {
+// Nueva versión de loadQuotesTable con actualización en tiempo real
+function loadQuotesTable() {
+    const table = $('#quotesTable').DataTable();
+    table.clear().draw();
+    
+    const unsubscribe = db.collection('quotes')
+        .orderBy('timestamp', 'desc')
+        .onSnapshot(snapshot => {
+            table.clear();
+            
+            snapshot.forEach(doc => {
+                const quote = doc.data();
+                const date = quote.timestamp?.toDate().toLocaleString() || 'N/A';
+                
+                table.row.add([
+                    doc.id,
+                    quote.name,
+                    quote.email,
+                    quote.phone,
+                    quote.packageType,
+                    quote.destination,
+                    date,
+                    getStatusBadge(quote.status),
+                    `<button class="btn btn-outline view-quote" data-id="${doc.id}">Ver</button>`
+                ]).draw(false);
+            });
+            
+            document.querySelectorAll('.view-quote').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    viewQuoteDetails(this.getAttribute('data-id'));
+                });
+            });
+        });
+    
+    window.quotesUnsubscribe = unsubscribe;
+}
+
+// Función original de loadCustomersTable (se mantiene como respaldo)
+function loadCustomersTableOriginal() {
     const table = $('#customersTable').DataTable();
     table.clear().draw();
     
@@ -361,14 +564,71 @@ function loadCustomersTable() {
         });
 }
 
-// Employees Table
-function loadEmployeesTable() {
+// Nueva versión de loadCustomersTable con actualización en tiempo real
+function loadCustomersTable() {
+    const table = $('#customersTable').DataTable();
+    table.clear().draw();
+    
+    const unsubscribe = db.collection('users')
+        .onSnapshot(snapshot => {
+            table.clear();
+            
+            snapshot.forEach(doc => {
+                const user = doc.data();
+                const date = user.registrationDate?.toDate().toLocaleDateString() || 'N/A';
+                
+                table.row.add([
+                    doc.id,
+                    user.profile?.name || user.email,
+                    user.email,
+                    user.profile?.phone || 'N/A',
+                    date,
+                    user.orders?.length || 0,
+                    `<button class="btn btn-outline view-customer" data-id="${doc.id}">Ver</button>`
+                ]).draw(false);
+            });
+        });
+    
+    window.customersUnsubscribe = unsubscribe;
+}
+
+// Función original de loadEmployeesTable (se mantiene como respaldo)
+function loadEmployeesTableOriginal() {
     const table = $('#employeesTable').DataTable();
     table.clear().draw();
     
     db.collection('employees')
         .get()
         .then(snapshot => {
+            snapshot.forEach(doc => {
+                const employee = doc.data();
+                
+                table.row.add([
+                    doc.id,
+                    employee.name,
+                    employee.email,
+                    employee.phone || 'N/A',
+                    getRoleText(employee.role),
+                    employee.status === 'active' ? 'Activo' : 'Inactivo',
+                    `<button class="btn btn-outline edit-employee" data-id="${doc.id}">Editar</button>
+                     <button class="btn btn-primary reset-password" data-id="${doc.id}" data-email="${employee.email}">Recuperar Contraseña</button>
+                     <button class="btn btn-danger delete-employee" data-id="${doc.id}">Eliminar</button>`
+                ]).draw(false);
+            });
+            
+            addEmployeeHandlers();
+        });
+}
+
+// Nueva versión de loadEmployeesTable con actualización en tiempo real
+function loadEmployeesTable() {
+    const table = $('#employeesTable').DataTable();
+    table.clear().draw();
+    
+    const unsubscribe = db.collection('employees')
+        .onSnapshot(snapshot => {
+            table.clear();
+            
             snapshot.forEach(doc => {
                 const employee = doc.data();
                 
@@ -642,6 +902,7 @@ function validateQuoteForm(isForConversion = false) {
 }
 
 // Convert Quote to Order Handler
+// Modifica la función convertQuoteToOrderHandler
 function convertQuoteToOrderHandler() {
     if (!validateQuoteForm(true)) {
         alert('Complete todos los campos y asegure un precio válido');
@@ -663,8 +924,7 @@ function convertQuoteToOrderHandler() {
             cedula: document.getElementById('quoteReceiverCedula').value,
             address: document.getElementById('quoteReceiverAddress').value,
             province: document.getElementById('quoteReceiverProvince').value
-        },
-        notes: document.getElementById('quoteAdditionalNotes').value
+        }
     };
 
     // 1. Actualizar la cotización
@@ -672,7 +932,6 @@ function convertQuoteToOrderHandler() {
         status: 'converted',
         estimatedPrice: quoteData.price,
         receiver: quoteData.receiver,
-        additionalNotes: quoteData.notes,
         convertedAt: firebase.firestore.FieldValue.serverTimestamp()
     })
     .then(() => {
@@ -682,13 +941,11 @@ function convertQuoteToOrderHandler() {
     .then((doc) => {
         const quote = doc.data();
         
-        // 3. Crear la nueva orden con todos los datos necesarios
+        // 3. Crear la nueva orden usando el mismo ID que la cotización
         const orderData = {
             // Información del servicio
             service: {
-                name: quote.packageType === 'Artículo Común' ? 
-                    'Envío de ' + (quote.commonItems?.map(i => i.name).join(', ') || 'Artículos') : 
-                    'Envío personalizado: ' + (quote.customItem?.item || 'Varios artículos'),
+                name: quote.packageType,
                 price: quoteData.price,
                 type: 'regular',
                 description: quote.packageType
@@ -708,15 +965,12 @@ function convertQuoteToOrderHandler() {
             // Información de pago (valor por defecto)
             paymentMethod: 'pickup',
             
-            // Información adicional
-            additionalNotes: quoteData.notes || 'Convertido de cotización ' + selectedQuoteId,
-            
             // Estado y fechas
             status: 'order-pending',
             timestamp: quote.timestamp || firebase.firestore.FieldValue.serverTimestamp(),
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             
-            // Referencia a la cotización original
+            // Referencia a la cotización original (ahora será el mismo ID)
             quoteId: selectedQuoteId,
             userId: quote.userId || null,
             
@@ -726,8 +980,8 @@ function convertQuoteToOrderHandler() {
                 [quote.customItem]
         };
         
-        // 4. Crear la nueva orden en Firestore
-        return db.collection('orders').add(orderData);
+        // 4. Crear la nueva orden en Firestore usando el mismo ID que la cotización
+        return db.collection('orders').doc(selectedQuoteId).set(orderData);
     })
     .then(() => {
         alert('¡Orden creada con éxito!');
