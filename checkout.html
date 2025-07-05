@@ -10,18 +10,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app-compat.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-firestore-compat.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-auth-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-functions-compat.min.js"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Google Fonts -->
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
-
-
-
-
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <!-- Stripe JS -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <!-- International Telephone Input -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
-
 
     <style>
         :root {
@@ -323,15 +321,50 @@
             max-height: calc(100vh - 100px);
         }
 
+        /* Estilos para Stripe */
+        #stripeCardElement {
+            display: none;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .StripeElement {
+            box-sizing: border-box;
+            height: 40px;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 14px;
+            background-color: #f3f3f3;
+            transition: border-color 0.3s;
+        }
+
+        .StripeElement--focus {
+            border-color: var(--secondary);
+        }
+
+        .StripeElement--invalid {
+            border-color: var(--accent);
+        }
+
+        .StripeElement--webkit-autofill {
+            background-color: #fefde5 !important;
+        }
+
+        #card-errors {
+            color: var(--accent);
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
         @media (max-width: 940px) {
             .order-summary {
                 min-width: 360px;
             }
         }
 
-
         @media (max-width: 850px) {
-
             .order-summary {
                 position: relative;
             }
@@ -346,7 +379,6 @@
             }
 
             .form-row {
-
                 flex-direction: column;
             }
 
@@ -370,7 +402,6 @@
                 border-radius: 0px;
             }
         }
-
 
         /* Estilos para el input de teléfono */
         .intl-tel-input {
@@ -401,7 +432,6 @@
             display: inline-block;
             width: 100%;
         }
-
 
         /* Estilo para inputs con contenido */
         .input-has-content {
@@ -475,6 +505,20 @@
                                 <input type="text" id="senderZipCode" class="form-control" required>
                             </div>
                         </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="pickupDate">Fecha de Recogida:</label>
+                                <input type="date" id="pickupDate" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="pickupTime">Hora de Recogida:</label>
+                                <select id="pickupTime" class="form-control" required>
+                                    <option value="" disabled selected>Seleccione una hora</option>
+                                    <!-- Las opciones se llenarán dinámicamente -->
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
                     <h2 style="display: inline-flex;align-items: center;width: 100%;">Información del Destinatario <img
@@ -493,7 +537,8 @@
                         </div>
                         <div class="form-group">
                             <label for="receiverCedula">Cédula:</label>
-                            <input type="text" id="receiverCedula" class="form-control" required>
+                            <input type="text" id="receiverCedula" class="form-control" placeholder="000-0000000-0"
+                                required>
                         </div>
                     </div>
 
@@ -547,6 +592,15 @@
                         <textarea id="additionalNotes" class="form-control" rows="3"></textarea>
                     </div>
 
+                    <!-- Elementos de Stripe para el formulario de tarjeta -->
+                    <div id="stripeCardElement">
+                        <div class="form-group">
+                            <label for="card-element">Información de la Tarjeta:</label>
+                            <div id="card-element" class="form-control"></div>
+                            <div id="card-errors" role="alert"></div>
+                        </div>
+                    </div>
+
                     <button type="submit" class="btn" id="submitOrderBtn">Confirmar Pedido</button>
                 </form>
 
@@ -555,8 +609,9 @@
                         <i class="fas fa-check-circle"></i>
                     </div>
                     <h2>¡Pedido Confirmado!</h2>
-                    <p>Hemos recibido tu pedido correctamente. Te enviaremos un correo con los detalles de seguimiento.
-                    </p>
+                    <p id="orderConfirmationText">Hemos recibido tu pedido correctamente. Nos pondremos en contacto contigo para brindarte los detalles de seguimiento.</p>
+                    <p style="font-weight: 600; margin: 1rem 0;"><span style="color: var(--primary);">Número de
+                            Orden:</span> <span id="orderIdDisplay" style="color: var(--secondary);"></span></p>
                     <a href="index.html" class="btn" style="margin-top: 1rem;">Volver al Inicio</a>
                 </div>
             </div>
@@ -631,6 +686,10 @@
         const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
+        const functions = firebase.functions();
+
+        // Variables globales para Stripe
+        let stripe, elements;
 
         // Función para cargar estados
         function loadStates(countryCode, targetSelectId) {
@@ -689,6 +748,51 @@
 
             document.querySelector(`.payment-option[onclick="selectPayment('${method}')"]`).classList.add('payment-selected');
             document.querySelector(`#${method}Payment`).checked = true;
+            
+            // Mostrar/ocultar formulario de Stripe
+            const stripeCardElement = document.getElementById('stripeCardElement');
+            if (method === 'online') {
+                stripeCardElement.style.display = 'block';
+                initializeStripeElements();
+            } else {
+                stripeCardElement.style.display = 'none';
+            }
+        }
+
+        // Inicializar elementos de Stripe
+        function initializeStripeElements() {
+            if (!stripe) {
+                // Configurar Stripe con tu clave pública de prueba
+                stripe = Stripe('pk_test_51RflpxCQmmVrpuF3gY491FnR6XzcJuLSdXq4EqT3mkqWz3wA2Eu65yq6n2UFamVhkz0dsjJ7PcDvM7PevyTGtVWJ005zxlytKb');
+                elements = stripe.elements();
+                
+                const card = elements.create('card', {
+                    style: {
+                        base: {
+                            fontSize: '16px',
+                            color: '#32325d',
+                            '::placeholder': {
+                                color: '#aab7c4'
+                            }
+                        },
+                        invalid: {
+                            color: '#fa755a',
+                            iconColor: '#fa755a'
+                        }
+                    }
+                });
+                
+                card.mount('#card-element');
+                
+                card.addEventListener('change', function(event) {
+                    const displayError = document.getElementById('card-errors');
+                    if (event.error) {
+                        displayError.textContent = event.error.message;
+                    } else {
+                        displayError.textContent = '';
+                    }
+                });
+            }
         }
 
         // Función para generar ID único compartido
@@ -704,106 +808,107 @@
             return db.runTransaction(async (transaction) => {
                 const doc = await transaction.get(counterRef);
 
-                if (!doc.exists) {
-                    console.warn('Contador no encontrado. Regenerando desde colecciones...');
+                // Caso 1: El contador existe (flujo normal)
+                if (doc.exists) {
+                    const data = doc.data();
+                    let { lastLetter, lastNumber, lastDate } = data;
 
-                    // Buscar en orders primero
-                    const lastOrder = await db.collection('orders')
-                        .orderBy('timestamp', 'desc')
-                        .limit(1)
-                        .get();
-
-                    if (!lastOrder.empty) {
-                        const lastId = lastOrder.docs[0].id;
-                        console.log(`Último ID de orden encontrado: ${lastId}`);
-
-                        const regex = /^mt\d{6}([a-z])(\d{2})$/;
-                        const match = lastId.match(regex);
-
-                        if (match) {
-                            const lastLetter = match[1];
-                            const lastNumber = parseInt(match[2]);
-                            const lastDate = lastId.substring(2, 8);
-
-                            if (lastDate === datePart) {
-                                transaction.set(counterRef, {
-                                    lastLetter,
-                                    lastNumber: lastNumber + 1,
-                                    lastDate
-                                });
-                                return generateNextId(datePart, lastLetter, lastNumber);
-                            }
-                        }
-                    }
-
-                    // Si no hay orders, buscar en quotes
-                    const lastQuote = await db.collection('quotes')
-                        .orderBy('timestamp', 'desc')
-                        .limit(1)
-                        .get();
-
-                    if (!lastQuote.empty) {
-                        const lastId = lastQuote.docs[0].id;
-                        console.log(`Último ID de cotización encontrado: ${lastId}`);
-
-                        const regex = /^mt\d{6}([a-z])(\d{2})$/;
-                        const match = lastId.match(regex);
-
-                        if (match) {
-                            const lastLetter = match[1];
-                            const lastNumber = parseInt(match[2]);
-                            const lastDate = lastId.substring(2, 8);
-
-                            if (lastDate === datePart) {
-                                transaction.set(counterRef, {
-                                    lastLetter,
-                                    lastNumber: lastNumber + 1,
-                                    lastDate
-                                });
-                                return generateNextId(datePart, lastLetter, lastNumber);
-                            }
-                        }
-                    }
-
-                    // Si no hay documentos, iniciar nueva secuencia
-                    transaction.set(counterRef, {
-                        lastLetter: 'a',
-                        lastNumber: 1,
-                        lastDate: datePart
-                    });
-                    return `${prefix}${datePart}a01`;
-                }
-
-                // Caso normal: contador existe
-                const data = doc.data();
-                let { lastLetter, lastNumber, lastDate } = data;
-
-                if (lastDate !== datePart) {
-                    lastLetter = 'a';
-                    lastNumber = 1;
-                    lastDate = datePart;
-                } else {
-                    lastNumber++;
-                    if (lastNumber > 99) {
+                    // Reiniciar contadores si es un nuevo día
+                    if (lastDate !== datePart) {
+                        lastLetter = 'a';
                         lastNumber = 1;
-                        lastLetter = String.fromCharCode(lastLetter.charCodeAt(0) + 1);
-                        if (lastLetter > 'z') lastLetter = 'a';
+                        lastDate = datePart;
+                    } else {
+                        // Incrementar número (y letra si es necesario)
+                        lastNumber++;
+                        if (lastNumber > 99) {
+                            lastNumber = 1;
+                            lastLetter = String.fromCharCode(lastLetter.charCodeAt(0) + 1);
+                            if (lastLetter > 'z') lastLetter = 'a'; // Reiniciar letras
+                        }
+                    }
+
+                    // Actualizar contador
+                    transaction.update(counterRef, {
+                        lastLetter,
+                        lastNumber,
+                        lastDate
+                    });
+
+                    return `${prefix}${datePart}${lastLetter}${String(lastNumber).padStart(2, '0')}`;
+                }
+
+                // Caso 2: El contador NO existe (primera vez o fue eliminado)
+                console.warn('Contador no encontrado. Regenerando desde colecciones...');
+
+                // Buscar el documento más reciente entre orders y quotes
+                const [lastOrder, lastQuote] = await Promise.all([
+                    db.collection('orders').orderBy('timestamp', 'desc').limit(1).get(),
+                    db.collection('quotes').orderBy('timestamp', 'desc').limit(1).get()
+                ]);
+
+                let lastDoc = null;
+                let lastTimestamp = null;
+
+                // Determinar cuál es el documento más reciente
+                if (!lastOrder.empty && !lastQuote.empty) {
+                    const orderTime = lastOrder.docs[0].data().timestamp?.toMillis() || 0;
+                    const quoteTime = lastQuote.docs[0].data().timestamp?.toMillis() || 0;
+
+                    if (orderTime > quoteTime) {
+                        lastDoc = lastOrder.docs[0];
+                    } else {
+                        lastDoc = lastQuote.docs[0];
+                    }
+                } else if (!lastOrder.empty) {
+                    lastDoc = lastOrder.docs[0];
+                } else if (!lastQuote.empty) {
+                    lastDoc = lastQuote.docs[0];
+                }
+
+                // Si encontramos un documento, extraer el último ID
+                if (lastDoc) {
+                    console.log(`Documento más reciente encontrado: ${lastDoc.id}`);
+
+                    const regex = /^mt\d{6}([a-z])(\d{2})$/;
+                    const match = lastDoc.id.match(regex);
+
+                    if (match) {
+                        const lastLetter = match[1];
+                        const lastNumber = parseInt(match[2]);
+                        const lastDate = lastDoc.id.substring(2, 8);
+
+                        // Si es del mismo día, incrementar
+                        if (lastDate === datePart) {
+                            const newId = generateNextId(datePart, lastLetter, lastNumber);
+
+                            // Crear el contador con los valores actualizados
+                            transaction.set(counterRef, {
+                                lastLetter: newId.charAt(8), // La letra del nuevo ID
+                                lastNumber: parseInt(newId.substring(9)), // El número del nuevo ID
+                                lastDate: datePart
+                            });
+
+                            return newId;
+                        }
                     }
                 }
 
-                transaction.update(counterRef, {
-                    lastLetter,
-                    lastNumber,
-                    lastDate
+                // Si no hay documentos o el formato no coincide, iniciar nueva secuencia
+                transaction.set(counterRef, {
+                    lastLetter: 'a',
+                    lastNumber: 1,
+                    lastDate: datePart
                 });
 
-                return `${prefix}${datePart}${lastLetter}${String(lastNumber).padStart(2, '0')}`;
+                return `${prefix}${datePart}a01`;
             }).catch(error => {
                 console.error('Error en la transacción:', error);
                 throw new Error('No se pudo generar el ID. Intente nuevamente.');
             });
         }
 
+        // Función auxiliar para generar el siguiente ID basado en el último encontrado
         function generateNextId(datePart, lastLetter, lastNumber) {
             let nextLetter = lastLetter;
             let nextNumber = lastNumber + 1;
@@ -856,9 +961,85 @@
             });
         }
 
+        // Generar opciones de hora (8am a 9pm)
+        function generateTimeOptions() {
+            const pickupTimeSelect = document.getElementById('pickupTime');
+            pickupTimeSelect.innerHTML = '<option value="" disabled selected>Seleccione una hora</option>';
+
+            for (let hour = 8; hour <= 21; hour++) {
+                const formattedHour = hour.toString().padStart(2, '0') + ':00';
+                const option = document.createElement('option');
+                option.value = formattedHour;
+                option.textContent = formattedHour;
+                pickupTimeSelect.appendChild(option);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
+            // Formatear cédula dominicana automáticamente (001-1234567-1)
+            document.getElementById('receiverCedula').addEventListener('input', function (e) {
+                let value = this.value.replace(/\D/g, ''); // Eliminar todo excepto números
+                let formatted = '';
+
+                if (value.length > 0) {
+                    formatted = value.substring(0, 3);
+                }
+                if (value.length > 3) {
+                    formatted += '-' + value.substring(3, 10);
+                }
+                if (value.length > 10) {
+                    formatted += '-' + value.substring(10, 11);
+                }
+
+                this.value = formatted;
+            });
+
+            // Validar que solo se ingresen números y guiones
+            document.getElementById('receiverCedula').addEventListener('keydown', function (e) {
+                if (!/[\d-]|Backspace|Delete|ArrowLeft|ArrowRight|Tab/.test(e.key)) {
+                    e.preventDefault();
+                }
+            });
+
             // Cargar estados de USA al iniciar
             loadStates('US', 'senderState');
+
+            // Configurar fecha y hora de recogida
+            const pickupDateInput = document.getElementById('pickupDate');
+            const pickupTimeSelect = document.getElementById('pickupTime');
+
+            // Establecer fecha mínima (hoy)
+            const today = new Date();
+            const minDate = today.toISOString().split('T')[0];
+            pickupDateInput.setAttribute('min', minDate);
+
+            // Generar opciones de hora iniciales
+            generateTimeOptions();
+
+            // Actualizar horas cuando cambia la fecha
+            pickupDateInput.addEventListener('change', function () {
+                const selectedDate = new Date(this.value);
+                const isToday = selectedDate.toDateString() === today.toDateString();
+
+                if (isToday) {
+                    // Si es hoy, mostrar solo horas futuras
+                    const currentHour = today.getHours();
+                    pickupTimeSelect.innerHTML = '<option value="" disabled selected>Seleccione una hora</option>';
+
+                    for (let hour = 8; hour <= 21; hour++) {
+                        if (hour > currentHour) {
+                            const formattedHour = hour.toString().padStart(2, '0') + ':00';
+                            const option = document.createElement('option');
+                            option.value = formattedHour;
+                            option.textContent = formattedHour;
+                            pickupTimeSelect.appendChild(option);
+                        }
+                    }
+                } else {
+                    // Si no es hoy, mostrar todas las horas
+                    generateTimeOptions();
+                }
+            });
 
             // Inicialización del input de teléfono para el remitente
             if (document.getElementById('senderPhone')) {
@@ -931,43 +1112,43 @@
 
                 if (!isPromo) {
                     orderItemContainer.innerHTML = `
-                    <div class="order-item">
-                        ${selectedService.icon ? `<img src="${selectedService.icon}" alt="${selectedService.name}">` : ''}
-                        <div class="order-details">
-                            <div class="order-title">${selectedService.name}</div>
-                            <div>
-                                ${selectedService.slot1 ? `<p><strong>${selectedService.slot1.split(':')[0]}:</strong> ${selectedService.slot1.split(':').slice(1).join(':')}</p>` : ''}
-                                ${selectedService.slot2 ? `<p><strong>${selectedService.slot2.split(':')[0]}:</strong> ${selectedService.slot2.split(':').slice(1).join(':')}</p>` : ''}
-                                ${selectedService.slot3 ? `<p><strong>${selectedService.slot3.split(':')[0]}:</strong> ${selectedService.slot3.split(':').slice(1).join(':')}</p>` : ''}
-                                ${selectedService.slot4 ? `<p><strong>${selectedService.slot4.split(':')[0]}:</strong> ${selectedService.slot4.split(':').slice(1).join(':')}</p>` : ''}
-                            </div>
-                            <div class="order-price">
-                                <span>Precio:</span>
-                                <span>US$${selectedService.price}</span>
-                                <div class="order-tax">
-                                    <span>Tax:</span>
-                                    <span>US$0</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                    document.getElementById('orderTotal').textContent = `US$${selectedService.price}`;
-                } else {
-                    orderItemContainer.innerHTML = `
-                    <div class="order-item promo-summary" style="text-align: center; padding: 1rem;">
+                <div class="order-item">
+                    ${selectedService.icon ? `<img src="${selectedService.icon}" alt="${selectedService.name}">` : ''}
+                    <div class="order-details">
                         <div class="order-title">${selectedService.name}</div>
+                        <div>
+                            ${selectedService.slot1 ? `<p><strong>${selectedService.slot1.split(':')[0]}:</strong> ${selectedService.slot1.split(':').slice(1).join(':')}</p>` : ''}
+                            ${selectedService.slot2 ? `<p><strong>${selectedService.slot2.split(':')[0]}:</strong> ${selectedService.slot2.split(':').slice(1).join(':')}</p>` : ''}
+                            ${selectedService.slot3 ? `<p><strong>${selectedService.slot3.split(':')[0]}:</strong> ${selectedService.slot3.split(':').slice(1).join(':')}</p>` : ''}
+                            ${selectedService.slot4 ? `<p><strong>${selectedService.slot4.split(':')[0]}:</strong> ${selectedService.slot4.split(':').slice(1).join(':')}</p>` : ''}
+                        </div>
                         <div class="order-price">
                             <span>Precio:</span>
-                            <span>${selectedService.price}</span>
+                            <span>US$${selectedService.price}</span>
                             <div class="order-tax">
                                 <span>Tax:</span>
                                 <span>US$0</span>
                             </div>
                         </div>
                     </div>
-                `;
+                </div>
+            `;
+
+                    document.getElementById('orderTotal').textContent = `US$${selectedService.price}`;
+                } else {
+                    orderItemContainer.innerHTML = `
+                <div class="order-item promo-summary" style="text-align: center; padding: 1rem;">
+                    <div class="order-title">${selectedService.name}</div>
+                    <div class="order-price">
+                        <span>Precio:</span>
+                        <span>${selectedService.price}</span>
+                        <div class="order-tax">
+                            <span>Tax:</span>
+                            <span>US$0</span>
+                        </div>
+                    </div>
+                </div>
+            `;
 
                     document.getElementById('orderTotal').textContent = selectedService.price.includes('US$')
                         ? `${selectedService.price}`
@@ -1032,7 +1213,9 @@
                 const requiredFields = [
                     'senderName', 'senderEmail', 'senderPhone', 'senderStreet',
                     'senderCity', 'senderState', 'senderZipCode',
-                    'receiverName', 'receiverPhone', 'receiverCedula', 'receiverAddress', 'receiverProvince'
+                    'receiverName', 'receiverPhone', 'receiverCedula',
+                    'receiverAddress', 'receiverProvince',
+                    'pickupDate', 'pickupTime'
                 ];
 
                 let isValid = true;
@@ -1084,6 +1267,13 @@
                     // Generar ID único
                     const orderId = await generateId('mt');
 
+                    // Extraer el precio numérico del servicio
+                    let servicePrice = 0;
+                    const priceMatch = selectedService.price.match(/\d+\.?\d*/);
+                    if (priceMatch) {
+                        servicePrice = parseFloat(priceMatch[0]) * 100; // Convertir a centavos para Stripe
+                    }
+
                     // Crear objeto de orden
                     const orderData = {
                         id: orderId,
@@ -1091,6 +1281,7 @@
                             id: selectedService.id,
                             name: selectedService.name,
                             price: selectedService.price,
+                            numericPrice: servicePrice / 100, // Guardar el precio numérico
                             type: selectedService.type,
                             icon: selectedService.icon || null
                         },
@@ -1105,6 +1296,10 @@
                                 state: document.getElementById('senderState').value,
                                 zipCode: document.getElementById('senderZipCode').value.trim(),
                                 country: 'US'
+                            },
+                            pickupDateTime: {
+                                date: document.getElementById('pickupDate').value,
+                                time: document.getElementById('pickupTime').value
                             }
                         },
                         receiver: {
@@ -1122,7 +1317,7 @@
                         userId: auth.currentUser ? auth.currentUser.uid : null
                     };
 
-                    // Guardar en Firestore
+                    // Guardar en Firestore (primero para tener el ID)
                     await db.collection('orders').doc(orderId).set(orderData);
 
                     // Si el usuario está autenticado, agregar a su subcolección
@@ -1132,14 +1327,86 @@
                             timestamp: orderData.timestamp,
                             status: 'order-pending',
                             serviceName: selectedService.name,
-                            servicePrice: selectedService.price
+                            servicePrice: selectedService.price,
+                            pickupDate: orderData.sender.pickupDateTime.date,
+                            pickupTime: orderData.sender.pickupDateTime.time
                         });
                     }
 
-                    // Limpiar y mostrar éxito
-                    localStorage.removeItem('selectedService');
-                    document.getElementById('orderForm').style.display = 'none';
-                    document.getElementById('successMessage').style.display = 'block';
+                    // Manejar el pago según el método seleccionado
+                    const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+                    
+                    if (paymentMethod === 'online') {
+                        // Pago en línea con Stripe
+                        try {
+                            // Crear una función de Firebase para obtener el clientSecret
+                            const createPaymentFunction = firebase.functions().httpsCallable('createStripePaymentIntent');
+                            const result = await createPaymentFunction({
+                                amount: servicePrice,
+                                currency: 'usd',
+                                metadata: {
+                                    orderId: orderId,
+                                    serviceName: selectedService.name
+                                }
+                            });
+
+                            const { clientSecret } = result.data;
+
+                            // Confirmar el pago con Stripe
+                            const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+                                payment_method: {
+                                    card: elements.getElement('card'),
+                                    billing_details: {
+                                        name: orderData.sender.name,
+                                        email: orderData.sender.email,
+                                        phone: orderData.sender.phone,
+                                        address: {
+                                            line1: orderData.sender.address.street,
+                                            line2: orderData.sender.address.apt,
+                                            city: orderData.sender.address.city,
+                                            state: orderData.sender.address.state,
+                                            postal_code: orderData.sender.address.zipCode,
+                                            country: 'US'
+                                        }
+                                    }
+                                }
+                            });
+
+                            if (error) {
+                                throw error;
+                            }
+
+                            // Si el pago es exitoso, actualizar el estado en Firestore
+                            await db.collection('orders').doc(orderId).update({
+                                status: 'payment-completed',
+                                paymentStatus: 'paid',
+                                paymentDate: firebase.firestore.FieldValue.serverTimestamp(),
+                                stripePaymentId: paymentIntent.id
+                            });
+
+                            if (auth.currentUser) {
+                                await db.collection('users').doc(auth.currentUser.uid).collection('userOrders').doc(orderId).update({
+                                    status: 'payment-completed',
+                                    paymentStatus: 'paid'
+                                });
+                            }
+
+                            // Redirigir a la página de confirmación con el ID de pago
+                            localStorage.setItem('lastOrderId', orderId);
+                            window.location.href = `order-complete.html?payment_intent_client_secret=${clientSecret}`;
+
+                        } catch (error) {
+                            console.error('Error en el pago:', error);
+                            alert(`Error en el pago: ${error.message}`);
+                            submitBtn.textContent = 'Confirmar Pedido';
+                            submitBtn.disabled = false;
+                            return;
+                        }
+                    } else {
+                        // Métodos de pago offline (pickup o delivery)
+                        localStorage.setItem('lastOrderId', orderId);
+                        window.location.href = 'order-complete.html';
+                    }
 
                 } catch (error) {
                     console.error('Error al guardar el pedido:', error);
@@ -1176,7 +1443,4 @@
         });
     </script>
 </body>
-
 </html>
-
-<!-- 2 -->

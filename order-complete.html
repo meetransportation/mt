@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmación de Pedido - Meetransportation</title>
+    <link rel="icon" href="./img/icon_favicon_meetax_1_2048x2048.png" type="image/png" sizes="any">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #5cc528;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #f9f9f9;
+            background: linear-gradient(rgba(44, 62, 80, 0.8), rgba(44, 62, 80, 0.8)), url(./img/background_1.jpg);
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .confirmation-container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .success-icon {
+            font-size: 3rem;
+            color: var(--success);
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            color: #555;
+        }
+
+        .order-info {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .order-id {
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: 1.2rem;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--secondary);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn:hover {
+            background-color: #3ba709;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .payment-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .payment-status.paid {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: var(--success);
+        }
+
+        .payment-status.pending {
+            background-color: rgba(241, 196, 15, 0.2);
+            color: #f39c12;
+        }
+    </style>
+</head>
+<body>
+    <div class="confirmation-container">
+        <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        
+        <h1 id="confirmation-title">¡Pedido Confirmado!</h1>
+        <div id="payment-status" class="payment-status"></div>
+        
+        <p id="confirmation-message">Hemos recibido tu pedido correctamente. Nos pondremos en contacto contigo para brindarte los detalles de seguimiento.</p>
+        
+        <div class="order-info">
+            <p><strong>Número de Orden:</strong></p>
+            <p class="order-id" id="order-id-display"></p>
+        </div>
+        
+        <a href="index.html" class="btn">Volver al Inicio</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Obtener el ID de la orden del localStorage
+            const orderId = localStorage.getItem('lastOrderId');
+            document.getElementById('order-id-display').textContent = orderId || 'N/A';
+
+            // Verificar el estado del pago desde la URL (para pagos con Stripe)
+            const queryParams = new URLSearchParams(window.location.search);
+            const paymentIntentClientSecret = queryParams.get('payment_intent_client_secret');
+            
+            if (paymentIntentClientSecret) {
+                // Simulamos la verificación del estado del pago
+                // En producción, deberías verificar el estado con tu backend
+                setTimeout(() => {
+                    document.getElementById('payment-status').className = 'payment-status paid';
+                    document.getElementById('payment-status').innerHTML = '<i class="fas fa-check-circle" style="margin-right: 0.5rem;"></i> Pago completado';
+                    document.getElementById('confirmation-title').textContent = '¡Pago Completado!';
+                    document.getElementById('confirmation-message').textContent = 'Tu pedido y pago han sido procesados exitosamente. Te enviaremos un correo con los detalles de seguimiento.';
+                }, 1000);
+            } else {
+                // Para pagos offline
+                document.getElementById('payment-status').className = 'payment-status pending';
+                document.getElementById('payment-status').innerHTML = '<i class="fas fa-clock" style="margin-right: 0.5rem;"></i> Pago pendiente';
+                document.getElementById('confirmation-message').textContent = 'Tu pedido ha sido registrado. Completa el pago según el método seleccionado para procesar tu envío.';
+            }
+
+            // Limpiar el localStorage
+            localStorage.removeItem('lastOrderId');
+        });
+    </script>
+</body>
+</html>
