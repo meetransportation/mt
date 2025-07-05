@@ -480,7 +480,7 @@
                         <label style="color: #5cc528;">Dirección Completa (USA):</label>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="senderStreet">Calle y Número:</label>
+                                <label for="senderStreet">Dirección:</label>
                                 <input type="text" id="senderStreet" class="form-control" required>
                             </div>
                             <div class="form-group">
@@ -923,25 +923,26 @@
         }
 
         // Función para verificar y aplicar estilo a inputs con contenido
-        function checkInputContent() {
-            const inputs = document.querySelectorAll('.form-control');
+function checkInputContent() {
+    const inputs = document.querySelectorAll('.form-control');
 
-            inputs.forEach(input => {
-                if (input.tagName === 'SELECT') {
-                    if (input.value && input.value !== '') {
-                        input.classList.add('input-has-content');
-                    } else {
-                        input.classList.remove('input-has-content');
-                    }
-                } else {
-                    if (input.value.trim() !== '') {
-                        input.classList.add('input-has-content');
-                    } else {
-                        input.classList.remove('input-has-content');
-                    }
-                }
-            });
+    inputs.forEach(input => {
+        if (input.tagName === 'SELECT') {
+            if (input.value && input.value !== '') {
+                input.classList.add('input-has-content');
+            } else {
+                input.classList.remove('input-has-content');
+            }
+        } else {
+            const value = input.value || ''; // Handle undefined/null values
+            if (value.trim() !== '') {
+                input.classList.add('input-has-content');
+            } else {
+                input.classList.remove('input-has-content');
+            }
         }
+    });
+}
 
         // Observar cambios en los atributos de los inputs
         function setupInputObservers() {

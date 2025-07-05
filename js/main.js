@@ -472,7 +472,6 @@ async function handleQuoteSubmission(e) {
     }
 }
 
-// Función para generar el ID único
 // Función para generar el ID único (ahora compartido entre quotes y orders)
 async function generateId(prefix = 'mt') {
     const now = new Date();
@@ -486,105 +485,100 @@ async function generateId(prefix = 'mt') {
     return db.runTransaction(async (transaction) => {
         const doc = await transaction.get(counterRef);
         
-        // Caso 1: El contador NO existe (primera vez o fue eliminado)
-        if (!doc.exists) {
-            console.warn('Contador no encontrado. Regenerando desde la colección "orders/quote"...');
+        // Caso 1: El contador existe (flujo normal)
+        if (doc.exists) {
+            const data = doc.data();
+            let { lastLetter, lastNumber, lastDate } = data;
             
-            // Primero intentamos buscar en orders
-            const lastOrder = await db.collection('orders')
-                .orderBy('timestamp', 'desc')
-                .limit(1)
-                .get();
-
-            if (!lastOrder.empty) {
-                const lastId = lastOrder.docs[0].id;
-                console.log(`Último ID de orden encontrado: ${lastId}`);
-                
-                const regex = /^mt\d{6}([a-z])(\d{2})$/;
-                const match = lastId.match(regex);
-                
-                if (match) {
-                    const lastLetter = match[1];
-                    const lastNumber = parseInt(match[2]);
-                    const lastDate = lastId.substring(2, 8);
-                    
-                    if (lastDate === datePart) {
-                        transaction.set(counterRef, {
-                            lastLetter,
-                            lastNumber: lastNumber + 1,
-                            lastDate
-                        });
-                        return generateNextId(datePart, lastLetter, lastNumber);
-                    }
-                }
-            }
-            
-            // Si no hay orders, buscamos en quotes
-            const lastQuote = await db.collection('quotes')
-                .orderBy('timestamp', 'desc')
-                .limit(1)
-                .get();
-
-            if (!lastQuote.empty) {
-                const lastId = lastQuote.docs[0].id;
-                console.log(`Último ID de cotización encontrado: ${lastId}`);
-                
-                const regex = /^mt\d{6}([a-z])(\d{2})$/;
-                const match = lastId.match(regex);
-                
-                if (match) {
-                    const lastLetter = match[1];
-                    const lastNumber = parseInt(match[2]);
-                    const lastDate = lastId.substring(2, 8);
-                    
-                    if (lastDate === datePart) {
-                        transaction.set(counterRef, {
-                            lastLetter,
-                            lastNumber: lastNumber + 1,
-                            lastDate
-                        });
-                        return generateNextId(datePart, lastLetter, lastNumber);
-                    }
-                }
-            }
-            
-            // Si no hay documentos o el formato no coincide, iniciar nueva secuencia
-            transaction.set(counterRef, {
-                lastLetter: 'a',
-                lastNumber: 1,
-                lastDate: datePart
-            });
-            return `${prefix}${datePart}a01`;
-        }
-        
-        // Caso 2: El contador existe (flujo normal)
-        const data = doc.data();
-        let { lastLetter, lastNumber, lastDate } = data;
-        
-        // Reiniciar contadores si es un nuevo día
-        if (lastDate !== datePart) {
-            lastLetter = 'a';
-            lastNumber = 1;
-            lastDate = datePart;
-        } else {
-            // Incrementar número (y letra si es necesario)
-            lastNumber++;
-            if (lastNumber > 99) {
+            // Reiniciar contadores si es un nuevo día
+            if (lastDate !== datePart) {
+                lastLetter = 'a';
                 lastNumber = 1;
-                lastLetter = String.fromCharCode(lastLetter.charCodeAt(0) + 1);
-                if (lastLetter > 'z') lastLetter = 'a'; // Reiniciar letras
+                lastDate = datePart;
+            } else {
+                // Incrementar número (y letra si es necesario)
+                lastNumber++;
+                if (lastNumber > 99) {
+                    lastNumber = 1;
+                    lastLetter = String.fromCharCode(lastLetter.charCodeAt(0) + 1);
+                    if (lastLetter > 'z') lastLetter = 'a'; // Reiniciar letras
+                }
+            }
+            
+            // Actualizar contador
+            transaction.update(counterRef, {
+                lastLetter,
+                lastNumber,
+                lastDate
+            });
+            
+            return `${prefix}${datePart}${lastLetter}${String(lastNumber).padStart(2, '0')}`;
+        }
+        
+        // Caso 2: El contador NO existe (primera vez o fue eliminado)
+        console.warn('Contador no encontrado. Regenerando desde colecciones...');
+        
+        // Buscar el documento más reciente entre orders y quotes
+        const [lastOrder, lastQuote] = await Promise.all([
+            db.collection('orders').orderBy('timestamp', 'desc').limit(1).get(),
+            db.collection('quotes').orderBy('timestamp', 'desc').limit(1).get()
+        ]);
+        
+        let lastDoc = null;
+        let lastTimestamp = null;
+        
+        // Determinar cuál es el documento más reciente
+        if (!lastOrder.empty && !lastQuote.empty) {
+            const orderTime = lastOrder.docs[0].data().timestamp?.toMillis() || 0;
+            const quoteTime = lastQuote.docs[0].data().timestamp?.toMillis() || 0;
+            
+            if (orderTime > quoteTime) {
+                lastDoc = lastOrder.docs[0];
+            } else {
+                lastDoc = lastQuote.docs[0];
+            }
+        } else if (!lastOrder.empty) {
+            lastDoc = lastOrder.docs[0];
+        } else if (!lastQuote.empty) {
+            lastDoc = lastQuote.docs[0];
+        }
+        
+        // Si encontramos un documento, extraer el último ID
+        if (lastDoc) {
+            console.log(`Documento más reciente encontrado: ${lastDoc.id}`);
+            
+            const regex = /^mt\d{6}([a-z])(\d{2})$/;
+            const match = lastDoc.id.match(regex);
+            
+            if (match) {
+                const lastLetter = match[1];
+                const lastNumber = parseInt(match[2]);
+                const lastDate = lastDoc.id.substring(2, 8);
+                
+                // Si es del mismo día, incrementar
+                if (lastDate === datePart) {
+                    const newId = generateNextId(datePart, lastLetter, lastNumber);
+                    
+                    // Crear el contador con los valores actualizados
+                    transaction.set(counterRef, {
+                        lastLetter: newId.charAt(8), // La letra del nuevo ID
+                        lastNumber: parseInt(newId.substring(9)), // El número del nuevo ID
+                        lastDate: datePart
+                    });
+                    
+                    return newId;
+                }
             }
         }
         
-        // Actualizar contador
-        transaction.update(counterRef, {
-            lastLetter,
-            lastNumber,
-            lastDate
+        // Si no hay documentos o el formato no coincide, iniciar nueva secuencia
+        transaction.set(counterRef, {
+            lastLetter: 'a',
+            lastNumber: 1,
+            lastDate: datePart
         });
         
-        // Generar el nuevo ID
-        return `${prefix}${datePart}${lastLetter}${String(lastNumber).padStart(2, '0')}`;
+        return `${prefix}${datePart}a01`;
     }).catch(error => {
         console.error('Error en la transacción:', error);
         throw new Error('No se pudo generar el ID. Intente nuevamente.');

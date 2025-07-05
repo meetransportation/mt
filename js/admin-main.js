@@ -689,6 +689,27 @@ function viewOrderDetails(orderId) {
         document.getElementById('modalPaymentMethod').textContent = getPaymentMethodText(order.paymentMethod);
         document.getElementById('modalOrderTotal').textContent = order.service.price;
         
+        // Llenar fecha y hora de recogida
+        if (order.sender.pickupDateTime) {
+            document.getElementById('modalPickupDate').value = order.sender.pickupDateTime.date;
+            
+            // Llenar el select de horas
+            const timeSelect = document.getElementById('modalPickupTime');
+            timeSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+            
+            // Generar opciones de hora (8am a 9pm)
+            for (let hour = 8; hour <= 21; hour++) {
+                const formattedHour = hour.toString().padStart(2, '0') + ':00';
+                const option = document.createElement('option');
+                option.value = formattedHour;
+                option.textContent = formattedHour;
+                timeSelect.appendChild(option);
+            }
+            
+            // Seleccionar la hora guardada
+            timeSelect.value = order.sender.pickupDateTime.time;
+        }
+        
         // Sender info
         document.getElementById('modalSenderName').textContent = order.sender.name;
         document.getElementById('modalSenderEmail').textContent = order.sender.email;
@@ -710,7 +731,7 @@ function viewOrderDetails(orderId) {
         // Additional notes
         document.getElementById('modalAdditionalNotes').textContent = order.additionalNotes || 'Ninguna';
         
-        // Items list - Aquí está la modificación principal
+        // Items list
         const itemsList = document.getElementById('modalItemsList');
         itemsList.innerHTML = '';
         
@@ -1038,11 +1059,23 @@ function saveQuoteChanges() {
 function saveOrderChanges() {
     const orderId = selectedOrderId;
     const newStatus = document.getElementById('modalOrderStatus').value;
+    const pickupDate = document.getElementById('modalPickupDate').value;
+    const pickupTime = document.getElementById('modalPickupTime').value;
     
-    db.collection('orders').doc(orderId).update({
+    const updateData = {
         status: newStatus,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    })
+    };
+    
+    // Solo actualizar fecha/hora si se proporcionaron valores válidos
+    if (pickupDate && pickupTime) {
+        updateData['sender.pickupDateTime'] = {
+            date: pickupDate,
+            time: pickupTime
+        };
+    }
+    
+    db.collection('orders').doc(orderId).update(updateData)
     .then(() => {
         alert('Cambios guardados correctamente');
         document.getElementById('orderModal').style.display = 'none';
