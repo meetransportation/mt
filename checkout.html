@@ -981,11 +981,11 @@
     const isPromo = selectedService.type === 'promo';
     const priceValue = parseFloat(selectedService.price.replace(/[^\d.]/g, ''));
     const totalPrice = priceValue * selectedService.quantity;
-    const priceHtml = isPromo ? 
-        `US$${totalPrice.toFixed(2)}` : 
-        `US$${totalPrice.toFixed(2)}<div class="order-tax">
-            <span>Tax:</span><span>US$0</span>
-        </div>`;
+const priceHtml = isPromo ? 
+    `US$${totalPrice.toFixed(2)} (${selectedService.quantity} x US$${priceValue.toFixed(2)})` : 
+    `US$${totalPrice.toFixed(2)} (${selectedService.quantity} x US$${priceValue.toFixed(2)})<div class="order-tax">
+        <span>Tax:</span><span>US$0</span>
+    </div>`;
 
     orderItemContainer.innerHTML = `
         <div class="order-item ${isPromo ? 'promo-summary' : ''}">
@@ -1243,27 +1243,28 @@ async function prepareOrderData(orderId) {
         });
     }
 
-    async function processPayment(orderData, orderId) {
-        const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
-        
-        if (paymentMethod !== 'online') {
-            localStorage.setItem('lastOrderId', orderId);
-            window.location.href = 'order-complete.html';
-            return;
-        }
+async function processPayment(orderData, orderId) {
+    const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+    
+    if (paymentMethod !== 'online') {
+        localStorage.setItem('lastOrderId', orderId);
+        window.location.href = 'order-complete.html';
+        return;
+    }
 
-        if (!stripe || !elements) {
-            throw new Error('El sistema de pago no está listo. Por favor recarga la página.');
-        }
+    if (!stripe || !elements) {
+        throw new Error('El sistema de pago no está listo. Por favor recarga la página.');
+    }
 
-        try {
-            const createPaymentFunction = firebase.functions().httpsCallable('createStripePaymentIntent');
-            const result = await createPaymentFunction({
-                amount: orderData.service.numericPrice * 100,
-                currency: 'usd',
-                metadata: {
-                    orderId: orderId,
-                    serviceName: orderData.service.name
+    try {
+        const createPaymentFunction = firebase.functions().httpsCallable('createStripePaymentIntent');
+        const result = await createPaymentFunction({
+            amount: orderData.service.numericPrice * orderData.service.quantity * 100, // Aquí está el cambio
+            currency: 'usd',
+            metadata: {
+                orderId: orderId,
+                serviceName: orderData.service.name,
+                quantity: orderData.service.quantity
                 }
             });
 
