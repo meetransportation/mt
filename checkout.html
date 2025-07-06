@@ -443,6 +443,53 @@
         .form-control {
             transition: all 0.3s ease;
         }
+
+
+
+        .quantity-control {
+    margin: 1rem 0;
+    text-align: center;
+}
+
+.quantity-control label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.quantity-input {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.quantity-input input {
+    width: 60px;
+    text-align: center;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.quantity-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: var(--secondary);
+    color: white;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quantity-btn:hover {
+    background-color: #3ba709;
+}
     </style>
 </head>
 
@@ -622,12 +669,12 @@
                     <h3>Resumen del Pedido</h3>
                 </div>
 
-                <div class="Modal-Body">
-                    <div id="orderItemContainer"></div>
-                    <div class="order-total">
-                        <span>Total:</span>
-                        <span id="orderTotal"></span>
-                    </div>
+<div class="Modal-Body">
+    <div id="orderItemContainer"></div>
+    <div class="order-total">
+        <span>Total:</span>
+        <span id="orderTotal"></span>
+    </div>
 
                     <div class="payment-options">
                         <h2>Método de Pago</h2>
@@ -916,48 +963,103 @@
         });
     }
 
-    function loadSelectedService() {
-        const selectedService = JSON.parse(localStorage.getItem('selectedService'));
-        const orderItemContainer = document.getElementById('orderItemContainer');
+   function loadSelectedService() {
+    const selectedService = JSON.parse(localStorage.getItem('selectedService'));
+    const orderItemContainer = document.getElementById('orderItemContainer');
 
-        if (!selectedService) {
-            window.location.href = 'index.html';
-            return;
-        }
+    if (!selectedService) {
+        window.location.href = 'index.html';
+        return;
+    }
 
-        const isPromo = selectedService.type === 'promo';
-        const priceHtml = isPromo ? 
-            selectedService.price : 
-            `US$${selectedService.price}<div class="order-tax">
-                <span>Tax:</span><span>US$0</span>
-            </div>`;
+    // Establecer cantidad por defecto si no existe
+    if (!selectedService.quantity) {
+        selectedService.quantity = 1;
+        localStorage.setItem('selectedService', JSON.stringify(selectedService));
+    }
 
-        orderItemContainer.innerHTML = `
-            <div class="order-item ${isPromo ? 'promo-summary' : ''}">
-                ${selectedService.icon ? `<img src="${selectedService.icon}" alt="${selectedService.name}">` : ''}
-                <div class="order-details">
-                    <div class="order-title">${selectedService.name}</div>
-                    ${!isPromo ? `
-                    <div>
-                        ${['slot1', 'slot2', 'slot3', 'slot4']
-                            .filter(slot => selectedService[slot])
-                            .map(slot => `<p><strong>${selectedService[slot].split(':')[0]}:</strong> 
-                            ${selectedService[slot].split(':').slice(1).join(':')}</p>`)
-                            .join('')}
-                    </div>` : ''}
-                    <div class="order-price">
-                        <span>Precio:</span>
-                        <span>${priceHtml}</span>
+    const isPromo = selectedService.type === 'promo';
+    const priceValue = parseFloat(selectedService.price.replace(/[^\d.]/g, ''));
+    const totalPrice = priceValue * selectedService.quantity;
+    const priceHtml = isPromo ? 
+        `US$${totalPrice.toFixed(2)}` : 
+        `US$${totalPrice.toFixed(2)}<div class="order-tax">
+            <span>Tax:</span><span>US$0</span>
+        </div>`;
+
+    orderItemContainer.innerHTML = `
+        <div class="order-item ${isPromo ? 'promo-summary' : ''}">
+            ${selectedService.icon ? `<img src="${selectedService.icon}" alt="${selectedService.name}">` : ''}
+            <div class="order-details">
+                <div class="order-title">${selectedService.name}</div>
+                ${!isPromo ? `
+                <div>
+                    ${['slot1', 'slot2', 'slot3', 'slot4']
+                        .filter(slot => selectedService[slot])
+                        .map(slot => `<p><strong>${selectedService[slot].split(':')[0]}:</strong> 
+                        ${selectedService[slot].split(':').slice(1).join(':')}</p>`)
+                        .join('')}
+                </div>` : ''}
+                <div class="quantity-control">
+                    <label for="itemQuantity">Cantidad:</label>
+                    <div class="quantity-input">
+                        <button class="quantity-btn minus" onclick="changeQuantity(-1)">-</button>
+                        <input type="number" id="itemQuantity" min="1" value="${selectedService.quantity}" onchange="updateQuantity()">
+                        <button class="quantity-btn plus" onclick="changeQuantity(1)">+</button>
                     </div>
                 </div>
+                <div class="order-price">
+                    <span>Precio unitario:</span>
+                    <span>US$${priceValue.toFixed(2)}</span>
+                </div>
+                <div class="order-price">
+                    <span>Total:</span>
+                    <span>${priceHtml}</span>
+                </div>
             </div>
-        `;
+        </div>
+    `;
 
-        document.getElementById('orderTotal').textContent = 
-            isPromo && selectedService.price.includes('US$') ? 
-            selectedService.price : 
-            `US$${selectedService.price}`;
-    }
+    updateTotalPrice();
+}
+
+function changeQuantity(change) {
+    const quantityInput = document.getElementById('itemQuantity');
+    let newQuantity = parseInt(quantityInput.value) + change;
+    
+    if (newQuantity < 1) newQuantity = 1;
+    if (newQuantity > 100) newQuantity = 100; // Límite máximo
+    
+    quantityInput.value = newQuantity;
+    updateQuantity();
+}
+
+function updateQuantity() {
+    const quantityInput = document.getElementById('itemQuantity');
+    let quantity = parseInt(quantityInput.value);
+    
+    if (isNaN(quantity)) quantity = 1;  // Se agregó el paréntesis que faltaba
+    if (quantity < 1) quantity = 1;
+    if (quantity > 100) quantity = 100;
+    
+    quantityInput.value = quantity;
+    
+    const selectedService = JSON.parse(localStorage.getItem('selectedService'));
+    selectedService.quantity = quantity;
+    localStorage.setItem('selectedService', JSON.stringify(selectedService));
+    
+    updateTotalPrice();
+}
+
+function updateTotalPrice() {
+    const selectedService = JSON.parse(localStorage.getItem('selectedService'));
+    if (!selectedService) return;
+    
+    const priceValue = parseFloat(selectedService.price.replace(/[^\d.]/g, ''));
+    const totalPrice = priceValue * selectedService.quantity;
+    
+    document.getElementById('orderTotal').textContent = `US$${totalPrice.toFixed(2)}`;
+}
 
     async function loadUserData(user) {
         if (!user) return;
@@ -1049,20 +1151,23 @@
         return true;
     }
 
-    async function prepareOrderData(orderId) {
-        const selectedService = JSON.parse(localStorage.getItem('selectedService'));
-        const priceValue = selectedService.price.replace(/[^\d.]/g, '');
-        const servicePrice = Math.round(parseFloat(priceValue) * 100);
+async function prepareOrderData(orderId) {
+    const selectedService = JSON.parse(localStorage.getItem('selectedService'));
+    const priceValue = selectedService.price.replace(/[^\d.]/g, '');
+    const servicePrice = Math.round(parseFloat(priceValue) * 100);
+    const totalPrice = servicePrice * (selectedService.quantity || 1);
 
-        return {
-            id: orderId,
-            service: {
-                id: selectedService.id,
-                name: selectedService.name,
-                price: selectedService.price,
-                numericPrice: servicePrice / 100,
-                type: selectedService.type,
-                icon: selectedService.icon || null
+    return {
+        id: orderId,
+        service: {
+            id: selectedService.id,
+            name: selectedService.name,
+            price: selectedService.price,
+            numericPrice: servicePrice / 100,
+            totalPrice: totalPrice / 100,
+            quantity: selectedService.quantity || 1,
+            type: selectedService.type,
+            icon: selectedService.icon || null
             },
             sender: await getSenderData(),
             receiver: await getReceiverData(),
