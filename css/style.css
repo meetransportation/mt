@@ -20,7 +20,8 @@
   textarea,
   select,
   .menu-toggle,
-  .scroll-down-arrow {
+  .scroll-down-arrow,
+  .scroll-down {
       -webkit-tap-highlight-color: transparent;
   }
 
@@ -58,7 +59,7 @@
 
   .header-content {
       display: flex;
-      justify-content: space-between;
+      justify-content: space-evenly;
       align-items: center;
       transition: all 0.3s;
   }
@@ -140,6 +141,8 @@
       border: none;
       cursor: pointer;
       font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
   }
 
   .btn:hover {
@@ -474,6 +477,37 @@
       color: #2d3436;
   }
 
+  .intl-tel-input {
+      width: 100%;
+      display: block;
+  }
+
+  .intl-tel-input .flag-container {
+      padding: 0;
+      left: 8px;
+  }
+
+  .intl-tel-input .selected-flag {
+      padding: 0 6px 0 8px;
+      width: 50px;
+  }
+
+  .intl-tel-input .country-list {
+      width: 300px;
+  }
+
+  .intl-tel-input input {
+      padding-left: 60px !important;
+  }
+
+  .iti {
+      width: 100%;
+  }
+
+  .iti--separate-dial-code .iti__selected-flag {
+      border-radius: 22px 0px 0px 22px;
+  }
+
   .form-group label {
       display: block;
       margin-bottom: 0.5rem;
@@ -587,6 +621,7 @@
   }
 
   #cartBtn {
+      position: relative;
       font-size: 1.3rem;
       color: white;
       margin-right: 1.2rem;
@@ -891,7 +926,7 @@
       padding: 7px 7px;
       font-size: 1.3rem;
       gap: 7px;
-      box-shadow: 0px 0px 0px 1px rgb(207 207 207), 3px 6px 28px -2px rgb(0 0 0 / 14%);
+      box-shadow: 0px 0px 0px 1px rgb(207 207 207), 3px 3px 14px 0px rgb(0 0 0 / 9%);
   }
 
   #googleSignInBtn:hover {
@@ -959,7 +994,7 @@
 
   .modal h3 {
       color: var(--primary);
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       font-weight: 500;
       text-align: center;
       padding: 0px 55px;
@@ -1121,6 +1156,183 @@
   }
 
 
+  /* Barra de navegación vertical - Versión optimizada */
+  .vertical-nav {
+      position: fixed;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      background: #2c3e50;
+      padding: 10px 7px;
+      border-radius: 15px;
+      backdrop-filter: blur(9px);
+      box-shadow: 7px 5px 8px -3px rgb(0 0 0 / 24%);
+  }
+
+  .nav-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.5);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 2;
+  }
+
+  .nav-dot:hover {
+      background-color: rgba(255, 255, 255, 0.8);
+      transform: scale(1.5);
+  }
+
+  .nav-dot.passed {
+      background-color: var(--secondary);
+      border-color: var(--secondary);
+  }
+
+  .nav-dot.active {
+      background-color: var(--secondary);
+      border-color: var(--secondary);
+      transform: scale(1.2);
+  }
+
+  .nav-dot.active:hover {
+      transform: scale(1.5);
+  }
+
+  /* Animación original mejorada */
+  .nav-dot.active.pulse {
+      animation: pulse-scroll 3s 0.1s infinite;
+  }
+
+  @keyframes pulse-scroll {
+      0% {
+          box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+      }
+
+      40% {
+          box-shadow: 0 0 0 15px rgba(255, 255, 255, 0);
+      }
+
+      55% {
+          box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+      }
+  }
+
+  .nav-line-container {
+      height: 20px;
+      width: 2px;
+      background-color: rgba(255, 255, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+  }
+
+  .nav-line-progress {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 0%;
+      background-color: var(--secondary);
+      transition: height 0.2s ease-out;
+  }
+
+  @media (max-width: 768px) {
+      .vertical-nav {
+          left: 5px;
+          padding: 8px 5px;
+      }
+
+      .nav-dot {
+          width: 10px;
+          height: 10px;
+      }
+
+      .nav-line-container {
+          height: 15px;
+      }
+  }
+
+  @media (max-width: 600px) {
+      .vertical-nav {
+          display: none;
+      }
+  }
+
+
+
+
+
+  /* WhatsApp Floating Button */
+  .whatsapp-float {
+      position: fixed;
+      bottom: 30px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background-color: #25D366;
+      color: #FFF;
+      border-radius: 50%;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      text-decoration: none;
+  }
+
+  .whatsapp-float:hover {
+      background-color: #128C7E;
+      transform: scale(1.1);
+  }
+
+  .whatsapp-float i {
+      font-size: 36px;
+  }
+
+  /* Pulse animation */
+  @keyframes pulse3 {
+      0% {
+          box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
+      }
+
+      70% {
+          box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
+      }
+
+      90% {
+          box-shadow: 0 0 0 15px rgba(37, 211, 102, 0);
+      }
+
+      100% {
+          box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+      }
+  }
+
+  .whatsapp-float.pulse {
+      animation: pulse3 5s 1.4s infinite;
+  }
+
+  @media (max-width: 768px) {
+      .whatsapp-float {
+          width: 50px;
+          height: 50px;
+          bottom: 30px;
+          right: 15px;
+      }
+
+      .whatsapp-float i {
+          font-size: 30px;
+      }
+  }
 
   .selected-item .dimension-inputs {
       display: inline-flex;
@@ -1214,6 +1426,14 @@
           flex-direction: column;
           padding-bottom: 5px;
       }
+
+      #cartBtn {
+          position: absolute;
+          right: 0px;
+          margin-right: 2.2rem;
+          top: 10px;
+      }
+
   }
 
   /* Responsive */
@@ -1518,6 +1738,15 @@
           margin-bottom: 1rem;
       }
 
+      #cartBtn {
+          position: relative;
+          font-size: 1.3rem;
+          color: white;
+          margin-right: 1.2rem;
+          padding-left: 0.3rem;
+          top: 0px;
+      }
+
       #modal-cart {
           max-width: none;
       }
@@ -1532,8 +1761,8 @@
       }
 
       .form-control {
-    padding: 0.4rem 1rem;
-}
+          padding: 0.4rem 1rem;
+      }
 
   }
 
@@ -1636,4 +1865,14 @@
   }
 
   /* Para pantallas muy pequeñas */
-  @media (max-width: 480px) {}
+  @media (max-height: 480px) {
+      .vertical-nav {
+          display: none;
+      }
+  }
+
+  @media (max-height: 770px) {
+      .scroll-down {
+          display: none;
+      }
+  }
