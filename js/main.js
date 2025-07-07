@@ -290,8 +290,8 @@ function renderServices(services, container) {
             ? `<div class="service-price">${service.price}</div>` // Texto directo para promos
             : `<div class="service-price">US$${service.price}</div>`; // Formato USD para regulares
 
-        // Div para icono, título y precio
-        let headerContent = `
+        // Div para icono, título y precio (header solo)
+        const headerContent = `
             <div class="service-header">
                 ${!isPromo && service.icon ? `<div class="service-icon"><img src="${service.icon}" alt="${service.name}"></div>` : ''}
                 <div class="service-title">${service.name}</div>
@@ -299,39 +299,28 @@ function renderServices(services, container) {
             </div>
         `;
 
-        // Div para detalles
-        let detailsContent = `
-            <div class="service-details-container">
-                <ul class="service-details">
-                    ${service.slot1 ? `<li><strong>${service.slot1.split(':')[0]}:</strong> ${service.slot1.split(':').slice(1).join(':')}</li>` : ''}
-                    ${service.slot2 ? `<li><strong>${service.slot2.split(':')[0]}:</strong> ${service.slot2.split(':').slice(1).join(':')}</li>` : ''}
-                    ${service.slot3 ? `<li><strong>${service.slot3.split(':')[0]}:</strong> ${service.slot3.split(':').slice(1).join(':')}</li>` : ''}
-                    ${service.slot4 ? `<li><strong>${service.slot4.split(':')[0]}:</strong> ${service.slot4.split(':').slice(1).join(':')}</li>` : ''}
-                </ul>
-            </div>
-        `;
-
-        // Contenedor principal para header y details
-        const contentContainer = `
-            <div class="service-content-container">
-                ${headerContent}
-                ${detailsContent}
-            </div>
-        `;
-
-        // Div para botones (solo si no es promo)
-        let buttonsContent = '';
-        if (!isPromo) {
-            buttonsContent = `
+        // Contenedor para detalles y botones juntos
+        const detailsAndButtons = `
+            <div class="service-details-buttons-container">
+                <div class="service-details-container">
+                    <ul class="service-details">
+                        ${service.slot1 ? `<li><strong>${service.slot1.split(':')[0]}:</strong> ${service.slot1.split(':').slice(1).join(':')}</li>` : ''}
+                        ${service.slot2 ? `<li><strong>${service.slot2.split(':')[0]}:</strong> ${service.slot2.split(':').slice(1).join(':')}</li>` : ''}
+                        ${service.slot3 ? `<li><strong>${service.slot3.split(':')[0]}:</strong> ${service.slot3.split(':').slice(1).join(':')}</li>` : ''}
+                        ${service.slot4 ? `<li><strong>${service.slot4.split(':')[0]}:</strong> ${service.slot4.split(':').slice(1).join(':')}</li>` : ''}
+                    </ul>
+                </div>
+                ${!isPromo ? `
                 <div class="service-buttons">
                     <button class="btn-ordenar" data-service-id="${service.id}">Ordenar</button>
                     <button class="btn-add-to-cart" data-service-id="${service.id}">Añadir al carrito</button>
                 </div>
-            `;
-        }
+                ` : ''}
+            </div>
+        `;
 
         // Combinar todo el contenido
-        serviceCard.innerHTML = contentContainer + buttonsContent;
+        serviceCard.innerHTML = headerContent + detailsAndButtons;
         container.appendChild(serviceCard);
     });
 

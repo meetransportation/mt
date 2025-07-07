@@ -19,7 +19,8 @@
   input,
   textarea,
   select,
-  .menu-toggle {
+  .menu-toggle,
+  .scroll-down-arrow {
       -webkit-tap-highlight-color: transparent;
   }
 
@@ -146,10 +147,14 @@
       box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   }
 
+  #hero-btn-content {
+      display: inline-flex;
+      gap: 2rem;
+  }
+
   .btn-outline {
       background-color: #ffffff1c;
       border: 2px solid white;
-      margin-left: 1rem;
       backdrop-filter: blur(10px);
   }
 
@@ -292,6 +297,20 @@
   }
 
   /* Services Section */
+
+  #mundi-img-1 {
+      position: absolute;
+      width: 217px;
+      left: 0px;
+      pointer-events: none;
+  }
+
+  #mundi-img-2 {
+      position: absolute;
+      width: 217px;
+      right: 0px;
+      pointer-events: none;
+  }
 
   .services-Box {
       padding: 3rem 2rem;
@@ -570,7 +589,23 @@
   #cartBtn {
       font-size: 1.3rem;
       color: white;
-      margin-right: 19px;
+      margin-right: 1.2rem;
+      padding-left: 0.3rem;
+  }
+
+  #cartCount {
+      position: absolute;
+      top: -5px;
+      right: -16px;
+      background: var(--secondary);
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
   }
 
   /* Estilos para el modal del carrito */
@@ -1219,11 +1254,16 @@
       .btn {
           display: block;
           width: 100%;
-          margin: 0 auto 0.5rem;
+          padding: 0.4rem 2rem;
       }
 
       .btn-outline {
           margin-left: 0;
+      }
+
+      #hero-btn-content {
+          display: inline-flex;
+          gap: 0.7rem;
       }
 
       .form-row {
@@ -1373,7 +1413,7 @@
           font-size: 1.5rem;
           color: white;
           position: relative;
-          margin-right: 10px;
+          padding: 0rem 0.7rem;
       }
 
       /* Selector de idioma */
@@ -1386,6 +1426,7 @@
 
       .hero-content h1 {
           font-size: 2rem;
+          margin-bottom: 0rem;
       }
 
       .route-info {
@@ -1481,11 +1522,28 @@
           max-width: none;
       }
 
+      #cartCount {
+          top: -2px;
+      }
+
+      #mundi-img-1,
+      #mundi-img-2 {
+          opacity: 0.3;
+      }
+
+      .form-control {
+    padding: 0.4rem 1rem;
+}
+
   }
 
   @media (max-width: 600px) {
       .service-card {
           padding: 0.5rem 0.2rem;
+          display: inline-flex;
+          flex-direction: row;
+          align-items: center;
+          gap: 0.5rem;
       }
 
       .service-content-container {
@@ -1496,7 +1554,7 @@
       }
 
       .service-icon {
-          height: 52px;
+          height: 62px;
       }
 
       .service-title {
