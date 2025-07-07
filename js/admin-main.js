@@ -362,13 +362,30 @@ function loadOrdersTable() {
 }
 
 function createOrderRowData(id, order, showPaymentMethod = false) {
-    const date = order.timestamp?.toDate().toLocaleDateString() || 'N/A';
+    const date = order.timestamp?.toDate()?.toLocaleDateString() || 'N/A';
+    
+    // Obtener el nombre del servicio (manejar casos donde order.service es un array)
+    let serviceName = 'Múltiples servicios';
+    if (order.services && order.services.length === 1) {
+        serviceName = order.services[0].name;
+    } else if (order.service) {
+        serviceName = order.service.name || 'Servicio no especificado';
+    }
+    
+    // Obtener el precio total
+    let totalPrice = 'N/A';
+    if (order.totalPrice) {
+        totalPrice = `US$${order.totalPrice.toFixed(2)}`;
+    } else if (order.service?.price) {
+        totalPrice = order.service.price;
+    }
+    
     const rowData = [
         id,
-        order.sender.name,
-        order.service.name,
+        order.sender?.name || 'N/A',
+        serviceName,
         date,
-        order.service.price,
+        totalPrice,
         getStatusBadge(order.status)
     ];
     
@@ -681,18 +698,26 @@ function viewOrderDetails(orderId) {
         }
         
         const order = doc.data();
-        const date = order.timestamp?.toDate().toLocaleString() || 'N/A';
+        const date = order.timestamp?.toDate()?.toLocaleString() || 'N/A';
         
         // Fill modal with order data
         document.getElementById('modalOrderId').textContent = orderId;
         document.getElementById('modalOrderDate').textContent = date;
-        document.getElementById('modalOrderStatus').value = order.status;
-        document.getElementById('modalPaymentMethod').textContent = getPaymentMethodText(order.paymentMethod);
-        document.getElementById('modalOrderTotal').textContent = order.service.price;
+        document.getElementById('modalOrderStatus').value = order.status || 'order-pending';
+        document.getElementById('modalPaymentMethod').textContent = getPaymentMethodText(order.paymentMethod || 'pickup');
+        
+        // Mostrar precio total
+        if (order.totalPrice) {
+            document.getElementById('modalOrderTotal').textContent = `US$${order.totalPrice.toFixed(2)}`;
+        } else if (order.service?.price) {
+            document.getElementById('modalOrderTotal').textContent = order.service.price;
+        } else {
+            document.getElementById('modalOrderTotal').textContent = 'N/A';
+        }
         
         // Llenar fecha y hora de recogida
-        if (order.sender.pickupDateTime) {
-            document.getElementById('modalPickupDate').value = order.sender.pickupDateTime.date;
+        if (order.sender?.pickupDateTime) {
+            document.getElementById('modalPickupDate').value = order.sender.pickupDateTime.date || '';
             
             // Llenar el select de horas
             const timeSelect = document.getElementById('modalPickupTime');
@@ -708,89 +733,76 @@ function viewOrderDetails(orderId) {
             }
             
             // Seleccionar la hora guardada
-            timeSelect.value = order.sender.pickupDateTime.time;
+            timeSelect.value = order.sender.pickupDateTime.time || '';
         }
         
         // Sender info
-        document.getElementById('modalSenderName').textContent = order.sender.name;
-        document.getElementById('modalSenderEmail').textContent = order.sender.email;
-        document.getElementById('modalSenderPhone').textContent = order.sender.phone;
-        document.getElementById('modalSenderAddress').textContent = order.sender.address;
+        document.getElementById('modalSenderName').textContent = order.sender?.name || 'N/A';
+        document.getElementById('modalSenderEmail').textContent = order.sender?.email || 'N/A';
+        document.getElementById('modalSenderPhone').textContent = order.sender?.phone || 'N/A';
+        
+        // Construir dirección del remitente
+        const senderAddressParts = [];
+        if (order.sender?.address?.street) senderAddressParts.push(order.sender.address.street);
+        if (order.sender?.address?.apt) senderAddressParts.push(`Apt/Suite: ${order.sender.address.apt}`);
+        if (order.sender?.address?.city) senderAddressParts.push(order.sender.address.city);
+        if (order.sender?.address?.state) senderAddressParts.push(order.sender.address.state);
+        if (order.sender?.address?.zipCode) senderAddressParts.push(order.sender.address.zipCode);
+        
+        document.getElementById('modalSenderAddress').textContent = senderAddressParts.join(', ') || 'N/A';
         
         // Receiver info
-        document.getElementById('modalReceiverName').textContent = order.receiver.name;
-        document.getElementById('modalReceiverPhone').textContent = order.receiver.phone;
-        document.getElementById('modalReceiverCedula').textContent = order.receiver.cedula;
-        document.getElementById('modalReceiverAddress').textContent = order.receiver.address;
-        document.getElementById('modalReceiverProvince').textContent = order.receiver.province;
+        document.getElementById('modalReceiverName').textContent = order.receiver?.name || 'N/A';
+        document.getElementById('modalReceiverPhone').textContent = order.receiver?.phone || 'N/A';
+        document.getElementById('modalReceiverCedula').textContent = order.receiver?.cedula || 'N/A';
+        document.getElementById('modalReceiverAddress').textContent = order.receiver?.address || 'N/A';
+        document.getElementById('modalReceiverProvince').textContent = order.receiver?.province || 'N/A';
         
         // Service info
-        document.getElementById('modalServiceType').textContent = order.service.type === 'promo' ? 'Promoción' : 'Regular';
-        document.getElementById('modalServiceName').textContent = order.service.name;
-        document.getElementById('modalServicePrice').textContent = order.service.price;
+        if (order.services && order.services.length > 0) {
+            document.getElementById('modalServiceType').textContent = order.services[0].type === 'promo' ? 'Promoción' : 'Regular';
+            document.getElementById('modalServiceName').textContent = order.services[0].name || 'N/A';
+            document.getElementById('modalServicePrice').textContent = order.services[0].price || 'N/A';
+        } else if (order.service) {
+            document.getElementById('modalServiceType').textContent = order.service.type === 'promo' ? 'Promoción' : 'Regular';
+            document.getElementById('modalServiceName').textContent = order.service.name || 'N/A';
+            document.getElementById('modalServicePrice').textContent = order.service.price || 'N/A';
+        } else {
+            document.getElementById('modalServiceType').textContent = 'N/A';
+            document.getElementById('modalServiceName').textContent = 'N/A';
+            document.getElementById('modalServicePrice').textContent = 'N/A';
+        }
         
         // Additional notes
         document.getElementById('modalAdditionalNotes').textContent = order.additionalNotes || 'Ninguna';
         
         // Items list
-     // Items list
-const itemsList = document.getElementById('modalItemsList');
-itemsList.innerHTML = '';
-
-if (order.items && order.items.length > 0) {
-    order.items.forEach(item => {
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'item-row';
+        const itemsList = document.getElementById('modalItemsList');
+        itemsList.innerHTML = '';
         
-        // Construir la imagen - usa URL de Storage si está disponible, sino un placeholder
-        let imageSrc = 'https://via.placeholder.com/60';
-        
-        // Prioridad 1: Usar iconUrl si existe (URL de Firebase Storage)
-        if (item.iconUrl) {
-            imageSrc = item.iconUrl;
-        } 
-        // Prioridad 2: Si no hay iconUrl pero hay icon (base64 o URL antigua)
-        else if (item.icon) {
-            // Verificar si es una URL válida (no base64)
-            if (item.icon.startsWith('http')) {
-                imageSrc = item.icon;
-            }
-            // Si es base64, usar el placeholder
-        }
-        
-        // Resto del código para construir el contenido del artículo...
-        if (order.service.description === 'Artículo Común' || item.name) {
-            itemDiv.innerHTML = `
-                <img src="${imageSrc}" class="item-image">
-                <div class="item-info">
-                    <div class="item-name">${item.name}</div>
-                    <div class="item-meta">
-                        <div><strong>Dimensiones:</strong> ${item.dimensions}</div>
-                        <div><strong>Peso:</strong> ${item.weight} lbs</div>
-                        <div><strong>Cantidad:</strong> ${item.quantity || 1}</div>
-                        ${item.commercialValue ? `<div><strong>Valor comercial:</strong> $${item.commercialValue}</div>` : ''}
+        if (order.services && order.services.length > 0) {
+            order.services.forEach(service => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'item-row';
+                
+                const imageSrc = service.icon || './img/default_icon_1.png';
+                
+                itemDiv.innerHTML = `
+                    <img src="${imageSrc}" class="item-image">
+                    <div class="item-info">
+                        <div class="item-name">${service.name}</div>
+                        <div class="item-meta">
+                            <div><strong>Tipo:</strong> ${service.type === 'promo' ? 'Promoción' : 'Regular'}</div>
+                            <div><strong>Precio:</strong> ${service.price}</div>
+                            <div><strong>Cantidad:</strong> ${service.quantity || 1}</div>
+                        </div>
                     </div>
-                </div>
-            `;
-        } else if (order.service.description === 'Personalizado' || item.item) {
-            itemDiv.innerHTML = `
-                <img src="${imageSrc}" class="item-image">
-                <div class="item-info">
-                    <div class="item-name">${item.item || 'Artículo personalizado'}</div>
-                    <div class="item-meta">
-                        <div><strong>Dimensiones:</strong> ${item.length}" x ${item.width}" x ${item.height}"</div>
-                        <div><strong>Peso:</strong> ${item.weight} lbs</div>
-                        ${item.commercialValue ? `<div><strong>Valor comercial:</strong> $${item.commercialValue}</div>` : ''}
-                    </div>
-                </div>
-            `;
+                `;
+                itemsList.appendChild(itemDiv);
+            });
+        } else {
+            itemsList.innerHTML = '<p>No hay artículos registrados para esta orden.</p>';
         }
-        
-        itemsList.appendChild(itemDiv);
-    });
-} else {
-    itemsList.innerHTML = '<p>No hay artículos registrados para esta orden.</p>';
-}
         
         // Show modal
         document.getElementById('orderModal').style.display = 'flex';
@@ -934,7 +946,6 @@ function validateQuoteForm(isForConversion = false) {
     return allValid;
 }
 
-// Convert Quote to Order Handler
 // Modifica la función convertQuoteToOrderHandler
 function convertQuoteToOrderHandler() {
     if (!validateQuoteForm(true)) {
@@ -995,8 +1006,9 @@ function convertQuoteToOrderHandler() {
             // Información del destinatario (del formulario)
             receiver: quoteData.receiver,
             
-            // Información de pago (valor por defecto)
+            // Información de pago
             paymentMethod: 'pickup',
+            paymentStatus: 'pending', // Añadido este campo
             
             // Estado y fechas
             status: 'order-pending',

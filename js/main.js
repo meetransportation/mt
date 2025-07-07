@@ -90,9 +90,30 @@ const customPackageDiv = document.getElementById('customPackage');
 const commonItemDiv = document.getElementById('commonItemDiv');
 
 // Funciones del carrito
+// Para el contador
 function updateCartCount() {
     const count = cart.reduce((total, item) => total + (item.quantity || 1), 0);
     document.getElementById('cartCount').textContent = count;
+    // Si tienes un segundo contador con ID diferente
+    const cartCount2 = document.getElementById('cartCount2');
+    if (cartCount2) cartCount2.textContent = count;
+}
+
+// Para los botones
+document.getElementById('cartBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    renderCartItems();
+    showModal(document.getElementById('cartModal'));
+});
+
+// Si tienes un segundo botón con ID diferente
+const cartBtn2 = document.getElementById('cartBtn2');
+if (cartBtn2) {
+    cartBtn2.addEventListener('click', function(e) {
+        e.preventDefault();
+        renderCartItems();
+        showModal(document.getElementById('cartModal'));
+    });
 }
 
 function renderCartItems() {
@@ -391,6 +412,7 @@ function setupServiceButtons() {
 }
 
 // Función para cargar los artículos comunes
+// Función para cargar los artículos comunes desde Firebase con caché
 async function loadCommonItems() {
     const container = document.getElementById('commonItemsContainer');
     container.innerHTML = '<p>Cargando artículos...</p>';
@@ -398,6 +420,35 @@ async function loadCommonItems() {
     const selectedItemsContainer = document.createElement('div');
     selectedItemsContainer.className = 'selected-items-container';
     container.parentNode.insertBefore(selectedItemsContainer, container.nextSibling);
+
+    // Verificar si hay datos en el localStorage
+    const cachedItems = localStorage.getItem('cachedCommonItems');
+    const lastUpdated = localStorage.getItem('commonItemsLastUpdated');
+    const now = new Date().getTime();
+    const oneHour = 60 * 60 * 1000; // 1 hora en milisegundos
+
+    // Mostrar datos cacheados si son recientes (menos de 1 hora)
+    if (cachedItems && lastUpdated && (now - parseInt(lastUpdated)) < oneHour) {
+        try {
+            const items = JSON.parse(cachedItems);
+            renderCommonItems(items, container, selectedItemsContainer);
+        } catch (e) {
+            console.error('Error parsing cached common items:', e);
+            // Si hay error al parsear, cargar desde Firebase
+            loadCommonItemsFromFirebase(container, selectedItemsContainer);
+        }
+    } else {
+        // No hay caché o está desactualizado, cargar desde Firebase
+        loadCommonItemsFromFirebase(container, selectedItemsContainer);
+    }
+
+    // Configurar listener en tiempo real para actualizaciones
+    setupCommonItemsRealtimeListener(container, selectedItemsContainer);
+}
+
+// Función para cargar artículos comunes desde Firebase
+async function loadCommonItemsFromFirebase(container, selectedItemsContainer) {
+    container.innerHTML = '<p>Cargando artículos...</p>';
 
     try {
         const snapshot = await db.collection('CommonItems').get();
@@ -407,111 +458,137 @@ async function loadCommonItems() {
             return;
         }
 
-        container.innerHTML = '';
-
-        // Cargar todas las imágenes primero
-        const itemsWithIcons = await Promise.all(snapshot.docs.map(async doc => {
-            const item = doc.data();
-            // Si el icono es una URL de Firebase Storage, úsala directamente
-            if (item.icon && item.icon.startsWith('https://')) {
-                return { id: doc.id, ...item, iconUrl: item.icon };
-            }
-            // Si no hay icono, usar uno por defecto
-            return { id: doc.id, ...item, iconUrl: 'https://via.placeholder.com/50' };
+        const items = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
         }));
 
-        // Renderizar los items con las imágenes cargadas
-        itemsWithIcons.forEach(item => {
-            const btn = document.createElement('button');
-            btn.className = 'common-item-btn';
-            btn.type = 'button';
-            btn.dataset.id = item.id;
+        // Guardar en caché
+        localStorage.setItem('cachedCommonItems', JSON.stringify(items));
+        localStorage.setItem('commonItemsLastUpdated', new Date().getTime().toString());
 
-            // Formatear dimensiones si es un array
-            let dimensionsText = item.dimensions;
-            if (Array.isArray(item.dimensions)) {
-                dimensionsText = item.dimensions.join('" x ') + '"';
-            }
+        // Renderizar artículos
+        renderCommonItems(items, container, selectedItemsContainer);
 
-            // Mostrar peso si existe
-            const weightText = item.weight ? `${item.weight} lbs` : 'N/A';
-
-            btn.innerHTML = `
-                <img src="${item.iconUrl}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: contain;">
-                <span class="item-name">${item.name}</span>
-                <span class="item-dimensions">${dimensionsText}</span>
-                <span class="item-weight">${weightText}</span>
-            `;
-
-            btn.addEventListener('click', () => {
-                const existingItem = selectedItemsContainer.querySelector(`[data-id="${item.id}"]`);
-
-                if (existingItem) {
-                    existingItem.remove();
-                    btn.classList.remove('selected');
-                    updateSelectedItemsField(selectedItemsContainer);
-                    return;
-                }
-
-                btn.classList.add('selected');
-
-                const selectedItem = document.createElement('div');
-                selectedItem.className = 'selected-item';
-                selectedItem.dataset.id = item.id;
-
-                const defaultDims = Array.isArray(item.dimensions) ? item.dimensions : [0, 0, 0];
-                const defaultWeight = item.weight || 0;
-
-                selectedItem.innerHTML = `
-                    <img src="${item.iconUrl}" alt="${item.name}">
-                    <div class="item-info">
-                        <span id="item-info-name">${item.name}</span>
-                        <div class="dimension-inputs">
-                            <div>
-                                <label>Largo (pulg):</label>
-                                <input type="number" class="dimension-input" data-dim="length" value="${defaultDims[0]}" min="1">
-                            </div>
-                            <div>
-                                <label>Ancho (pulg):</label>
-                                <input type="number" class="dimension-input" data-dim="width" value="${defaultDims[1]}" min="1">
-                            </div>
-                            <div>
-                                <label>Alto (pulg):</label>
-                                <input type="number" class="dimension-input" data-dim="height" value="${defaultDims[2]}" min="1">
-                            </div>
-                            <div>
-                                <label style="color: #ff6000;">Peso (lbs):</label>
-                                <input type="number" class="weight-input" value="${defaultWeight}" min="1">
-                            </div>
-                            <div>
-                                <label style="color: #0089cd;">Cantidad:</label>
-                                <input type="number" class="item-quantity" value="1" min="1" data-price="${item.price || 0}">
-                            </div>
-                            <div>
-                                <span class="remove-item" onclick="removeSelectedItem('${item.id}')">×</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                selectedItem.querySelectorAll('.dimension-input, .weight-input').forEach(input => {
-                    input.addEventListener('change', () => updateSelectedItemsField(selectedItemsContainer));
-                });
-
-                selectedItem.querySelector('.item-quantity').addEventListener('change', () => {
-                    updateSelectedItemsField(selectedItemsContainer);
-                });
-
-                selectedItemsContainer.appendChild(selectedItem);
-                updateSelectedItemsField(selectedItemsContainer);
-            });
-
-            container.appendChild(btn);
-        });
     } catch (error) {
         console.error('Error loading common items:', error);
         container.innerHTML = '<p>Error al cargar los artículos</p>';
     }
+}
+
+// Función para configurar el listener en tiempo real de artículos comunes
+function setupCommonItemsRealtimeListener(container, selectedItemsContainer) {
+    db.collection('CommonItems')
+        .onSnapshot(snapshot => {
+            const items = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+            // Actualizar caché
+            localStorage.setItem('cachedCommonItems', JSON.stringify(items));
+            localStorage.setItem('commonItemsLastUpdated', new Date().getTime().toString());
+
+            // Si la página está visible, actualizar la UI
+            if (!document.hidden) {
+                renderCommonItems(items, container, selectedItemsContainer);
+            }
+        }, error => {
+            console.error('Error en listener de artículos comunes:', error);
+        });
+}
+
+// Función para renderizar los artículos comunes (extraída de la lógica original)
+function renderCommonItems(items, container, selectedItemsContainer) {
+    container.innerHTML = '';
+
+    items.forEach(item => {
+        const btn = document.createElement('button');
+        btn.className = 'common-item-btn';
+        btn.type = 'button';
+        btn.dataset.id = item.id;
+
+        // Formatear dimensiones si es un array
+        let dimensionsText = item.dimensions;
+        if (Array.isArray(item.dimensions)) {
+            dimensionsText = item.dimensions.join('" x ') + '"';
+        }
+
+        // Mostrar peso si existe
+        const weightText = item.weight ? `${item.weight} lbs` : 'N/A';
+
+        btn.innerHTML = `
+            <img src="${item.icon || 'https://via.placeholder.com/50'}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: contain;">
+            <span class="item-name">${item.name}</span>
+            <span class="item-dimensions">${dimensionsText}</span>
+            <span class="item-weight">${weightText}</span>
+        `;
+
+        btn.addEventListener('click', () => {
+            const existingItem = selectedItemsContainer.querySelector(`[data-id="${item.id}"]`);
+
+            if (existingItem) {
+                existingItem.remove();
+                btn.classList.remove('selected');
+                updateSelectedItemsField(selectedItemsContainer);
+                return;
+            }
+
+            btn.classList.add('selected');
+
+            const selectedItem = document.createElement('div');
+            selectedItem.className = 'selected-item';
+            selectedItem.dataset.id = item.id;
+
+            const defaultDims = Array.isArray(item.dimensions) ? item.dimensions : [0, 0, 0];
+            const defaultWeight = item.weight || 0;
+
+            selectedItem.innerHTML = `
+                <img src="${item.icon || 'https://via.placeholder.com/50'}" alt="${item.name}">
+                <div class="item-info">
+                    <span id="item-info-name">${item.name}</span>
+                    <div class="dimension-inputs">
+                        <div>
+                            <label>Largo (pulg):</label>
+                            <input type="number" class="dimension-input" data-dim="length" value="${defaultDims[0]}" min="1">
+                        </div>
+                        <div>
+                            <label>Ancho (pulg):</label>
+                            <input type="number" class="dimension-input" data-dim="width" value="${defaultDims[1]}" min="1">
+                        </div>
+                        <div>
+                            <label>Alto (pulg):</label>
+                            <input type="number" class="dimension-input" data-dim="height" value="${defaultDims[2]}" min="1">
+                        </div>
+                        <div>
+                            <label style="color: #ff6000;">Peso (lbs):</label>
+                            <input type="number" class="weight-input" value="${defaultWeight}" min="1">
+                        </div>
+                        <div>
+                            <label style="color: #0089cd;">Cantidad:</label>
+                            <input type="number" class="item-quantity" value="1" min="1" data-price="${item.price || 0}">
+                        </div>
+                        <div>
+                            <span class="remove-item" onclick="removeSelectedItem('${item.id}')">×</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            selectedItem.querySelectorAll('.dimension-input, .weight-input').forEach(input => {
+                input.addEventListener('change', () => updateSelectedItemsField(selectedItemsContainer));
+            });
+
+            selectedItem.querySelector('.item-quantity').addEventListener('change', () => {
+                updateSelectedItemsField(selectedItemsContainer);
+            });
+
+            selectedItemsContainer.appendChild(selectedItem);
+            updateSelectedItemsField(selectedItemsContainer);
+        });
+
+        container.appendChild(btn);
+    });
 }
 
 // Función para eliminar un artículo seleccionado
@@ -579,6 +656,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+    
 
     // Address country change listeners
     document.getElementById('country')?.addEventListener('change', function() {
@@ -703,6 +781,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    
+
     // Inicializar el contador del carrito
     updateCartCount();
 
@@ -773,10 +853,9 @@ async function signInWithGoogle() {
     }
 }
 
-// Handle quote form submission
+
 async function handleQuoteSubmission(e) {
     e.preventDefault();
-
     const submitBtn = e.target.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
     submitBtn.textContent = 'Sending...';
@@ -789,10 +868,7 @@ async function handleQuoteSubmission(e) {
             throw new Error('Please fill all required fields');
         }
 
-        // Generar el ID único usando la nueva función
         const orderId = await generateId('mt');
-        
-        // Crear objeto de orden con status "quotes-pending"
         const orderData = {
             ...formData,
             orderId: orderId,
@@ -801,22 +877,37 @@ async function handleQuoteSubmission(e) {
             estimatedPrice: calculateEstimatedPrice(formData.packageType, formData.commonItems || formData.customItem)
         };
 
-        // Si el usuario está autenticado, agregar su ID
+        // Añadir userId solo si hay un usuario autenticado
         if (currentUser) {
             orderData.userId = currentUser.uid;
         }
 
-        // Guardar en la colección principal de quotes
+        // Guardar en quotes
         await db.collection('quotes').doc(orderId).set(orderData);
 
-        // Si el usuario está autenticado, guardar también en su subcolección
+        // Si hay usuario autenticado, guardar también en userOrders
         if (currentUser) {
-            await db.collection('users').doc(currentUser.uid).collection('orders').doc(orderId).set(orderData);
-            await updateUserProfile(formData);
+            await db.collection('users').doc(currentUser.uid).collection('userOrders').doc(orderId).set({
+                ...orderData,
+                userId: currentUser.uid
+            });
         }
 
+        // Resetear el formulario
         quoteForm.reset();
         customPackageDiv.classList.remove('show');
+        
+        // Resetear la selección de artículos comunes
+        resetCommonItemsSelection();
+        
+        // Si hay usuario logueado, rellenar automáticamente los campos
+        if (currentUser) {
+            fillQuoteFormWithUserData(
+                await getUserData(currentUser.uid), 
+                currentUser
+            );
+        }
+
         showModal(successModal);
 
     } catch (error) {
@@ -827,6 +918,25 @@ async function handleQuoteSubmission(e) {
         submitBtn.disabled = false;
     }
 }
+
+
+// Nueva función para resetear la selección de artículos comunes
+function resetCommonItemsSelection() {
+    const container = document.querySelector('.selected-items-container');
+    if (container) {
+        container.innerHTML = '';
+    }
+    
+    document.getElementById('commonItemType').value = '';
+    
+    // Remover la clase 'selected' de todos los botones
+    document.querySelectorAll('.common-item-btn.selected').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+}
+
+
+
 
 // Función para generar el ID único (ahora compartido entre quotes y orders)
 async function generateId(prefix = 'mt') {
@@ -1238,20 +1348,6 @@ async function logout() {
     }
 }
 
-// Update user profile
-async function updateUserProfile(formData) {
-    if (!currentUser) return;
-
-    try {
-        await db.collection('users').doc(currentUser.uid).update({
-            'profile.name': formData.name,
-            'profile.phone': formData.phone,
-            lastActivity: firebase.firestore.FieldValue.serverTimestamp()
-        });
-    } catch (error) {
-        console.error('Error updating profile:', error);
-    }
-}
 
 // En la función updateUIForLoggedInUser, añade el event listener para el modal de perfil
 function updateUIForLoggedInUser(user) {
@@ -1259,36 +1355,65 @@ function updateUIForLoggedInUser(user) {
     userProfile.style.display = 'inline-block';
     logoutBtn.style.display = 'inline-block';
 
-    // Get user data
+    // Cambiar el texto a "Mi perfil" en lugar del nombre del usuario
+    userProfile.textContent = 'Mi perfil';
+    userProfile.innerHTML = 'Mi perfil'; // Esto asegura que no haya HTML adicional
+
+    // Get user data (aunque ya no usaremos el nombre para mostrarlo)
     db.collection('users').doc(user.uid).get().then(doc => {
         if (doc.exists) {
             const userData = doc.data();
-            const fullName = userData.profile?.name || user.email;
-            const firstName = fullName.split(' ')[0];
-
-            // If user has Google photo, show it
-            if (user.photoURL) {
-                userProfile.innerHTML = `<img src="${user.photoURL}" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 5px; vertical-align: middle;"> ${firstName}`;
-            } else {
-                userProfile.textContent = firstName;
-            }
-
-            // Set click event for profile modal
-            userProfile.addEventListener('click', () => {
-                showProfileModal(user.uid);
-            });
-        } else {
-            // If no data in Firestore but user has Google photo
-            if (user.photoURL) {
-                userProfile.innerHTML = `<img src="${user.photoURL}" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 5px; vertical-align: middle;"> ${user.email.split('@')[0]}`;
-            } else {
-                userProfile.textContent = user.email.split('@')[0];
-            }
+            
+            // Auto-fill quote form with user data
+            fillQuoteFormWithUserData(userData, user);
         }
     }).catch(error => {
         console.error("Error getting user data:", error);
-        userProfile.textContent = user.email.split('@')[0];
+        fillQuoteFormWithUserData({}, user);
     });
+}
+
+
+// Modificar la función fillQuoteFormWithUserData para aceptar userData como parámetro
+function fillQuoteFormWithUserData(userData, user) {
+    // Fill name if available
+    if (userData?.profile?.name) {
+        document.getElementById('name').value = userData.profile.name;
+    } else if (user.displayName) {
+        document.getElementById('name').value = user.displayName;
+    }
+    
+    // Fill email
+    document.getElementById('email').value = user.email || '';
+    
+    // Fill phone if available
+    const phoneInput = document.getElementById('phone');
+    if (userData?.profile?.phone) {
+        try {
+            const phoneIti = window.intlTelInputGlobals.getInstance(phoneInput);
+            phoneIti.setNumber(userData.profile.phone);
+        } catch (e) {
+            console.error('Error setting phone number:', e);
+            phoneInput.value = userData.profile.phone;
+        }
+    }
+    
+    // Set a flag to know this is a logged-in user's quote
+    document.getElementById('quoteForm').dataset.userId = user.uid;
+}
+
+// Nueva función para obtener datos del usuario
+async function getUserData(userId) {
+    try {
+        const userDoc = await db.collection('users').doc(userId).get();
+        if (userDoc.exists) {
+            return userDoc.data();
+        }
+        return {};
+    } catch (error) {
+        console.error("Error getting user data:", error);
+        return {};
+    }
 }
 
 // Nueva función para mostrar el modal de perfil con datos editables
@@ -1337,6 +1462,7 @@ async function showProfileModal(userId) {
                 document.getElementById('profileZipCode').value = address.zipCode || '';
             }
             
+            
             // Configurar event listeners para los botones
             document.getElementById('saveProfileBtn').addEventListener('click', () => saveProfileChanges(userId));
             document.getElementById('deleteAccountBtn').addEventListener('click', () => confirmDeleteAccount(userId));
@@ -1348,6 +1474,8 @@ async function showProfileModal(userId) {
         console.error('Error loading profile:', error);
     }
 }
+
+
 
 // Función para guardar los cambios del perfil
 async function saveProfileChanges(userId) {
@@ -1570,3 +1698,12 @@ function getAuthErrorMessage(errorCode) {
             return 'Correo o contraseña incorrecta';
     }
 }
+
+
+// Event listeners para los botones de ordenar arroz/aceite y cajas/tanques
+document.getElementById('comprar-arroz-tanque-content').addEventListener('click', function(e) {
+    if (e.target.id === 'comprar-arroz-tanque-btn' || e.target.closest('#comprar-arroz-tanque-btn')) {
+        e.preventDefault();
+        showModal(document.getElementById('orderItemsModal'));
+    }
+});

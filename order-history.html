@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Pedidos - MeeTransportation</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="icon" href="./img/icon_favicon_meetax_1_2048x2048.png" type="image/png" sizes="any">
+    <!-- Firebase SDK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-firestore-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-auth-compat.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    
+    <style>
+    .tabs {
+        display: flex;
+        border-bottom: 1px solid #ddd;
+        margin-bottom: 1rem;
+    }
+    
+    .tab-btn {
+        padding: 0.5rem 1rem;
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        cursor: pointer;
+        font-weight: 500;
+        color: #666;
+    }
+    
+    .tab-btn.active {
+        color: var(--secondary);
+        border-bottom-color: var(--secondary);
+    }
+    
+    .tab-content {
+        display: none;
+    }
+    
+    .tab-content.active {
+        display: block;
+    }
+    
+    .shipment-item {
+        border: 1px solid #eee;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background: #f9f9f9;
+    }
+    
+    .shipment-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+    
+    .shipment-id {
+        font-weight: bold;
+        color: var(--secondary);
+    }
+    
+    .shipment-status {
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+    
+    .status-pending {
+        background-color: #FFF3CD;
+        color: #856404;
+    }
+    
+    .status-completed {
+        background-color: #D4EDDA;
+        color: #155724;
+    }
+    
+    .status-paid {
+        background-color: #D1ECF1;
+        color: #0C5460;
+    }
+    
+    .shipment-details {
+        margin-top: 0.5rem;
+    }
+    
+    .detail-row {
+        display: flex;
+        margin-bottom: 0.25rem;
+    }
+    
+    .detail-label {
+        font-weight: bold;
+        min-width: 120px;
+    }
+    
+    .service-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem;
+        background: white;
+        border-radius: 4px;
+        margin: 0.5rem 0;
+    }
+    
+    .service-name {
+        font-weight: bold;
+    }
+    
+    .service-price {
+        color: var(--secondary);
+    }
+    
+    .total-row {
+        font-weight: bold;
+        border-top: 1px solid #ddd;
+        padding-top: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    
+    .back-to-profile {
+        margin-bottom: 2rem;
+    }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container" id="menu-s">
+            <div class="header-content">
+                <a href="index.html" class="logo">Mee<span>Transportation</span></a>
+                <div class="menu-toggle" id="mobile-menu">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <nav id="main-nav">
+                    <ul>
+                        <li><a href="index.html#inicio">Inicio</a></li>
+                        <li><a href="index.html#services">Servicios</a></li>
+                        <li><a href="index.html#quote">Cotización</a></li>
+                        <li><a href="index.html#tracking">Rastreo</a></li>
+                        <li><a href="index.html#contact">Contacto</a></li>
+                        <li><a href="profile.html">Mi Perfil</a></li>
+                        <li><a href="#" id="logoutBtn" class="btn btn-outline">Cerrar Sesión</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Order History Section -->
+    <section class="order-history-section">
+        <div class="container">
+            <div class="back-to-profile">
+                <a href="profile.html" class="btn btn-outline">
+                    <i class="fas fa-arrow-left"></i> Volver a mi perfil
+                </a>
+            </div>
+            
+            <h1>Historial de Pedidos</h1>
+            
+            <div class="profile-card">
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="orders">Órdenes</button>
+                    <button class="tab-btn" data-tab="quotes">Cotizaciones</button>
+                </div>
+                
+                <div id="ordersTab" class="tab-content active">
+                    <div class="shipments-list" id="userOrders">
+                        <p>Cargando historial de pedidos...</p>
+                    </div>
+                </div>
+                
+                <div id="quotesTab" class="tab-content">
+                    <div class="shipments-list" id="userQuotes">
+                        <p>Cargando historial de cotizaciones...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Mee<span style="color: var(--secondary);">Transportation</span></h3>
+                    <p>Especialistas en envíos desde Estados Unidos a República Dominicana. Confiabilidad y rapidez en cada entrega.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Enlaces Rápidos</h3>
+                    <a href="index.html#services">Servicios</a>
+                    <a href="index.html#quote">Cotización</a>
+                    <a href="index.html#tracking">Rastreo</a>
+                    <a href="index.html#contact">Contacto</a>
+                </div>
+                <div class="footer-column">
+                    <h3>Horario</h3>
+                    <p>Lunes - Sábado: 9:30am - 8:00pm</p>
+                    <p>Domingo: Cerrado</p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025 MeeTransportation. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="./js/main.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load user data when auth state changes
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    loadUserOrders(user.uid);
+                    loadUserQuotes(user.uid);
+                } else {
+                    // Redirect to login if not authenticated
+                    window.location.href = 'index.html';
+                }
+            });
+
+            // Logout button
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+
+            // Tabs functionality
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // Update active tab button
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update active tab content
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    document.getElementById(`${tabId}Tab`).classList.add('active');
+                });
+            });
+        });
+
+        // Función para cargar las órdenes del usuario
+        async function loadUserOrders(userId) {
+            const ordersContainer = document.getElementById('userOrders');
+            if (!ordersContainer) {
+                console.error('Contenedor de órdenes no encontrado');
+                return;
+            }
+
+            try {
+                ordersContainer.innerHTML = '<p>Cargando órdenes...</p>';
+                
+                const ordersQuery = await db.collection('orders')
+                    .where('userId', '==', userId)
+                    .orderBy('timestamp', 'desc')
+                    .get();
+
+                if (ordersQuery.empty) {
+                    ordersContainer.innerHTML = '<p>No tienes órdenes registradas</p>';
+                    return;
+                }
+
+                let ordersHTML = '';
+                ordersQuery.forEach(doc => {
+                    const order = doc.data();
+                    ordersHTML += renderOrderItem(order);
+                });
+
+                ordersContainer.innerHTML = ordersHTML;
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                ordersContainer.innerHTML = 
+                    '<p>Error al cargar las órdenes. Por favor intenta nuevamente.</p>';
+                
+                // Si es error de índice, muestra enlace para crearlo
+                if (error.code === 'failed-precondition') {
+                    const indexUrl = error.message.match(/https:\/\/[^\s]+/)?.[0];
+                    if (indexUrl) {
+                        ordersContainer.innerHTML += 
+                            `<p><a href="${indexUrl}" target="_blank">Crear índice necesario</a></p>`;
+                    }
+                }
+            }
+        }
+
+        // Función para cargar las cotizaciones del usuario
+        async function loadUserQuotes(userId) {
+            const quotesContainer = document.getElementById('userQuotes');
+            if (!quotesContainer) {
+                console.error('Contenedor de cotizaciones no encontrado');
+                return;
+            }
+
+            try {
+                quotesContainer.innerHTML = '<p>Cargando cotizaciones...</p>';
+                
+                const quotesQuery = await db.collection('quotes')
+                    .where('userId', '==', userId)
+                    .orderBy('timestamp', 'desc')
+                    .get();
+
+                if (quotesQuery.empty) {
+                    quotesContainer.innerHTML = '<p>No tienes cotizaciones registradas</p>';
+                    return;
+                }
+
+                let quotesHTML = '';
+                quotesQuery.forEach(doc => {
+                    const quote = doc.data();
+                    quotesHTML += renderQuoteItem(quote);
+                });
+
+                quotesContainer.innerHTML = quotesHTML;
+            } catch (error) {
+                console.error('Error loading quotes:', error);
+                quotesContainer.innerHTML = 
+                    '<p>Error al cargar las cotizaciones. Por favor intenta nuevamente.</p>';
+                
+                if (error.code === 'failed-precondition') {
+                    const indexUrl = error.message.match(/https:\/\/[^\s]+/)?.[0];
+                    if (indexUrl) {
+                        quotesContainer.innerHTML += 
+                            `<p><a href="${indexUrl}" target="_blank">Crear índice necesario</a></p>`;
+                    }
+                }
+            }
+        }
+
+        // Función para renderizar una orden
+        function renderOrderItem(order) {
+            const date = order.timestamp?.toDate().toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }) || 'Fecha no disponible';
+            
+            let statusClass = '';
+            let statusText = '';
+            
+            switch(order.status) {
+                case 'order-pending':
+                    statusClass = 'status-pending';
+                    statusText = 'Pendiente';
+                    break;
+                case 'payment-completed':
+                    statusClass = 'status-paid';
+                    statusText = 'Pagado';
+                    break;
+                case 'shipped':
+                    statusClass = 'status-completed';
+                    statusText = 'Enviado';
+                    break;
+                case 'delivered':
+                    statusClass = 'status-completed';
+                    statusText = 'Entregado';
+                    break;
+                default:
+                    statusClass = 'status-pending';
+                    statusText = order.status || 'Pendiente';
+            }
+            
+            let servicesHTML = '';
+            if (order.services && order.services.length > 0) {
+                order.services.forEach(service => {
+                    servicesHTML += `
+                        <div class="service-item">
+                            <span class="service-name">${service.name} x${service.quantity || 1}</span>
+                            <span class="service-price">US$${(service.numericPrice * (service.quantity || 1)).toFixed(2)}</span>
+                        </div>
+                    `;
+                });
+            }
+            
+            return `
+                <div class="shipment-item">
+                    <div class="shipment-header">
+                        <span class="shipment-id">Pedido #${order.id}</span>
+                        <span class="shipment-status ${statusClass}">${statusText}</span>
+                    </div>
+                    
+                    <div class="shipment-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Fecha:</span>
+                            <span>${date}</span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Método de pago:</span>
+                            <span>${getPaymentMethodText(order.paymentMethod)}</span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Estado de pago:</span>
+                            <span>${order.paymentStatus === 'paid' ? 'Pagado' : 'Pendiente'}</span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Destino:</span>
+                            <span>${order.receiver?.province || 'N/A'}, ${order.receiver?.country || 'N/A'}</span>
+                        </div>
+                        
+                        <h4 style="margin: 1rem 0 0.5rem 0;">Servicios:</h4>
+                        ${servicesHTML}
+                        
+                        <div class="detail-row total-row">
+                            <span>Total:</span>
+                            <span>US$${order.totalPrice?.toFixed(2) || '0.00'}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Función para renderizar una cotización
+        function renderQuoteItem(quote) {
+            const date = quote.timestamp?.toDate().toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }) || 'Fecha no disponible';
+            
+            let statusClass = '';
+            let statusText = '';
+            
+            switch(quote.status) {
+                case 'quotes-pending':
+                    statusClass = 'status-pending';
+                    statusText = 'Pendiente';
+                    break;
+                case 'quotes-completed':
+                    statusClass = 'status-completed';
+                    statusText = 'Completada';
+                    break;
+                default:
+                    statusClass = 'status-pending';
+                    statusText = quote.status || 'Pendiente';
+            }
+            
+            let itemsHTML = '';
+            if (quote.packageType === 'Artículo Común' && quote.commonItems) {
+                quote.commonItems.forEach(item => {
+                    itemsHTML += `
+                        <div class="service-item">
+                            <span class="service-name">${item.name} x${item.quantity || 1}</span>
+                            <span class="service-name">${item.dimensions}</span>
+                            <span class="service-name">${item.weight} lbs</span>
+                        </div>
+                    `;
+                });
+            } else if (quote.packageType === 'Personalizado' && quote.customItem) {
+                itemsHTML = `
+                    <div class="service-item">
+                        <span class="service-name">${quote.customItem.item}</span>
+                        <span class="service-name">${quote.customItem.length}" x ${quote.customItem.width}" x ${quote.customItem.height}"</span>
+                        <span class="service-name">${quote.customItem.weight} lbs</span>
+                    </div>
+                `;
+            }
+            
+            return `
+                <div class="shipment-item">
+                    <div class="shipment-header">
+                        <span class="shipment-id">Cotización #${quote.orderId}</span>
+                        <span class="shipment-status ${statusClass}">${statusText}</span>
+                    </div>
+                    
+                    <div class="shipment-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Fecha:</span>
+                            <span>${date}</span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Tipo:</span>
+                            <span>${quote.packageType}</span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Origen:</span>
+                            <span>${quote.origin || 'N/A'}</span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Destino:</span>
+                            <span>${quote.destination || 'N/A'}</span>
+                        </div>
+                        
+                        <h4 style="margin: 1rem 0 0.5rem 0;">Artículos:</h4>
+                        ${itemsHTML}
+                        
+                        <div class="detail-row total-row">
+                            <span>Precio estimado:</span>
+                            <span>US$${quote.estimatedPrice?.toFixed(2) || '0.00'}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Función para traducir el método de pago
+        function getPaymentMethodText(method) {
+            switch(method) {
+                case 'online':
+                    return 'Pago en línea';
+                case 'pickup':
+                    return 'Pagar al recoger';
+                case 'delivery':
+                    return 'Pagar al recibir (RD)';
+                default:
+                    return method || 'No especificado';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -456,6 +456,10 @@
             width: 100%;
         }
 
+        .iti--separate-dial-code .iti__selected-flag {
+    border-radius: 12px 0px 0px 12px;
+}
+
         /* Estilo para inputs con contenido */
         .input-has-content {
             background-color: rgb(52 161 30 / 6%);
@@ -466,6 +470,18 @@
         .form-control {
             transition: all 0.3s ease;
         }
+
+        /* Agregar esto al estilo existente */
+.form-control.input-has-content {
+    background-color: rgba(92, 197, 40, 0.1) !important;
+    border-color: var(--secondary) !important;
+}
+
+/* Asegurar que los selects también tengan el estilo */
+select.form-control.input-has-content {
+    background-color: rgba(92, 197, 40, 0.1) !important;
+    border-color: var(--secondary) !important;
+}
     </style>
 </head>
 
@@ -741,15 +757,15 @@
                 });
             }
 
-            stateSelect.addEventListener('change', function () {
-                checkInputContent();
-                if (this.value === "") {
-                    this.classList.remove('input-has-content');
-                } else {
-                    this.classList.add('input-has-content');
-                }
-            });
+    stateSelect.addEventListener('change', function() {
+        checkInputContent();
+        if (this.value === "") {
+            this.classList.remove('input-has-content');
+        } else {
+            this.classList.add('input-has-content');
         }
+    });
+}
 
         // Seleccionar método de pago
         function selectPayment(method) {
@@ -854,16 +870,16 @@
         }
 
         // Verificar inputs con contenido
-        function checkInputContent() {
-            const inputs = document.querySelectorAll('.form-control');
-            inputs.forEach(input => {
-                if (input.tagName === 'SELECT') {
-                    input.classList.toggle('input-has-content', input.value !== '');
-                } else {
-                    input.classList.toggle('input-has-content', input.value.trim() !== '');
-                }
-            });
+function checkInputContent() {
+    const inputs = document.querySelectorAll('.form-control');
+    inputs.forEach(input => {
+        if (input.tagName === 'SELECT') {
+            input.classList.toggle('input-has-content', input.value !== '');
+        } else {
+            input.classList.toggle('input-has-content', input.value.trim() !== '');
         }
+    });
+}
 
         document.addEventListener('DOMContentLoaded', function () {
             // Configuración inicial
@@ -874,26 +890,38 @@
             checkInputContent();
         });
 
-        function generateTimeOptions() {
-            const pickupTimeSelect = document.getElementById('pickupTime');
-            pickupTimeSelect.innerHTML = '<option value="" disabled selected>Seleccione una hora</option>';
+function generateTimeOptions() {
+  const pickupTimeSelect = document.getElementById('pickupTime');
+  pickupTimeSelect.innerHTML =
+    '<option value="" disabled selected>Seleccione una hora</option>';
 
-            const today = new Date();
-            const currentHour = today.getHours();
-            const selectedDate = new Date(document.getElementById('pickupDate').value);
+  const today = new Date();
+  const currentHour = today.getHours();
 
-            for (let hour = 8; hour <= 21; hour++) {
-                if (!selectedDate || selectedDate.toDateString() !== today.toDateString() || hour > currentHour) {
-                    const formattedHour = hour.toString().padStart(2, '0') + ':00';
-                    const option = document.createElement('option');
-                    option.value = formattedHour;
-                    option.textContent = formattedHour;
-                    pickupTimeSelect.appendChild(option);
-                }
-            }
-        }
+  // «YYYY‑MM‑DD» seleccionado en el input
+  const selectedDateValue = document.getElementById('pickupDate').value;
+  // «YYYY‑MM‑DD» de la fecha actual en tu zona horaria
+  const todayValue = today.toISOString().split('T')[0];
+
+  const isToday = selectedDateValue === todayValue;
+
+  for (let hour = 8; hour <= 21; hour++) {
+    // Si no se ha escogido fecha, o la fecha no es hoy,
+    // o la hora está en el futuro (si es hoy) → mostrarla
+    if (!selectedDateValue || !isToday || hour > currentHour) {
+      const formatted = `${hour.toString().padStart(2, '0')}:00`;
+      const option = document.createElement('option');
+      option.value = formatted;
+      option.textContent = formatted;
+      pickupTimeSelect.appendChild(option);
+    }
+  }
+}
+
 
         function setupEventListeners() {
+            document.getElementById('additionalNotes').addEventListener('input', checkInputContent);
+
             // Formatear cédula
             document.getElementById('receiverCedula').addEventListener('input', function (e) {
                 let value = this.value.replace(/\D/g, '');
@@ -903,6 +931,12 @@
                 this.value = formatted;
             });
 
+                // Agregar event listeners para cambios en los inputs
+    document.querySelectorAll('.form-control').forEach(input => {
+        input.addEventListener('input', checkInputContent);
+        input.addEventListener('change', checkInputContent);
+    });
+    
             // Validar fecha y hora
             const pickupDateInput = document.getElementById('pickupDate');
             pickupDateInput.setAttribute('min', new Date().toISOString().split('T')[0]);
@@ -1089,68 +1123,84 @@
         }
 
 
-        async function loadUserData(user) {
-            if (!user) return;
+async function loadUserData(user) {
+    if (!user) return;
 
-            const doc = await db.collection('users').doc(user.uid).get();
-            if (!doc.exists) return;
+    const doc = await db.collection('users').doc(user.uid).get();
+    if (!doc.exists) return;
 
-            const userData = doc.data();
-            document.getElementById('senderName').value = userData.profile?.name || '';
-            document.getElementById('senderEmail').value = user.email;
+    const userData = doc.data();
+    
+    // Autocompletar campos básicos
+    document.getElementById('senderName').value = userData.profile?.name || '';
+    document.getElementById('senderEmail').value = user.email;
 
-            if (userData.profile?.phone) {
-                const phoneInput = document.getElementById('senderPhone');
-                phoneInput.value = userData.profile.phone;
-                if (window.senderPhoneIti) {
-                    window.senderPhoneIti.setNumber(userData.profile.phone);
-                }
-            }
+    // Autocompletar teléfono
+    if (userData.profile?.phone) {
+        const phoneInput = document.getElementById('senderPhone');
+        phoneInput.value = userData.profile.phone;
+        if (window.senderPhoneIti) {
+            window.senderPhoneIti.setNumber(userData.profile.phone);
+        }
+    }
 
-            if (userData.profile?.address) {
-                const { street, city, zipCode, state } = userData.profile.address;
-                document.getElementById('senderStreet').value = street || '';
-                document.getElementById('senderCity').value = city || '';
-                document.getElementById('senderZipCode').value = zipCode || '';
-                if (state) {
-                    setTimeout(() => {
-                        document.getElementById('senderState').value = state;
-                    }, 100);
-                }
-            }
+    // Autocompletar dirección
+    if (userData.profile?.address) {
+        const { street, city, zipCode, state } = userData.profile.address;
+        document.getElementById('senderStreet').value = street || '';
+        document.getElementById('senderCity').value = city || '';
+        document.getElementById('senderZipCode').value = zipCode || '';
+        
+        if (state) {
+            // Usar requestAnimationFrame para sincronizar con el ciclo de renderizado
+            requestAnimationFrame(() => {
+                document.getElementById('senderState').value = state;
+                checkInputContent();
+            });
+        }
+    }
+    
+    // Verificación final con pequeño retraso para asegurar que todos los campos estén listos
+    setTimeout(() => {
+        checkInputContent();
+        // Forzar una segunda verificación por si acaso
+        requestAnimationFrame(checkInputContent);
+    }, 300);
+}
+
+async function handleFormSubmit(e) {
+    e.preventDefault();
+    const submitBtn = document.getElementById('submitOrderBtn');
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+    submitBtn.disabled = true;
+
+    if (!validateForm()) {
+        submitBtn.textContent = 'Confirmar Pedido';
+        submitBtn.disabled = false;
+        return;
+    }
+
+    try {
+        const orderId = await generateId('mt');
+        const orderData = await prepareOrderData(orderId);
+
+        // Guardar siempre en la colección principal
+        await db.collection('orders').doc(orderId).set(orderData);
+
+        // Solo guardar en userOrders si hay usuario autenticado
+        if (auth.currentUser) {
+            await saveUserOrder(auth.currentUser.uid, orderId, orderData);
         }
 
-        async function handleFormSubmit(e) {
-            e.preventDefault();
-            const submitBtn = document.getElementById('submitOrderBtn');
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
-            submitBtn.disabled = true;
-
-            // Validar formulario
-            if (!validateForm()) {
-                submitBtn.textContent = 'Confirmar Pedido';
-                submitBtn.disabled = false;
-                return;
-            }
-
-            try {
-                const orderId = await generateId('mt');
-                const orderData = await prepareOrderData(orderId);
-
-                await db.collection('orders').doc(orderId).set(orderData);
-                if (auth.currentUser) {
-                    await saveUserOrder(auth.currentUser.uid, orderId, orderData);
-                }
-
-                await processPayment(orderData, orderId);
-            } catch (error) {
-                console.error('Error:', error);
-                alert(`Error: ${error.message}`);
-            } finally {
-                submitBtn.textContent = 'Confirmar Pedido';
-                submitBtn.disabled = false;
-            }
-        }
+        await processPayment(orderData, orderId);
+    } catch (error) {
+        console.error('Error:', error);
+        alert(`Error: ${error.message}`);
+    } finally {
+        submitBtn.textContent = 'Confirmar Pedido';
+        submitBtn.disabled = false;
+    }
+}
 
         function validateForm() {
             let isValid = true;
@@ -1180,40 +1230,43 @@
         }
 
         // Función para preparar datos del pedido
-        async function prepareOrderData(orderId) {
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      async function prepareOrderData(orderId) {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let services = [];
+    let totalPrice = 0;
 
-            let services = [];
-            let totalPrice = 0;
+    services = cart.map(item => {
+        const priceValue = parseFloat(item.price.replace(/[^\d.]/g, '')) || 0;
+        totalPrice += priceValue * (item.quantity || 1);
 
-            services = cart.map(item => {
-                const priceValue = parseFloat(item.price.replace(/[^\d.]/g, '')) || 0;
-                totalPrice += priceValue * (item.quantity || 1);
+        return {
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            numericPrice: priceValue,
+            type: item.type,
+            icon: item.icon || null,
+            quantity: item.quantity || 1
+        };
+    });
 
-                return {
-                    id: item.id,
-                    name: item.name,
-                    price: item.price,
-                    numericPrice: priceValue,
-                    type: item.type,
-                    icon: item.icon || null,
-                    quantity: item.quantity || 1
-                };
-            });
+    const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+    const paymentStatus = paymentMethod === 'online' ? 'paid' : 'pending';
 
-            return {
-                id: orderId,
-                services: services,
-                totalPrice: totalPrice,
-                sender: await getSenderData(),
-                receiver: await getReceiverData(),
-                paymentMethod: document.querySelector('input[name="payment"]:checked').value,
-                additionalNotes: document.getElementById('additionalNotes').value.trim(),
-                status: 'order-pending',
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                userId: auth.currentUser?.uid || null
-            };
-        }
+    return {
+        id: orderId,
+        services: services,
+        totalPrice: totalPrice,
+        sender: await getSenderData(),
+        receiver: await getReceiverData(),
+        paymentMethod: paymentMethod,
+        paymentStatus: paymentStatus, // Nuevo campo
+        additionalNotes: document.getElementById('additionalNotes').value.trim(),
+        status: 'order-pending',
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        userId: auth.currentUser?.uid || null
+    };
+}
 
         async function getSenderData() {
             const phone = await getFormattedPhone('senderPhone');
@@ -1274,6 +1327,13 @@
                 status: 'order-pending',
                 serviceName: orderData.services.length === 1 ? orderData.services[0].name : 'Múltiples servicios',
                 servicePrice: orderData.totalPrice,
+                 paymentStatus: orderData.paymentStatus,
+            paymentMethod: orderData.paymentMethod,
+            services: orderData.services,
+            totalPrice: orderData.totalPrice,
+            sender: orderData.sender,
+            receiver: orderData.receiver,
+            additionalNotes: orderData.additionalNotes,
                 pickupDate: orderData.sender.pickupDateTime.date,
                 pickupTime: orderData.sender.pickupDateTime.time
             });

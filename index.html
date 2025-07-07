@@ -52,8 +52,7 @@
                         <li><a href="#tracking" data-i18n="rastreo">Rastreo</a></li>
                         <li><a href="#contact" data-i18n="contacto">Contacto</a></li>
                         <li><a href="#" id="loginBtn" data-i18n="login">Iniciar Sesión</a></li>
-                        <li><a href="#" id="userProfile"
-                                style="display: none;font-size: 21px;color: #5cc528;font-weight:600;"></a></li>
+                        <li><a href="./profile.html" id="userProfile" style="display: none;"></a></li>
                         <li style="margin-left: 0rem;"><a href="#" id="logoutBtn" style="display:none;"
                                 class="btn btn-outline">Cerrar Sesión</a></li>
                         <li>
@@ -64,16 +63,21 @@
                                 <option value="en">🇺🇸 English</option>
                             </select>
                         </li>
-
-
-                    </ul>
-                </nav>
-                                       
+                        <li>
                             <a href="#" id="cartBtn">
                                 <i class="fas fa-shopping-cart"></i>
                                 <span id="cartCount">0</span>
                             </a>
-                   
+                        </li>
+
+                    </ul>
+                </nav>
+
+                <a href="#" id="cartBtn2">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cartCount2">0</span>
+                </a>
+
 
             </div>
         </div>
@@ -312,7 +316,8 @@
         <div class="container">
             <h2 class="section-title">Contacto</h2>
             <div class="contact-content" style="margin-bottom: 1rem;">
-                <p style="text-align: justify;">¿Tienes alguna pregunta? No dudes en contactarnos. Estamos aquí para ayudarte con tus necesidades de
+                <p style="text-align: justify;">¿Tienes alguna pregunta? No dudes en contactarnos. Estamos aquí para
+                    ayudarte con tus necesidades de
                     envío.</p>
                 <div class="contact-info">
                     <p>
@@ -522,75 +527,6 @@
         </div>
     </div>
 
-    <!-- User Profile Modal -->
-    <div id="profileModal" class="modal">
-        <div class="modal-content" style="max-width: 600px;">
-            <div class="Modal-Title">
-                <h3>Mi Perfil</h3>
-                <button class="close-modal"
-                    style="right: 6px;position: absolute;padding: 0px 15px;border-radius: 7px;font-size: 1.5rem;">×</button>
-            </div>
-            <div class="Modal-Body">
-                <form id="profileForm">
-                    <div class="form-group">
-                        <label for="profileName">Nombre Completo:</label>
-                        <input type="text" id="profileName" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="profileEmail">Correo Electrónico:</label>
-                        <input type="email" id="profileEmail" class="form-control" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label for="profilePhone">Teléfono:</label>
-                        <input type="tel" id="profilePhone" class="form-control">
-                    </div>
-
-                    <div style="display: inline-flex;gap: 22px;">
-                        <div class="form-group" style="width: 50%;">
-                            <label for="profileCountry">País:</label>
-                            <select id="profileCountry" class="form-control" required>
-                                <option value="" disabled selected>Seleccione un país</option>
-                                <option value="US">Estados Unidos</option>
-                                <option value="DO">República Dominicana</option>
-                            </select>
-                        </div>
-                        <div class="form-group" style="width: 50%;">
-                            <label for="profileState">Estado/Provincia:</label>
-                            <select id="profileState" class="form-control" required>
-                                <option value="" disabled selected>Estado/Provincia</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="profileStreet">Dirección (Calle y Número):</label>
-                        <input type="text" id="profileStreet" class="form-control" required>
-                    </div>
-
-                    <div style="display: inline-flex;gap: 22px;width: 100%;">
-                        <div class="form-group" style="width: 50%;">
-                            <label for="profileCity">Ciudad:</label>
-                            <input type="text" id="profileCity" class="form-control" required>
-                        </div>
-                        <div class="form-group" style="width: 50%;">
-                            <label for="profileZipCode">Código Postal:</label>
-                            <input type="text" id="profileZipCode" class="form-control" required>
-                        </div>
-                    </div>
-
-
-
-
-                    <div class="form-buttons">
-                        <button type="button" id="saveProfileBtn" class="btn">Guardar Cambios</button>
-                        <!-- <button type="button" id="deleteAccountBtn" class="btn btn-danger">Eliminar Cuenta</button> -->
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-
 
     <!-- Carrito Modal -->
     <div id="cartModal" class="modal">
@@ -638,7 +574,28 @@
 
 
 
-
+    <!-- Modal para compra de arroz/aceite o cajas/tanques -->
+    <div id="orderItemsModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="Modal-Title">
+                <h3>Información de Compra</h3>
+            </div>
+            <div class="Modal-Body">
+                <p>Nos encantaría ayudarte con tu pedido. Por favor llámanos al siguiente número y te lo vendemos al
+                    mejor precio:</p>
+                <p style="text-align: center; font-size: 1.2rem; margin: 1rem 0;">
+                    <a href="tel:+18885313887"
+                        style="background-color: var(--secondary);color: white;font-weight: bold;padding: 0.5rem 1rem;text-decoration: none;border-radius: 23px;display: inline-flex;align-items: center;">+1
+                        (888) 531-3887</a>
+                </p>
+                <p>Nuestro equipo estará encantado de atenderte y proporcionarte toda la información que necesites.</p>
+            </div>
+            <div class="modal-footer" style="text-align: center;">
+                <button class="btn close-modal"
+                    style="position: relative;background-color: var(--secondary);">Entendido</button>
+            </div>
+        </div>
+    </div>
 
 
 

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - MeeTransportation</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="icon" href="./img/icon_favicon_meetax_1_2048x2048.png" type="image/png" sizes="any">
+    <!-- Firebase SDK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-firestore-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-auth-compat.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <!-- intl-tel-input CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container" id="menu-s">
+            <div class="header-content">
+                <a href="index.html" class="logo">Mee<span>Transportation</span></a>
+                <div class="menu-toggle" id="mobile-menu">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <nav id="main-nav">
+                    <ul>
+                        <li><a href="index.html#inicio">Inicio</a></li>
+                        <li><a href="index.html#services">Servicios</a></li>
+                        <li><a href="index.html#quote">Cotización</a></li>
+                        <li><a href="index.html#tracking">Rastreo</a></li>
+                        <li><a href="index.html#contact">Contacto</a></li>
+                        <li><a href="order-history.html">Mis Pedidos</a></li>
+                        <li><a href="#" id="logoutBtn" class="btn btn-outline">Cerrar Sesión</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Profile Section -->
+    <section class="profile-section">
+        <div class="container">
+            <div class="profile-header">
+                <div class="profile-info">
+                    <h1 id="profileNameDisplay">Cargando...</h1>
+                    <p id="profileEmailDisplay">Cargando...</p>
+                    <p id="profilePhoneDisplay">Cargando...</p>
+                </div>
+
+                                                <div class="profile-actions">
+                    <a href="order-history.html" class="btn btn-secondary">Ver mi historial de pedidos</a>
+                </div>
+
+
+            </div>
+
+            <div class="profile-content">
+                <div class="profile-card">
+                    <h2>Información Personal</h2>
+                    <form id="profileForm">
+                        <div class="form-group">
+                            <label for="profileName">Nombre Completo:</label>
+                            <input type="text" id="profileName" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="profileEmail">Correo Electrónico:</label>
+                            <input type="email" id="profileEmail" class="form-control" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="profilePhone">Teléfono:</label>
+                            <input type="tel" id="profilePhone" class="form-control">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="profileCountry">País:</label>
+                                <select id="profileCountry" class="form-control" required>
+                                    <option value="" disabled selected>Seleccione un país</option>
+                                    <option value="US">Estados Unidos</option>
+                                    <option value="DO">República Dominicana</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="profileState">Estado/Provincia:</label>
+                                <select id="profileState" class="form-control" required>
+                                    <option value="" disabled selected>Estado/Provincia</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="profileStreet">Dirección (Calle y Número):</label>
+                            <input type="text" id="profileStreet" class="form-control" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="profileCity">Ciudad:</label>
+                                <input type="text" id="profileCity" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="profileZipCode">Código Postal:</label>
+                                <input type="text" id="profileZipCode" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="form-buttons">
+                            <button type="button" id="saveProfileBtn" class="btn">Guardar Cambios</button>
+                            <button type="button" id="changePasswordBtn" class="btn btn-outline" style="
+    background-color: #d79a2f;
+">Cambiar Contraseña</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="profile-actions">
+                    <a href="order-history.html" class="btn btn-secondary">Ver mi historial de pedidos</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Mee<span style="color: var(--secondary);">Transportation</span></h3>
+                    <p>Especialistas en envíos desde Estados Unidos a República Dominicana. Confiabilidad y rapidez en cada entrega.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Enlaces Rápidos</h3>
+                    <a href="index.html#services">Servicios</a>
+                    <a href="index.html#quote">Cotización</a>
+                    <a href="index.html#tracking">Rastreo</a>
+                    <a href="index.html#contact">Contacto</a>
+                </div>
+                <div class="footer-column">
+                    <h3>Horario</h3>
+                    <p>Lunes - Sábado: 9:30am - 8:00pm</p>
+                    <p>Domingo: Cerrado</p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025 MeeTransportation. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Change Password Modal -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="Modal-Title">
+                <h3>Cambiar Contraseña</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="Modal-Body">
+                <form id="passwordForm">
+                    <div class="form-group">
+                        <label for="currentPassword">Contraseña Actual:</label>
+                        <input type="password" id="currentPassword" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">Nueva Contraseña:</label>
+                        <input type="password" id="newPassword" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirmar Nueva Contraseña:</label>
+                        <input type="password" id="confirmPassword" class="form-control" required>
+                    </div>
+                    <div id="passwordMessage" style="margin: 1rem 0; color: var(--accent);"></div>
+                    <button type="button" id="updatePasswordBtn" class="btn">Actualizar Contraseña</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="./js/addressData.js"></script>
+    <script src="./js/main.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize phone input
+            const phoneInput = document.getElementById('profilePhone');
+            if (phoneInput) {
+                window.intlTelInput(phoneInput, {
+                    preferredCountries: ['us', 'do'],
+                    separateDialCode: true,
+                    initialCountry: "us",
+                    utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+                });
+            }
+
+            // Load user profile when page loads
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    loadProfilePage(user.uid);
+                } else {
+                    // Redirect to login if not authenticated
+                    window.location.href = 'index.html';
+                }
+            });
+
+            // Logout button
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+
+            // Save profile button
+            document.getElementById('saveProfileBtn').addEventListener('click', saveProfileChanges);
+
+            // Change password button
+            document.getElementById('changePasswordBtn').addEventListener('click', () => {
+                document.getElementById('passwordModal').style.display = 'flex';
+            });
+
+            // Update password button
+            document.getElementById('updatePasswordBtn').addEventListener('click', updatePassword);
+
+            // Close modal buttons
+            document.querySelectorAll('.close-modal').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.getElementById('passwordModal').style.display = 'none';
+                });
+            });
+
+            // Country change listener
+            document.getElementById('profileCountry').addEventListener('change', function() {
+                loadStates(this.value, 'profileState');
+            });
+        });
+
+        async function loadProfilePage(userId) {
+            try {
+                const userDoc = await db.collection('users').doc(userId).get();
+                const user = auth.currentUser;
+                
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    
+                    // Set profile info
+                    document.getElementById('profileName').value = userData.profile?.name || '';
+                    document.getElementById('profileNameDisplay').textContent = userData.profile?.name || 'Usuario';
+                    document.getElementById('profileEmail').value = user.email;
+                    document.getElementById('profileEmailDisplay').textContent = user.email;
+                    
+                    // Set phone
+                    const phoneInput = document.getElementById('profilePhone');
+                    if (window.intlTelInputGlobals.getInstance(phoneInput)) {
+                        const phoneIti = window.intlTelInputGlobals.getInstance(phoneInput);
+                        if (userData.profile?.phone) {
+                            phoneIti.setNumber(userData.profile.phone);
+                        }
+                        document.getElementById('profilePhoneDisplay').textContent = phoneIti.getNumber() || 'No especificado';
+                    } else {
+                        phoneInput.value = userData.profile?.phone || '';
+                        document.getElementById('profilePhoneDisplay').textContent = userData.profile?.phone || 'No especificado';
+                    }
+                    
+                    // Set address
+                    if (userData.profile?.address) {
+                        const address = userData.profile.address;
+                        document.getElementById('profileCountry').value = address.country || '';
+                        loadStates(address.country, 'profileState');
+                        
+                        setTimeout(() => {
+                            document.getElementById('profileState').value = address.state || '';
+                        }, 100);
+                        
+                        document.getElementById('profileCity').value = address.city || '';
+                        document.getElementById('profileStreet').value = address.street || '';
+                        document.getElementById('profileZipCode').value = address.zipCode || '';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+
+        async function updatePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const messageDiv = document.getElementById('passwordMessage');
+            const user = auth.currentUser;
+            
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                messageDiv.textContent = 'Por favor complete todos los campos';
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                messageDiv.textContent = 'Las contraseñas no coinciden';
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                messageDiv.textContent = 'La contraseña debe tener al menos 6 caracteres';
+                return;
+            }
+            
+            try {
+                // Reauthenticate user
+                const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
+                await user.reauthenticateWithCredential(credential);
+                
+                // Update password
+                await user.updatePassword(newPassword);
+                
+                messageDiv.style.color = 'var(--success)';
+                messageDiv.textContent = 'Contraseña actualizada exitosamente';
+                
+                // Clear form and close modal after delay
+                document.getElementById('passwordForm').reset();
+                setTimeout(() => {
+                    document.getElementById('passwordModal').style.display = 'none';
+                    messageDiv.textContent = '';
+                }, 2000);
+            } catch (error) {
+                console.error('Error updating password:', error);
+                messageDiv.textContent = getAuthErrorMessage(error.code);
+            }
+        }
+    </script>
+</body>
+</html>
