@@ -1181,24 +1181,103 @@ async function handleFormSubmit(e) {
     }
 
     try {
-        const orderId = await generateId('mt');
-        const orderData = await prepareOrderData(orderId);
-
-        // Guardar siempre en la colección principal
-        await db.collection('orders').doc(orderId).set(orderData);
-
-        // Solo guardar en userOrders si hay usuario autenticado
-        if (auth.currentUser) {
-            await saveUserOrder(auth.currentUser.uid, orderId, orderData);
+        const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+        
+        // Para métodos que no son online, procesar normalmente
+        if (paymentMethod !== 'online') {
+            const orderId = await generateId('mt');
+            const orderData = await prepareOrderData(orderId);
+            await saveOrderToFirebase(orderId, orderData);
+            return;
         }
 
-        await processPayment(orderData, orderId);
+        // Para pagos online, primero procesar el pago
+        const { orderId, orderData } = await processOnlinePayment();
+        await saveOrderToFirebase(orderId, orderData);
+        
     } catch (error) {
         console.error('Error:', error);
         alert(`Error: ${error.message}`);
     } finally {
         submitBtn.textContent = 'Confirmar Pedido';
         submitBtn.disabled = false;
+    }
+}
+
+async function processOnlinePayment() {
+    if (!stripe || !elements) {
+        throw new Error('El sistema de pago no está listo. Por favor recarga la página.');
+    }
+
+    // 1. Generar ID de orden y preparar datos (sin guardar aún)
+    const orderId = await generateId('mt');
+    const orderData = await prepareOrderData(orderId);
+
+    // 2. Crear intención de pago en Stripe
+    const createPaymentFunction = firebase.functions().httpsCallable('createStripePaymentIntent');
+    const result = await createPaymentFunction({
+        amount: orderData.totalPrice * 100,
+        currency: 'usd',
+        metadata: {
+            orderId: orderId,
+            serviceCount: orderData.services.length
+        }
+    });
+
+    const { clientSecret } = result.data;
+
+    // 3. Confirmar el pago con Stripe
+    const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+            card: elements.getElement('card'),
+            billing_details: {
+                name: orderData.sender.name,
+                email: orderData.sender.email,
+                phone: orderData.sender.phone,
+                address: {
+                    line1: orderData.sender.address.street,
+                    line2: orderData.sender.address.apt,
+                    city: orderData.sender.address.city,
+                    state: orderData.sender.address.state,
+                    postal_code: orderData.sender.address.zipCode,
+                    country: 'US'
+                }
+            }
+        }
+    });
+
+    if (error) throw error;
+
+    // 4. Si el pago es exitoso, retornar datos para guardar
+    return {
+        orderId,
+        orderData: {
+            ...orderData,
+            status: 'payment-completed',
+            paymentStatus: 'paid',
+            paymentDate: firebase.firestore.FieldValue.serverTimestamp(),
+            stripePaymentId: paymentIntent.id
+        }
+    };
+}
+
+async function saveOrderToFirebase(orderId, orderData) {
+    // Guardar en la colección principal
+    await db.collection('orders').doc(orderId).set(orderData);
+
+    // Guardar en userOrders si hay usuario autenticado
+    if (auth.currentUser) {
+        await saveUserOrder(auth.currentUser.uid, orderId, orderData);
+    }
+
+    // Limpiar carrito y redirigir
+    localStorage.setItem('lastOrderId', orderId);
+    localStorage.removeItem('cart');
+    
+    if (orderData.paymentMethod === 'online') {
+        window.location.href = `order-complete.html?order_id=${orderId}`;
+    } else {
+        window.location.href = 'order-complete.html';
     }
 }
 
