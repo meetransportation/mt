@@ -171,6 +171,96 @@
   }
 
 
+
+
+  /* Flecha animada moderna */
+  .scroll-down {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      cursor: pointer;
+  }
+
+  .scroll-down-arrow {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(5px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.3s ease;
+      animation: pulse 5s infinite;
+  }
+
+  .scroll-down-arrow:hover {
+      background: rgba(255, 255, 255, 0.3);
+  }
+
+  .scroll-down-arrow i {
+      color: white;
+      font-size: 20px;
+      animation: bounce 5s 4s infinite;
+  }
+
+  @keyframes bounce {
+
+      /* Primera animación (igual que antes, pero en 2.5s) */
+      0%,
+      10%,
+      25%,
+      40%,
+      50% {
+          transform: translateY(0);
+      }
+
+      20% {
+          transform: translateY(-10px);
+      }
+
+      30% {
+          transform: translateY(-5px);
+      }
+
+      /* Segunda animación (igual que la primera, pero desplazada en el tiempo) */
+      60%,
+      70%,
+      85%,
+      100% {
+          transform: translateY(0);
+      }
+
+      80% {
+          transform: translateY(0px);
+      }
+
+      90% {
+          transform: translateY(0px);
+      }
+  }
+
+  @keyframes pulse {
+      0% {
+          box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+      }
+
+      40% {
+          box-shadow: 0 0 0 25px rgba(255, 255, 255, 0);
+      }
+
+      55% {
+          box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+      }
+  }
+
+
+
+
+
+
   #loginBtn {
       background: #5b6779;
       padding: 4px 10px;
@@ -207,11 +297,13 @@
       padding: 3rem 2rem;
   }
 
+
+
   .section-title {
       text-align: center;
       font-size: 2.5rem;
       margin-bottom: 3rem;
-      color: #2d3436;
+      color: #2c3e50;
   }
 
   .services-grid {
@@ -221,14 +313,22 @@
   }
 
   .service-card {
-      background: linear-gradient(135deg, #fff, #f8f9fa);
+      background: linear-gradient(135deg, #ffffffbf, #f8f9fae8);
       padding: 1rem 2rem;
       border-radius: 15px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
       border: 1px solid #e9ecef;
       transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
   }
 
+  .service-buttons {
+      display: inline-flex;
+      width: 100%;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+  }
 
 
   .service-icon {
@@ -446,6 +546,84 @@
       animation: fadeIn 0.5s;
   }
 
+
+
+
+  .remove-item:hover {
+      opacity: 0.8;
+  }
+
+  #cartModal .modal-content {
+      display: flex;
+      flex-direction: column;
+  }
+
+  #modal-cart {
+      max-width: 600px;
+  }
+
+  #cartItemsContainer {
+      flex: 1;
+      overflow-y: auto;
+  }
+
+  #cartBtn {
+      font-size: 1.3rem;
+      color: white;
+      margin-right: 19px;
+  }
+
+  /* Estilos para el modal del carrito */
+  .cart-item img {
+      border: 1px solid #eee;
+  }
+
+  .cart-item:hover {
+      background-color: #f9f9f9;
+  }
+
+
+  .change-quantity {
+      border: none;
+      width: 25px;
+      height: 25px;
+      cursor: pointer;
+      background: #5cc528;
+      border-radius: 35px;
+      color: white;
+      font-size: 1rem;
+      transition: all 0.2s;
+  }
+
+  .change-quantity:hover {
+      background: #3c8d14;
+
+  }
+
+  .remove-item:hover {
+      color: #ff0000 !important;
+  }
+
+  /* Estilos para los botones del carrito */
+  .btn-add-to-cart {
+      background-color: #e98e44;
+      color: white;
+      padding: 0.8rem 0.7rem;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: all 0.3s;
+      margin: 1rem 0;
+  }
+
+  .btn-add-to-cart:hover {
+      background-color: #1a5276 !important;
+  }
+
+
+
   @keyframes fadeIn {
       from {
           opacity: 0;
@@ -601,8 +779,21 @@
       transition: background-color 0.3s;
   }
 
+  .close-modal {
+      background-color: #d72727;
+      color: white;
+      border: none;
+      padding: 0.4rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+      right: 4px;
+      position: absolute;
+  }
+
   .close-modal:hover {
-      background-color: #1ea740;
+      background-color: #8d1010;
   }
 
 
@@ -716,6 +907,10 @@
       color: white
   }
 
+  #modal-login {
+      max-width: 630px;
+  }
+
   .Modal-Title {
       width: 100%;
       background: rgb(231 231 231);
@@ -729,7 +924,7 @@
 
   .modal h3 {
       color: var(--primary);
-      font-size: 24px;
+      font-size: 1.5rem;
       font-weight: 500;
       text-align: center;
       padding: 0px 55px;
@@ -747,12 +942,11 @@
       border: none;
       padding: 8px 8px;
       border-radius: 9px;
-      cursor: pointer;
       font-size: 14px;
       font-weight: 600;
       transition: all 0.3s ease;
+      border-top: 1px solid rgb(238, 238, 238);
   }
-
 
 
 
@@ -992,7 +1186,7 @@
 
 
       .hero {
-          padding-top: 50px;
+          padding-top: 2rem;
       }
 
 
@@ -1018,13 +1212,14 @@
       }
 
       .hero-content p {
-          font-size: 1rem;
+          font-size: 0.9rem;
+          margin-bottom: 1rem;
       }
 
       .btn {
           display: block;
           width: 100%;
-          margin: 0 auto 1rem;
+          margin: 0 auto 0.5rem;
       }
 
       .btn-outline {
@@ -1040,6 +1235,10 @@
           max-height: 100%;
           border-radius: 0px;
           height: 100%;
+      }
+
+      #modal-login {
+          max-width: none;
       }
 
       .selected-item img {
@@ -1109,6 +1308,8 @@
 
       #hero-btn-content {
           padding: 0rem 2rem;
+          display: inline-flex;
+          flex-direction: column;
       }
 
       .map-iframe {
@@ -1128,7 +1329,10 @@
       .logo {
           margin-bottom: 0;
           width: 100%;
-          text-align: center;
+      }
+
+      #menu-s {
+          width: 100%
       }
 
       nav {
@@ -1168,8 +1372,8 @@
           cursor: pointer;
           font-size: 1.5rem;
           color: white;
-          position: absolute;
-          right: 20px;
+          position: relative;
+          margin-right: 10px;
       }
 
       /* Selector de idioma */
@@ -1187,6 +1391,7 @@
       .route-info {
           gap: 1rem;
           padding: 0 1rem;
+          margin: 1rem 0;
       }
 
       .location {
@@ -1236,6 +1441,7 @@
 
       #comprar-arroz-tanque h3 {
           font-size: 0.9rem;
+          margin-bottom: 0rem;
       }
 
       #comprar-arroz-tanque p {
@@ -1244,11 +1450,16 @@
 
       #comprar-arroz-tanque-btn {
           padding: 0.5rem 0.7rem;
-          margin: 1rem 16px 1rem 0rem 1rem;
+          margin: 0.5rem 1rem 0rem 1rem;
       }
 
       .btn-ordenar {
           padding: 0.5rem 1rem;
+          margin: 0rem 0;
+      }
+
+      .btn-add-to-cart {
+          padding: 0.5rem 0.5rem;
           margin: 0rem 0;
       }
 
@@ -1266,7 +1477,88 @@
           margin-bottom: 1rem;
       }
 
+      #modal-cart {
+          max-width: none;
+      }
+
   }
+
+  @media (max-width: 600px) {
+      .service-card {
+          padding: 0.5rem 0.2rem;
+      }
+
+      .service-content-container {
+          display: inline-flex;
+          align-items: center;
+          gap: 15px;
+          width: 100%;
+      }
+
+      .service-icon {
+          height: 52px;
+      }
+
+      .service-title {
+          font-size: 0.8rem;
+      }
+
+      .offer-card .service-title {
+          font-size: 1rem;
+          margin-bottom: 0rem;
+      }
+
+      .offer-card .service-price {
+          font-size: 1rem;
+      }
+
+      .service-price {
+          font-size: 1rem;
+      }
+
+      .service-details {
+          list-style: none;
+          font-size: 0.8rem;
+      }
+
+      .service-buttons {
+          display: inline-flex;
+          justify-content: center;
+          width: 100%;
+          gap: 15px;
+      }
+
+      #comprar-arroz-tanque {
+          margin-top: 1rem;
+      }
+
+      .scroll-down-arrow i {
+          font-size: 1rem;
+      }
+
+      .scroll-down-arrow {
+          width: 40px;
+          height: 40px;
+      }
+
+
+      @keyframes pulse {
+          0% {
+              box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+          }
+
+          40% {
+              box-shadow: 0 0 0 15px rgba(255, 255, 255, 0);
+          }
+
+          55% {
+              box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+          }
+      }
+
+
+  }
+
 
   @media (max-width: 550px) {
       .modal-content {
@@ -1274,32 +1566,16 @@
       }
 
       .service-card {
-          padding: 1rem 1rem;
-          margin: 0rem 2rem;
+          padding: 0.5rem 0.5rem;
       }
 
-      .btn {
-          padding: 0.6rem 1.5rem;
+
+
+      .service-details li {
+          padding: 0.1rem 1.6px 0;
+          border-bottom: 1px solid #e9ecef;
       }
   }
 
   /* Para pantallas muy pequeñas */
-  @media (max-width: 480px) {
-      .hero-content h1 {
-          font-size: 1.8rem;
-      }
-
-      .form-control,
-      select.form-control {
-          padding: 0.4rem 0.8rem;
-          font-size: 0.9rem;
-      }
-
-      .service-title {
-          font-size: 1.3rem;
-      }
-
-      .service-price {
-          font-size: 1.5rem;
-      }
-  }
+  @media (max-width: 480px) {}

@@ -13,7 +13,6 @@ const firebaseConfig = {
 const app = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-const storage = firebase.storage();
 
 // Proveedor Google
 const googleProvider = new firebase.auth.GoogleAuthProvider();
@@ -121,23 +120,17 @@ function renderCartItems() {
         itemElement.style.padding = '10px';
         itemElement.style.borderBottom = '1px solid #eee';
 
-        // Mostrar la imagen si existe, o una imagen por defecto si no
-        const itemImage = item.icon || item.iconUrl || './img/placeholder-item.png';
-
         itemElement.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
-                <img src="${itemImage}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: contain; border-radius: 5px;">
-                <div style="flex: 1;">
-                    <div style="font-weight: bold;">${item.name}</div>
-                    <div style="font-size: 0.9em; color: #666;">USD$${item.price}</div>
-                </div>
+            <div style="flex: 1;">
+                <div style="font-weight: bold;">${item.name}</div>
+                <div style="font-size: 0.9em; color: #666;">${item.price}</div>
             </div>
             <div style="display: flex; align-items: center;">
-                <button class="change-quantity" data-index="${index}" data-change="-1">-</button>
-               <span style="margin: 0 10px;background: #0000001c;padding: 0rem 1rem;border-radius: 6px;">${quantity}</span>
-                <button class="change-quantity" data-index="${index}" data-change="1">+</button>
+                <button class="change-quantity" data-index="${index}" data-change="-1" style="background: none; border: 1px solid #ddd; width: 25px; height: 25px; cursor: pointer;">-</button>
+                <span style="margin: 0 10px;">${quantity}</span>
+                <button class="change-quantity" data-index="${index}" data-change="1" style="background: none; border: 1px solid #ddd; width: 25px; height: 25px; cursor: pointer;">+</button>
                 <button class="remove-item" data-index="${index}" style="background: none; border: none; color: var(--accent); margin-left: 15px; cursor: pointer;">
-                    <i class="fas fa-trash" style="font-size: 1.2rem;"></i>
+                    <i class="fas fa-trash"></i>
                 </button>
             </div>
         `;
@@ -172,7 +165,7 @@ function addToCart(service) {
     // Mostrar notificación
     const notification = document.createElement('div');
     notification.style.position = 'fixed';
-    notification.style.top = '60px';
+    notification.style.bottom = '20px';
     notification.style.right = '20px';
     notification.style.backgroundColor = 'var(--success)';
     notification.style.color = 'white';
@@ -290,52 +283,38 @@ function renderServices(services, container) {
             ? `<div class="service-price">${service.price}</div>` // Texto directo para promos
             : `<div class="service-price">US$${service.price}</div>`; // Formato USD para regulares
 
-        // Div para icono, título y precio
-        let headerContent = `
-            <div class="service-header">
-                ${!isPromo && service.icon ? `<div class="service-icon"><img src="${service.icon}" alt="${service.name}"></div>` : ''}
-                <div class="service-title">${service.name}</div>
-                ${priceContent}
-            </div>
+        let cardContent = `
+            <div class="service-title">${service.name}</div>
+            ${priceContent}
+            <ul class="service-details">
+                ${service.slot1 ? `<li><strong>${service.slot1.split(':')[0]}:</strong> ${service.slot1.split(':').slice(1).join(':')}</li>` : ''}
+                ${service.slot2 ? `<li><strong>${service.slot2.split(':')[0]}:</strong> ${service.slot2.split(':').slice(1).join(':')}</li>` : ''}
+                ${service.slot3 ? `<li><strong>${service.slot3.split(':')[0]}:</strong> ${service.slot3.split(':').slice(1).join(':')}</li>` : ''}
+                ${service.slot4 ? `<li><strong>${service.slot4.split(':')[0]}:</strong> ${service.slot4.split(':').slice(1).join(':')}</li>` : ''}
+            </ul>
         `;
 
-        // Div para detalles
-        let detailsContent = `
-            <div class="service-details-container">
-                <ul class="service-details">
-                    ${service.slot1 ? `<li><strong>${service.slot1.split(':')[0]}:</strong> ${service.slot1.split(':').slice(1).join(':')}</li>` : ''}
-                    ${service.slot2 ? `<li><strong>${service.slot2.split(':')[0]}:</strong> ${service.slot2.split(':').slice(1).join(':')}</li>` : ''}
-                    ${service.slot3 ? `<li><strong>${service.slot3.split(':')[0]}:</strong> ${service.slot3.split(':').slice(1).join(':')}</li>` : ''}
-                    ${service.slot4 ? `<li><strong>${service.slot4.split(':')[0]}:</strong> ${service.slot4.split(':').slice(1).join(':')}</li>` : ''}
-                </ul>
-            </div>
-        `;
+        if (!isPromo && service.icon) {
+            cardContent = `
+                <div class="service-icon"><img src="${service.icon}" alt="${service.name}"></div>
+                ${cardContent}
+            `;
+        }
 
-        // Contenedor principal para header y details
-        const contentContainer = `
-            <div class="service-content-container">
-                ${headerContent}
-                ${detailsContent}
-            </div>
-        `;
-
-        // Div para botones (solo si no es promo)
-        let buttonsContent = '';
         if (!isPromo) {
-            buttonsContent = `
-                <div class="service-buttons">
+            cardContent += `
+                <div style="display: flex; justify-content: center; gap: 10px; width: 100%; margin-top: 10px;">
                     <button class="btn-ordenar" data-service-id="${service.id}">Ordenar</button>
-                    <button class="btn-add-to-cart" data-service-id="${service.id}">Añadir al carrito</button>
+                    <button class="btn-add-to-cart" data-service-id="${service.id}" style="background: var(--primary); color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">Añadir al carrito</button>
                 </div>
             `;
         }
 
-        // Combinar todo el contenido
-        serviceCard.innerHTML = contentContainer + buttonsContent;
+        serviceCard.innerHTML = cardContent;
         container.appendChild(serviceCard);
     });
 
-    // Configurar event listeners para los botones
+    // Configurar event listeners para los botones (igual que en tu código original)
     setupServiceButtons();
 }
 
@@ -420,23 +399,12 @@ async function loadCommonItems() {
 
         container.innerHTML = '';
 
-        // Cargar todas las imágenes primero
-        const itemsWithIcons = await Promise.all(snapshot.docs.map(async doc => {
+        snapshot.forEach(doc => {
             const item = doc.data();
-            // Si el icono es una URL de Firebase Storage, úsala directamente
-            if (item.icon && item.icon.startsWith('https://')) {
-                return { id: doc.id, ...item, iconUrl: item.icon };
-            }
-            // Si no hay icono, usar uno por defecto
-            return { id: doc.id, ...item, iconUrl: 'https://via.placeholder.com/50' };
-        }));
-
-        // Renderizar los items con las imágenes cargadas
-        itemsWithIcons.forEach(item => {
             const btn = document.createElement('button');
             btn.className = 'common-item-btn';
             btn.type = 'button';
-            btn.dataset.id = item.id;
+            btn.dataset.id = doc.id;
 
             // Formatear dimensiones si es un array
             let dimensionsText = item.dimensions;
@@ -448,33 +416,36 @@ async function loadCommonItems() {
             const weightText = item.weight ? `${item.weight} lbs` : 'N/A';
 
             btn.innerHTML = `
-                <img src="${item.iconUrl}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: contain;">
+                <img src="${item.icon}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: contain;">
                 <span class="item-name">${item.name}</span>
                 <span class="item-dimensions">${dimensionsText}</span>
                 <span class="item-weight">${weightText}</span>
             `;
 
             btn.addEventListener('click', () => {
-                const existingItem = selectedItemsContainer.querySelector(`[data-id="${item.id}"]`);
+                const existingItem = selectedItemsContainer.querySelector(`[data-id="${doc.id}"]`);
 
                 if (existingItem) {
+                    // Si ya existe, lo removemos
                     existingItem.remove();
                     btn.classList.remove('selected');
                     updateSelectedItemsField(selectedItemsContainer);
                     return;
                 }
 
+                // Agregamos la clase selected al botón
                 btn.classList.add('selected');
 
                 const selectedItem = document.createElement('div');
                 selectedItem.className = 'selected-item';
-                selectedItem.dataset.id = item.id;
+                selectedItem.dataset.id = doc.id;
 
+                // Obtener dimensiones predeterminadas
                 const defaultDims = Array.isArray(item.dimensions) ? item.dimensions : [0, 0, 0];
                 const defaultWeight = item.weight || 0;
 
                 selectedItem.innerHTML = `
-                    <img src="${item.iconUrl}" alt="${item.name}">
+                    <img src="${item.icon}" alt="${item.name}">
                     <div class="item-info">
                         <span id="item-info-name">${item.name}</span>
                         <div class="dimension-inputs">
@@ -499,12 +470,13 @@ async function loadCommonItems() {
                                 <input type="number" class="item-quantity" value="1" min="1" data-price="${item.price || 0}">
                             </div>
                             <div>
-                                <span class="remove-item" onclick="removeSelectedItem('${item.id}')">×</span>
+                                <span class="remove-item" onclick="removeSelectedItem('${doc.id}')">×</span>
                             </div>
                         </div>
                     </div>
                 `;
 
+                // Agregar event listeners para los inputs
                 selectedItem.querySelectorAll('.dimension-input, .weight-input').forEach(input => {
                     input.addEventListener('change', () => updateSelectedItemsField(selectedItemsContainer));
                 });
@@ -969,26 +941,30 @@ function generateNextId(datePart, lastLetter, lastNumber) {
 // Collect form data
 async function collectFormData() {
     const packageType = document.querySelector('input[name="package"]:checked').value;
+
+    // Obtener el número de teléfono limpio (con código de país pero sin formato)
     const phoneInput = document.getElementById('phone');
     const cleanPhone = window.getCleanPhoneNumber(phoneInput);
 
+    // Basic data
     const formData = {
         name: document.getElementById('name').value.trim(),
         email: document.getElementById('email').value.trim(),
-        phone: cleanPhone,
+        phone: cleanPhone,  // <-- Usamos el número limpio aquí
         packageType: packageType,
         origin: document.getElementById('origin').value.trim(),
         destination: document.getElementById('destination').value.trim(),
         message: document.getElementById('message').value.trim()
     };
 
+    // If it's a common item
     if (packageType === 'Artículo Común') {
         try {
             const commonItemsValue = document.getElementById('commonItemType').value;
             if (commonItemsValue) {
                 const items = JSON.parse(commonItemsValue);
 
-                // Obtener los artículos comunes de Firestore para incluir las URLs de las imágenes
+                // Obtener los artículos comunes de Firestore para incluir los iconos
                 const snapshot = await db.collection('CommonItems').get();
                 const commonItemsData = {};
                 snapshot.forEach(doc => {
@@ -998,14 +974,14 @@ async function collectFormData() {
                 formData.commonItems = items.map(item => ({
                     ...item,
                     weight: parseFloat(item.weight) || 0,
-                    iconUrl: commonItemsData[item.id]?.icon || '' // Usar la URL de Firebase Storage
+                    icon: commonItemsData[item.id]?.icon || '' // Incluir el icono en base64
                 }));
             }
         } catch (e) {
             console.error('Error parsing common items:', e);
         }
     }
-    // Resto de la función permanece igual...
+    // If it's a custom package
     else if (packageType === 'Personalizado') {
         formData.customItem = {
             item: document.getElementById('item').value.trim(),

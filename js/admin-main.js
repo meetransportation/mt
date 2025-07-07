@@ -13,6 +13,7 @@ const firebaseConfig = {
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
+const storage = firebase.storage();
 
 // Global variables
 let currentAdmin = null;
@@ -732,57 +733,64 @@ function viewOrderDetails(orderId) {
         document.getElementById('modalAdditionalNotes').textContent = order.additionalNotes || 'Ninguna';
         
         // Items list
-        const itemsList = document.getElementById('modalItemsList');
-        itemsList.innerHTML = '';
+     // Items list
+const itemsList = document.getElementById('modalItemsList');
+itemsList.innerHTML = '';
+
+if (order.items && order.items.length > 0) {
+    order.items.forEach(item => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'item-row';
         
-        if (order.items && order.items.length > 0) {
-            order.items.forEach(item => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'item-row';
-                
-                // Construir la imagen - usa base64 si está disponible, sino un placeholder
-                let imageSrc = 'https://via.placeholder.com/60';
-                if (item.imageBase64) {
-                    imageSrc = `data:image/jpeg;base64,${item.imageBase64}`;
-                } else if (item.icon) {
-                    imageSrc = item.icon;
-                }
-                
-                // Construir el contenido del artículo según el tipo
-                if (order.service.description === 'Artículo Común' || item.name) {
-                    // Artículo común
-                    itemDiv.innerHTML = `
-                        <img src="${imageSrc}" class="item-image">
-                        <div class="item-info">
-                            <div class="item-name">${item.name}</div>
-                            <div class="item-meta">
-                                <div><strong>Dimensiones:</strong> ${item.dimensions}</div>
-                                <div><strong>Peso:</strong> ${item.weight} lbs</div>
-                                <div><strong>Cantidad:</strong> ${item.quantity || 1}</div>
-                                ${item.commercialValue ? `<div><strong>Valor comercial:</strong> $${item.commercialValue}</div>` : ''}
-                            </div>
-                        </div>
-                    `;
-                } else if (order.service.description === 'Personalizado' || item.item) {
-                    // Artículo personalizado
-                    itemDiv.innerHTML = `
-                        <img src="${imageSrc}" class="item-image">
-                        <div class="item-info">
-                            <div class="item-name">${item.item || 'Artículo personalizado'}</div>
-                            <div class="item-meta">
-                                <div><strong>Dimensiones:</strong> ${item.length}" x ${item.width}" x ${item.height}"</div>
-                                <div><strong>Peso:</strong> ${item.weight} lbs</div>
-                                ${item.commercialValue ? `<div><strong>Valor comercial:</strong> $${item.commercialValue}</div>` : ''}
-                            </div>
-                        </div>
-                    `;
-                }
-                
-                itemsList.appendChild(itemDiv);
-            });
-        } else {
-            itemsList.innerHTML = '<p>No hay artículos registrados para esta orden.</p>';
+        // Construir la imagen - usa URL de Storage si está disponible, sino un placeholder
+        let imageSrc = 'https://via.placeholder.com/60';
+        
+        // Prioridad 1: Usar iconUrl si existe (URL de Firebase Storage)
+        if (item.iconUrl) {
+            imageSrc = item.iconUrl;
+        } 
+        // Prioridad 2: Si no hay iconUrl pero hay icon (base64 o URL antigua)
+        else if (item.icon) {
+            // Verificar si es una URL válida (no base64)
+            if (item.icon.startsWith('http')) {
+                imageSrc = item.icon;
+            }
+            // Si es base64, usar el placeholder
         }
+        
+        // Resto del código para construir el contenido del artículo...
+        if (order.service.description === 'Artículo Común' || item.name) {
+            itemDiv.innerHTML = `
+                <img src="${imageSrc}" class="item-image">
+                <div class="item-info">
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-meta">
+                        <div><strong>Dimensiones:</strong> ${item.dimensions}</div>
+                        <div><strong>Peso:</strong> ${item.weight} lbs</div>
+                        <div><strong>Cantidad:</strong> ${item.quantity || 1}</div>
+                        ${item.commercialValue ? `<div><strong>Valor comercial:</strong> $${item.commercialValue}</div>` : ''}
+                    </div>
+                </div>
+            `;
+        } else if (order.service.description === 'Personalizado' || item.item) {
+            itemDiv.innerHTML = `
+                <img src="${imageSrc}" class="item-image">
+                <div class="item-info">
+                    <div class="item-name">${item.item || 'Artículo personalizado'}</div>
+                    <div class="item-meta">
+                        <div><strong>Dimensiones:</strong> ${item.length}" x ${item.width}" x ${item.height}"</div>
+                        <div><strong>Peso:</strong> ${item.weight} lbs</div>
+                        ${item.commercialValue ? `<div><strong>Valor comercial:</strong> $${item.commercialValue}</div>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        
+        itemsList.appendChild(itemDiv);
+    });
+} else {
+    itemsList.innerHTML = '<p>No hay artículos registrados para esta orden.</p>';
+}
         
         // Show modal
         document.getElementById('orderModal').style.display = 'flex';
@@ -846,8 +854,12 @@ function renderQuoteItems(quote) {
         quote.commonItems.forEach(item => {
             const itemDiv = document.createElement('div');
             itemDiv.className = 'item-row';
+            
+            // Usar iconUrl si existe, de lo contrario el icon antiguo o placeholder
+            const imageSrc = item.iconUrl || item.icon || './img/default_icon_1.png';
+            
             itemDiv.innerHTML = `
-                <img src="${item.icon || './img/default_icon_1.png'}" class="item-image">
+                <img src="${imageSrc}" class="item-image">
                 <div class="item-info">
                     <div class="item-name">${item.name}</div>
                     <div class="item-meta">

@@ -11,6 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app-compat.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-firestore-compat.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-auth-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-storage-compat.min.js"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Google Fonts -->
@@ -56,6 +57,208 @@
         .iti--separate-dial-code .iti__selected-flag {
             border-radius: 22px 0px 0px 22px;
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        /* Barra de navegación vertical - Versión optimizada */
+        .vertical-nav {
+            position: fixed;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            background: #2c3e50;
+            padding: 10px 7px;
+            border-radius: 15px;
+            backdrop-filter: blur(9px);
+            box-shadow: 7px 5px 8px -3px rgb(0 0 0 / 24%);
+        }
+
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .nav-dot:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+            transform: scale(1.5);
+        }
+
+        .nav-dot.passed {
+            background-color: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .nav-dot.active {
+            background-color: var(--secondary);
+            border-color: var(--secondary);
+            transform: scale(1.2);
+        }
+
+        .nav-dot.active:hover {
+            transform: scale(1.5);
+        }
+
+        /* Animación original mejorada */
+        .nav-dot.active.pulse {
+            animation: pulse-scroll 3s 0.1s infinite;
+        }
+
+        @keyframes pulse-scroll {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+            }
+
+            40% {
+                box-shadow: 0 0 0 15px rgba(255, 255, 255, 0);
+            }
+
+            55% {
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+            }
+        }
+
+        .nav-line-container {
+            height: 20px;
+            width: 2px;
+            background-color: rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-line-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 0%;
+            background-color: var(--secondary);
+            transition: height 0.2s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            .vertical-nav {
+                left: 5px;
+                padding: 8px 5px;
+            }
+
+            .nav-dot {
+                width: 10px;
+                height: 10px;
+            }
+
+            .nav-line-container {
+                height: 15px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .vertical-nav {
+                display: none;
+            }
+        }
+
+
+        @media (max-height: 256px) {
+            .vertical-nav {
+                display: none;
+            }
+        }
+
+
+
+
+
+
+
+
+
+        /* WhatsApp Floating Button */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: #25D366;
+            color: #FFF;
+            border-radius: 50%;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .whatsapp-float:hover {
+            background-color: #128C7E;
+            transform: scale(1.1);
+        }
+
+        .whatsapp-float i {
+            font-size: 36px;
+        }
+
+        /* Pulse animation */
+        @keyframes pulse3 {
+            0% {
+                box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
+            }
+
+            90% {
+                box-shadow: 0 0 0 15px rgba(37, 211, 102, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+            }
+        }
+
+        .whatsapp-float.pulse {
+            animation: pulse3 5s 1.4s infinite;
+        }
+
+        @media (max-width: 768px) {
+            .whatsapp-float {
+                width: 50px;
+                height: 50px;
+                bottom: 30px;
+                right: 15px;
+            }
+
+            .whatsapp-float i {
+                font-size: 30px;
+            }
+        }
     </style>
 
 
@@ -90,8 +293,18 @@
                                 <option value="en">🇺🇸 English</option>
                             </select>
                         </li>
+
+
                     </ul>
                 </nav>
+                                       
+                            <a href="#" id="cartBtn" style="position: relative;">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span id="cartCount"
+                                    style="position: absolute;top: -5px;right: -16px;background: var(--secondary);color: white;border-radius: 50%;width: 18px;height: 18px;display: flex;align-items: center;justify-content: center;font-size: 10px;">0</span>
+                            </a>
+                   
+
             </div>
         </div>
     </header>
@@ -124,12 +337,26 @@
                     <a href="#services" class="btn btn-outline" data-i18n="servicesBtn">Nuestros Servicios</a>
                 </div>
             </div>
+
+
+            <!-- Flecha animada -->
+            <div class="scroll-down" onclick="scrollToServices()">
+                <div class="scroll-down-arrow">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+
+
         </div>
     </section>
 
     <!-- Services Section -->
     <section id="services" class="services-Box">
-        <div class="container">
+
+        <img src="./img/mundi_1.png" style="position: absolute;width: 217px;left: 0px;pointer-events: none;">
+        <img src="./img/mundi_2.png" style="position: absolute;width: 217px;right: 0px;pointer-events: none;">
+
+        <div class="container" style="position: relative;">
             <h2 class="section-title">Nuestros Servicios</h2>
             <div class="services-grid" id="servicesContainer">
                 <!-- Los servicios se cargarán aquí dinámicamente desde Firebase -->
@@ -246,7 +473,9 @@
                     <div class="form-row">
                         <!-- Reemplaza esto en la sección de cotización -->
                         <div class="form-group">
-                            <label for="origin" style="display: inline-flex;align-items: center;">Origen <img src="./img/Bandera_USA_1.png" style="height: 22px;margin: 0px 5px;"> (Ciudad, Estado):</label>
+                            <label for="origin" style="display: inline-flex;align-items: center;">Origen <img
+                                    src="./img/Bandera_USA_1.png" style="height: 22px;margin: 0px 5px;"> (Ciudad,
+                                Estado):</label>
                             <select id="origin" class="form-control" required>
                                 <option value="New York, NY" selected>New York, NY</option>
                             </select>
@@ -254,7 +483,9 @@
 
 
                         <div class="form-group">
-                            <label for="destination" style="display: inline-flex;align-items: center;">Destino <img src="./img/Bandera_RD_1.png" style="height: 22px;margin: 0px 5px;"> (Provincia):</label>
+                            <label for="destination" style="display: inline-flex;align-items: center;">Destino <img
+                                    src="./img/Bandera_RD_1.png" style="height: 22px;margin: 0px 5px;">
+                                (Provincia):</label>
                             <select id="destination" class="form-control" required>
                                 <option value="" disabled selected>Seleccione una provincia</option>
                                 <option value="Distrito Nacional">Distrito Nacional</option>
@@ -307,6 +538,7 @@
 
     <!-- Contact Section -->
     <section id="contact" class="contact">
+
         <div class="container">
             <h2 class="section-title">Contacto</h2>
             <div class="contact-content" style="margin-bottom: 1rem;">
@@ -392,12 +624,12 @@
 
     <!-- Login Modal -->
     <div id="loginModal" class="modal">
-        <div class="modal-content" style="max-width: 570px;">
+        <div class="modal-content" id="modal-login">
             <div class="Modal-Title ">
                 <h3>Iniciar Sesión / Registrarse</h3>
                 <button class="close-btn">&times;</button>
             </div>
-            <div class="Modal-Body" style="padding: 30px 50px;">
+            <div class="Modal-Body">
                 <form id="authForm">
                     <div class="form-group">
                         <label for="authEmail">Correo Electrónico</label>
@@ -436,7 +668,7 @@
                             </div>
                         </div>
 
-                        
+
                         <div class="form-group">
                             <label for="street">Dirección (Calle y Número):</label>
                             <input type="text" id="street" class="form-control" required>
@@ -462,16 +694,20 @@
                         </div>
                     </div>
 
-                    <button type="button" id="loginUserBtn" class="btn">Iniciar Sesión</button>
-                    <button type="button" id="showLoginBtn" class="btn btn-outline-2" style="display: none;">Ya tengo
-                        cuenta</button>
-                    <button type="button" id="registerUserBtn" class="btn btn-outline-2">Crear cuenta</button>
+                    <div
+                        style="display: inline-flex;align-items: center;width: 100%;gap: 15px;justify-content: center;flex-direction: row;">
+                        <button type="button" id="loginUserBtn" class="btn">Iniciar Sesión</button>
+                        <button type="button" id="showLoginBtn" class="btn btn-outline-2" style="display: none;">Ya
+                            tengo
+                            cuenta</button>
+                        <button type="button" id="registerUserBtn" class="btn btn-outline-2">Crear cuenta</button>
+                    </div>
 
                     <!-- Botón de Google -->
-                    <div style="text-align: center; margin: 1rem 0;">
+                    <div style="text-align: center;margin: 1rem 0;display: inline-flex;flex-direction: column;">
                         <p style="margin: 1rem 0;">O inicia sesión con</p>
                         <button type="button" id="googleSignInBtn" class="btn">
-                            <img src="./img/google-icon.svg" style="height: 32px;">Google</button>
+                            <img src="./img/google_logo_1.png" style="height: 32px;">Google</button>
                     </div>
 
                     <div id="authMessage" style="margin-top: 1rem; color: var(--accent);"></div>
@@ -556,7 +792,7 @@
                         </div>
                     </div>
 
-                                        <div class="form-group">
+                    <div class="form-group">
                         <label for="profileStreet">Dirección (Calle y Número):</label>
                         <input type="text" id="profileStreet" class="form-control" required>
                     </div>
@@ -583,6 +819,67 @@
             </div>
         </div>
     </div>
+
+
+
+    <!-- Carrito Modal -->
+    <div id="cartModal" class="modal">
+        <div class="modal-content" id="modal-cart">
+            <div class="Modal-Title">
+                <h3>Tu Carrito</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="Modal-Body">
+                <div id="cartItemsContainer" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Los items del carrito se mostrarán aquí -->
+                    <p style="text-align: center;">Tu carrito está vacío</p>
+                </div>
+                <div id="cartTotal" style="font-weight: bold;text-align: right;margin-top: 0.5rem;font-size: 1.2rem;">
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
+                    <button id="clearCartBtn" class="btn btn-outline">Vaciar Carrito</button>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="checkoutBtn" class="btn">Proceder al Pago</button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Agrega esto justo antes del cierre del body (antes de los scripts) -->
+    <div class="vertical-nav">
+        <div class="nav-dot active pulse" data-section="inicio"></div>
+        <div class="nav-line-container">
+            <div class="nav-line-progress" id="line1"></div>
+        </div>
+        <div class="nav-dot" data-section="services"></div>
+        <div class="nav-line-container">
+            <div class="nav-line-progress" id="line2"></div>
+        </div>
+        <div class="nav-dot" data-section="quote"></div>
+        <div class="nav-line-container">
+            <div class="nav-line-progress" id="line3"></div>
+        </div>
+        <div class="nav-dot" data-section="contact"></div>
+    </div>
+
+
+
+
+
+
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/12124242846?text=Saludos,%20me%20gustaría%20comunicarme%20con%20servicio%20al%20cliente."
+        class="whatsapp-float pulse" target="_blank" rel="noopener noreferrer">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+
+
     <script src="./js/addressData.js"></script>
     <script src="./js/main.js"></script>
 
@@ -607,193 +904,6 @@
                     mobileMenuBtn.querySelector('i').classList.remove('fa-times');
                 });
             });
-        });
-    </script>
-
-    <script>
-        // Función para cargar los servicios desde Firebase
-        async function loadServices() {
-            const servicesContainer = document.getElementById('servicesContainer');
-            servicesContainer.innerHTML = '<p>Cargando servicios...</p>';
-
-            try {
-                const snapshot = await db.collection('services')
-                    .orderBy('position', 'asc')
-                    .get();
-
-                if (snapshot.empty) {
-                    servicesContainer.innerHTML = '<p>No hay servicios disponibles</p>';
-                    return;
-                }
-
-                servicesContainer.innerHTML = '';
-
-                snapshot.forEach(doc => {
-                    const service = doc.data();
-                    const serviceCard = document.createElement('div');
-                    serviceCard.className = 'service-card';
-
-                    const isPromo = service.type === 'promo';
-                    if (isPromo) {
-                        serviceCard.classList.add('offer-card');
-                    }
-
-                    // Construir el precio según el tipo
-                    const priceContent = isPromo
-                        ? `<div class="service-price">${service.price}</div>` // Texto directo para promos
-                        : `<div class="service-price">US$${service.price}</div>`; // Formato USD para regulares
-
-                    let cardContent = `
-                <div class="service-title">${service.name}</div>
-                ${priceContent}
-                <ul class="service-details">
-                    ${service.slot1 ? `<li><strong>${service.slot1.split(':')[0]}:</strong> ${service.slot1.split(':').slice(1).join(':')}</li>` : ''}
-                    ${service.slot2 ? `<li><strong>${service.slot2.split(':')[0]}:</strong> ${service.slot2.split(':').slice(1).join(':')}</li>` : ''}
-                    ${service.slot3 ? `<li><strong>${service.slot3.split(':')[0]}:</strong> ${service.slot3.split(':').slice(1).join(':')}</li>` : ''}
-                    ${service.slot4 ? `<li><strong>${service.slot4.split(':')[0]}:</strong> ${service.slot4.split(':').slice(1).join(':')}</li>` : ''}
-                </ul>
-            `;
-
-                    if (!isPromo && service.icon) {
-                        cardContent = `
-                    <div class="service-icon"><img src="${service.icon}" alt="${service.name}"></div>
-                    ${cardContent}
-                `;
-                    }
-
-                    if (!isPromo) {
-                        cardContent += `
-                    <div style="display: inline-flex; justify-content: center; width: 100%;">
-                        <button class="btn-ordenar" data-service-id="${doc.id}">Ordenar</button>
-                    </div>
-                `;
-                    }
-
-                    serviceCard.innerHTML = cardContent;
-                    servicesContainer.appendChild(serviceCard);
-                });
-
-                document.querySelectorAll('.btn-ordenar').forEach(button => {
-                    button.addEventListener('click', async function () {
-                        const serviceId = this.getAttribute('data-service-id');
-                        try {
-                            const doc = await db.collection('services').doc(serviceId).get();
-                            if (doc.exists) {
-                                const service = doc.data();
-                                localStorage.setItem('selectedService', JSON.stringify({
-                                    id: doc.id,
-                                    ...service
-                                }));
-                                window.location.href = 'checkout.html';
-                            }
-                        } catch (error) {
-                            console.error('Error al obtener el servicio:', error);
-                            alert('Error al procesar la orden. Por favor intente nuevamente.');
-                        }
-                    });
-                });
-
-            } catch (error) {
-                console.error('Error cargando servicios:', error);
-                servicesContainer.innerHTML = '<p>Error al cargar los servicios</p>';
-            }
-        }
-
-        // Ejecutar cuando el DOM esté cargado
-        document.addEventListener('DOMContentLoaded', loadServices);
-    </script>
-
-
-    <script>
-        // --- CONST Y UTILS ----------------------------------------------------------
-        const CACHE_KEY = 'servicesCache';          // LocalStorage key
-        const COLLECTION = 'services';              // Nombre de la colección
-        const servicesContainer = document.getElementById('servicesContainer');
-
-        // Renderiza la cuadrícula de tarjetas
-        function renderServices(services = []) {
-            servicesContainer.innerHTML = '';
-
-            if (!services.length) {
-                servicesContainer.innerHTML = '<p>No hay servicios disponibles</p>';
-                return;
-            }
-
-            services.forEach(service => {
-                const card = document.createElement('div');
-                card.className = 'service-card';
-                const isPromo = service.type === 'promo';
-                if (isPromo) card.classList.add('offer-card');
-
-                const priceHTML = isPromo
-                    ? `<div class="service-price">${service.price}</div>`
-                    : `<div class="service-price">US$${service.price}</div>`;
-
-                let html = `
-      <div class="service-title">${service.name}</div>
-      ${priceHTML}
-      <ul class="service-details">
-        ${service.slot1 ? `<li><strong>${service.slot1.split(':')[0]}:</strong> ${service.slot1.split(':').slice(1).join(':')}</li>` : ''}
-        ${service.slot2 ? `<li><strong>${service.slot2.split(':')[0]}:</strong> ${service.slot2.split(':').slice(1).join(':')}</li>` : ''}
-        ${service.slot3 ? `<li><strong>${service.slot3.split(':')[0]}:</strong> ${service.slot3.split(':').slice(1).join(':')}</li>` : ''}
-        ${service.slot4 ? `<li><strong>${service.slot4.split(':')[0]}:</strong> ${service.slot4.split(':').slice(1).join(':')}</li>` : ''}
-      </ul>
-    `;
-
-                if (!isPromo && service.icon) {
-                    html = `<div class="service-icon"><img src="${service.icon}" alt="${service.name}"></div>` + html;
-                }
-                if (!isPromo) {
-                    html += `
-        <div style="display:flex;justify-content:center;width:100%">
-          <button class="btn-ordenar" data-service-id="${service.id}">Ordenar</button>
-        </div>`;
-                }
-
-                card.innerHTML = html;
-                servicesContainer.appendChild(card);
-            });
-
-            // Botones “Ordenar”
-            document.querySelectorAll('.btn-ordenar').forEach(btn => {
-                btn.addEventListener('click', async e => {
-                    const id = e.currentTarget.dataset.serviceId;
-                    const service = services.find(s => s.id === id);
-                    if (!service) return;
-                    localStorage.setItem('selectedService', JSON.stringify(service));
-                    window.location.href = 'checkout.html';
-                });
-            });
-        }
-
-        // --- INICIALIZACIÓN ---------------------------------------------------------
-        document.addEventListener('DOMContentLoaded', () => {
-            // 1) Muestra lo que haya en caché (si existe)
-            const cached = localStorage.getItem(CACHE_KEY);
-            if (cached) {
-                try { renderServices(JSON.parse(cached)); }
-                catch (err) { console.warn('Error leyendo caché:', err); }
-            } else {
-                servicesContainer.innerHTML = '<p>Cargando servicios...</p>';
-            }
-
-            // 2) Suscripción en tiempo real a Firestore
-            db.collection(COLLECTION)
-                .orderBy('position', 'asc')
-                .onSnapshot(
-                    snap => {
-                        const fresh = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                        const freshStr = JSON.stringify(fresh);
-                        if (freshStr !== localStorage.getItem(CACHE_KEY)) {
-                            localStorage.setItem(CACHE_KEY, freshStr);
-                            renderServices(fresh);
-                        }
-                    },
-                    err => {
-                        console.error('Firestore listener error:', err);
-                        if (!cached) servicesContainer.innerHTML = '<p>Error al cargar los servicios</p>';
-                    }
-                );
         });
     </script>
 
@@ -876,8 +986,131 @@
         });
     </script>
 
+
+    <script>
+        function scrollToServices() {
+            const servicesSection = document.getElementById('services');
+            servicesSection.scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        // Opcional: También puedes agregar esto para que funcione con el scroll de rueda del mouse
+        document.querySelector('.scroll-down-arrow').addEventListener('click', scrollToServices);
+    </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const dots = document.querySelectorAll('.nav-dot');
+            const lines = document.querySelectorAll('.nav-line-progress');
+            const sections = ['inicio', 'services', 'quote', 'contact'];
+            const sectionElements = sections.map(id => document.getElementById(id));
+
+            let currentActiveIndex = 0;
+            let isAnimating = false;
+            let lastScrollPosition = window.scrollY;
+
+            // Función para actualizar la navegación
+            function updateNavigation() {
+                const scrollPosition = window.scrollY;
+                const windowHeight = window.innerHeight;
+                const scrollDirection = scrollPosition > lastScrollPosition ? 'down' : 'up';
+                lastScrollPosition = scrollPosition;
+
+                // Encontrar la sección activa
+                let newActiveIndex = currentActiveIndex;
+                sectionElements.forEach((section, index) => {
+                    if (section) {
+                        const sectionTop = section.offsetTop;
+                        const sectionBottom = sectionTop + section.offsetHeight;
+                        const triggerOffset = windowHeight * 0.3;
+
+                        if (scrollPosition + triggerOffset >= sectionTop &&
+                            scrollPosition + triggerOffset <= sectionBottom) {
+                            newActiveIndex = index;
+                        }
+                    }
+                });
+
+                // Actualizar puntos activos si cambió la sección
+                if (newActiveIndex !== currentActiveIndex && !isAnimating) {
+                    isAnimating = true;
+
+                    // Resetear clases
+                    dots.forEach(dot => {
+                        dot.classList.remove('active', 'passed', 'pulse');
+                    });
+
+                    // Marcar secciones pasadas
+                    for (let i = 0; i < newActiveIndex; i++) {
+                        dots[i].classList.add('passed');
+                    }
+
+                    // Activar nueva sección
+                    setTimeout(() => {
+                        dots[newActiveIndex].classList.add('active', 'pulse');
+                        currentActiveIndex = newActiveIndex;
+                        isAnimating = false;
+                    }, 50);
+                }
+
+                // Actualizar progreso de líneas de manera precisa
+                for (let i = 0; i < sectionElements.length - 1; i++) {
+                    const currentSection = sectionElements[i];
+                    const nextSection = sectionElements[i + 1];
+
+                    if (currentSection && nextSection) {
+                        const sectionTop = currentSection.offsetTop;
+                        const sectionBottom = nextSection.offsetTop;
+                        const sectionHeight = sectionBottom - sectionTop;
+
+                        let progress = (scrollPosition - sectionTop) / sectionHeight;
+                        progress = Math.max(0, Math.min(1, progress));
+
+                        if (lines[i]) {
+                            // Suavizar la transición cuando estamos cerca de los extremos
+                            const easedProgress = easeInOutCubic(progress);
+                            lines[i].style.height = `${easedProgress * 100}%`;
+                        }
+                    }
+                }
+            }
+
+            // Función de easing para suavizar el progreso
+            function easeInOutCubic(t) {
+                return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            }
+
+            // Evento para desplazamiento al hacer clic
+            dots.forEach(dot => {
+                dot.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const sectionId = this.getAttribute('data-section');
+                    const section = document.getElementById(sectionId);
+                    if (section) {
+                        window.scrollTo({
+                            top: section.offsetTop,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // Optimización del evento scroll
+            let scrollTimeout;
+            window.addEventListener('scroll', function () {
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(updateNavigation, 16); // ~60fps
+            }, { passive: true });
+
+            // Inicialización
+            updateNavigation();
+        });
+    </script>
+
 </body>
 
 </html>
 
-<!-- 2 -->
+<!-- 1 -->

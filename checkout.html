@@ -14,7 +14,8 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Google Fonts -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
     <!-- Stripe JS -->
     <script src="https://js.stripe.com/v3/"></script>
     <!-- International Telephone Input -->
@@ -172,13 +173,17 @@
             color: white;
         }
 
-        .order-item {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 0.5rem;
-            flex-direction: column;
-            align-items: center;
-        }
+.order-item {
+    display: flex
+;
+    margin-bottom: 0.5rem;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 15px;
+    box-shadow: 0px 0px 0px 1px rgb(221 221 221);
+    background: #f3f3f3;
+    padding: 0.2rem 1rem;
+}
 
         .order-item img {
             width: 80px;
@@ -206,14 +211,32 @@
             font-size: 1.5rem;
         }
 
-        .order-total {
-            padding-top: 0.5rem;
-            border-top: 2px solid #eee;
-            font-size: 1.2rem;
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-        }
+.order-total {
+    padding-top: 0.5rem;
+    border-top: 2px solid #eee;
+    font-size: 1.4rem;
+    font-weight: 600;
+    display: flex
+;
+    justify-content: space-between;
+}
+
+#box-counter {
+    display: flex
+;
+    align-items: center;
+    margin-bottom: 7px;
+    justify-content: center;
+}
+
+#box-counter button {
+    background: #5fc62b;
+    color: white;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    border-radius: 15px;
+}
 
         .payment-options {
             margin-top: 0.5rem;
@@ -316,7 +339,7 @@
         .Modal-Body {
             background: rgba(255, 255, 255, 0);
             flex: 1;
-            padding: 1rem 2rem;
+            padding: 1rem;
             overflow: auto;
             max-height: calc(100vh - 100px);
         }
@@ -443,53 +466,6 @@
         .form-control {
             transition: all 0.3s ease;
         }
-
-
-
-        .quantity-control {
-    margin: 1rem 0;
-    text-align: center;
-}
-
-.quantity-control label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-}
-
-.quantity-input {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.quantity-input input {
-    width: 60px;
-    text-align: center;
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1rem;
-}
-
-.quantity-btn {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background-color: var(--secondary);
-    color: white;
-    border: none;
-    font-size: 1rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.quantity-btn:hover {
-    background-color: #3ba709;
-}
     </style>
 </head>
 
@@ -583,7 +559,7 @@
                             <input type="tel" id="receiverPhone" class="form-control" required>
                         </div>
                         <div class="form-group">
-                            <label for="receiverCedula">Cédula:</label>
+                            <label for="receiverCedula">Cédula del Destinatario:</label>
                             <input type="text" id="receiverCedula" class="form-control" placeholder="000-0000000-0"
                                 required>
                         </div>
@@ -656,7 +632,8 @@
                         <i class="fas fa-check-circle"></i>
                     </div>
                     <h2>¡Pedido Confirmado!</h2>
-                    <p id="orderConfirmationText">Hemos recibido tu pedido correctamente. Nos pondremos en contacto contigo para brindarte los detalles de seguimiento.</p>
+                    <p id="orderConfirmationText">Hemos recibido tu pedido correctamente. Nos pondremos en contacto
+                        contigo para brindarte los detalles de seguimiento.</p>
                     <p style="font-weight: 600; margin: 1rem 0;"><span style="color: var(--primary);">Número de
                             Orden:</span> <span id="orderIdDisplay" style="color: var(--secondary);"></span></p>
                     <a href="index.html" class="btn" style="margin-top: 1rem;">Volver al Inicio</a>
@@ -669,12 +646,12 @@
                     <h3>Resumen del Pedido</h3>
                 </div>
 
-<div class="Modal-Body">
-    <div id="orderItemContainer"></div>
-    <div class="order-total">
-        <span>Total:</span>
-        <span id="orderTotal"></span>
-    </div>
+                <div class="Modal-Body">
+                    <div id="orderItemContainer"></div>
+                    <div class="order-total">
+                        <span>Total:</span>
+                        <span id="orderTotal"></span>
+                    </div>
 
                     <div class="payment-options">
                         <h2>Método de Pago</h2>
@@ -717,601 +694,663 @@
         </div>
     </div>
 
-   <script>
-    // Firebase Configuration
-    const firebaseConfig = {
-        apiKey: "AIzaSyDUPUM36QOLPGb-FmPx6-qMZoS2pCZdurI",
-        authDomain: "meetransportation.firebaseapp.com",
-        projectId: "meetransportation",
-        storageBucket: "meetransportation.appspot.com",
-        messagingSenderId: "1087042032724",
-        appId: "1:1087042032724:web:0975e57ca30ff342f349c1",
-        measurementId: "G-8XHXKXL0CV"
-    };
-
-    // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const auth = firebase.auth();
-    const functions = firebase.functions();
-
-    // Variables globales para Stripe
-    let stripe, elements;
-
-    // Función para cargar estados
-    function loadStates(countryCode, targetSelectId) {
-        const stateSelect = document.getElementById(targetSelectId);
-        stateSelect.innerHTML = '<option value="" disabled selected>Seleccione un estado/provincia</option>';
-
-        const states = {
-            US: [
-                'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware',
-                'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky',
-                'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi',
-                'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico',
-                'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania',
-                'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont',
-                'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'
-            ]
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDUPUM36QOLPGb-FmPx6-qMZoS2pCZdurI",
+            authDomain: "meetransportation.firebaseapp.com",
+            projectId: "meetransportation",
+            storageBucket: "meetransportation.appspot.com",
+            messagingSenderId: "1087042032724",
+            appId: "1:1087042032724:web:0975e57ca30ff342f349c1",
+            measurementId: "G-8XHXKXL0CV"
         };
 
-        if (countryCode && states[countryCode]) {
-            states[countryCode].forEach(state => {
-                const option = document.createElement('option');
-                option.value = state;
-                option.textContent = state;
-                stateSelect.appendChild(option);
-            });
-        }
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        const functions = firebase.functions();
 
-        stateSelect.addEventListener('change', function() {
-            checkInputContent();
-            if (this.value === "") {
-                this.classList.remove('input-has-content');
-            } else {
-                this.classList.add('input-has-content');
+        // Variables globales para Stripe
+        let stripe, elements;
+
+        // Función para cargar estados
+        function loadStates(countryCode, targetSelectId) {
+            const stateSelect = document.getElementById(targetSelectId);
+            stateSelect.innerHTML = '<option value="" disabled selected>Seleccione un estado/provincia</option>';
+
+            const states = {
+                US: [
+                    'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware',
+                    'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky',
+                    'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi',
+                    'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico',
+                    'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania',
+                    'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont',
+                    'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'
+                ]
+            };
+
+            if (countryCode && states[countryCode]) {
+                states[countryCode].forEach(state => {
+                    const option = document.createElement('option');
+                    option.value = state;
+                    option.textContent = state;
+                    stateSelect.appendChild(option);
+                });
             }
-        });
-    }
 
-    // Seleccionar método de pago
-    function selectPayment(method) {
-        document.querySelectorAll('.payment-option').forEach(option => {
-            option.classList.remove('payment-selected');
-        });
-
-        document.querySelector(`.payment-option[onclick="selectPayment('${method}')"]`).classList.add('payment-selected');
-        document.querySelector(`#${method}Payment`).checked = true;
-        
-        const stripeCardElement = document.getElementById('stripeCardElement');
-        if (method === 'online') {
-            stripeCardElement.style.display = 'block';
-            initializeStripeElements();
-        } else {
-            stripeCardElement.style.display = 'none';
+            stateSelect.addEventListener('change', function () {
+                checkInputContent();
+                if (this.value === "") {
+                    this.classList.remove('input-has-content');
+                } else {
+                    this.classList.add('input-has-content');
+                }
+            });
         }
-    }
 
-    // Inicializar elementos de Stripe
-    function initializeStripeElements() {
-        if (!stripe) {
-            stripe = Stripe('pk_test_51RflpxCQmmVrpuF3gY491FnR6XzcJuLSdXq4EqT3mkqWz3wA2Eu65yq6n2UFamVhkz0dsjJ7PcDvM7PevyTGtVWJ005zxlytKb');
-            elements = stripe.elements();
-            
-            const card = elements.create('card', {
-                style: {
-                    base: {
-                        fontSize: '16px',
-                        color: '#32325d',
-                        '::placeholder': {
-                            color: '#aab7c4'
+        // Seleccionar método de pago
+        function selectPayment(method) {
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.classList.remove('payment-selected');
+            });
+
+            document.querySelector(`.payment-option[onclick="selectPayment('${method}')"]`).classList.add('payment-selected');
+            document.querySelector(`#${method}Payment`).checked = true;
+
+            const stripeCardElement = document.getElementById('stripeCardElement');
+            if (method === 'online') {
+                stripeCardElement.style.display = 'block';
+                initializeStripeElements();
+            } else {
+                stripeCardElement.style.display = 'none';
+            }
+        }
+
+        // Inicializar elementos de Stripe
+        function initializeStripeElements() {
+            if (!stripe) {
+                stripe = Stripe('pk_test_51RflpxCQmmVrpuF3gY491FnR6XzcJuLSdXq4EqT3mkqWz3wA2Eu65yq6n2UFamVhkz0dsjJ7PcDvM7PevyTGtVWJ005zxlytKb');
+                elements = stripe.elements();
+
+                const card = elements.create('card', {
+                    style: {
+                        base: {
+                            fontSize: '16px',
+                            color: '#32325d',
+                            '::placeholder': {
+                                color: '#aab7c4'
+                            }
+                        },
+                        invalid: {
+                            color: '#fa755a',
+                            iconColor: '#fa755a'
                         }
-                    },
-                    invalid: {
-                        color: '#fa755a',
-                        iconColor: '#fa755a'
                     }
-                }
-            });
-            
-            card.mount('#card-element');
-            
-            card.addEventListener('change', function(event) {
-                const displayError = document.getElementById('card-errors');
-                if (event.error) {
-                    displayError.textContent = event.error.message;
-                } else {
-                    displayError.textContent = '';
-                }
-            });
-        }
-    }
-
-    // Función para generar ID único
-    async function generateId(prefix = 'mt') {
-        const now = new Date();
-        const year = now.getFullYear().toString().slice(-2);
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const datePart = year + month + day;
-
-        const counterRef = db.collection('counters').doc('orders');
-
-        return db.runTransaction(async (transaction) => {
-            const doc = await transaction.get(counterRef);
-
-            if (doc.exists) {
-                const data = doc.data();
-                let { lastLetter, lastNumber, lastDate } = data;
-
-                if (lastDate !== datePart) {
-                    lastLetter = 'a';
-                    lastNumber = 1;
-                    lastDate = datePart;
-                } else {
-                    lastNumber++;
-                    if (lastNumber > 99) {
-                        lastNumber = 1;
-                        lastLetter = String.fromCharCode(lastLetter.charCodeAt(0) + 1);
-                        if (lastLetter > 'z') lastLetter = 'a';
-                    }
-                }
-
-                transaction.update(counterRef, {
-                    lastLetter,
-                    lastNumber,
-                    lastDate
                 });
 
-                return `${prefix}${datePart}${lastLetter}${String(lastNumber).padStart(2, '0')}`;
-            }
+                card.mount('#card-element');
 
-            transaction.set(counterRef, {
-                lastLetter: 'a',
-                lastNumber: 1,
-                lastDate: datePart
-            });
-
-            return `${prefix}${datePart}a01`;
-        });
-    }
-
-    // Verificar inputs con contenido
-    function checkInputContent() {
-        const inputs = document.querySelectorAll('.form-control');
-        inputs.forEach(input => {
-            if (input.tagName === 'SELECT') {
-                input.classList.toggle('input-has-content', input.value !== '');
-            } else {
-                input.classList.toggle('input-has-content', input.value.trim() !== '');
-            }
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        // Configuración inicial
-        loadStates('US', 'senderState');
-        generateTimeOptions();
-        setupEventListeners();
-        selectPayment('online');
-        checkInputContent();
-    });
-
-    function generateTimeOptions() {
-        const pickupTimeSelect = document.getElementById('pickupTime');
-        pickupTimeSelect.innerHTML = '<option value="" disabled selected>Seleccione una hora</option>';
-
-        const today = new Date();
-        const currentHour = today.getHours();
-        const selectedDate = new Date(document.getElementById('pickupDate').value);
-
-        for (let hour = 8; hour <= 21; hour++) {
-            if (!selectedDate || selectedDate.toDateString() !== today.toDateString() || hour > currentHour) {
-                const formattedHour = hour.toString().padStart(2, '0') + ':00';
-                const option = document.createElement('option');
-                option.value = formattedHour;
-                option.textContent = formattedHour;
-                pickupTimeSelect.appendChild(option);
+                card.addEventListener('change', function (event) {
+                    const displayError = document.getElementById('card-errors');
+                    if (event.error) {
+                        displayError.textContent = event.error.message;
+                    } else {
+                        displayError.textContent = '';
+                    }
+                });
             }
         }
-    }
 
-    function setupEventListeners() {
-        // Formatear cédula
-        document.getElementById('receiverCedula').addEventListener('input', function(e) {
-            let value = this.value.replace(/\D/g, '');
-            let formatted = value.substring(0, 3);
-            if (value.length > 3) formatted += '-' + value.substring(3, 10);
-            if (value.length > 10) formatted += '-' + value.substring(10, 11);
-            this.value = formatted;
+        // Función para generar ID único
+        async function generateId(prefix = 'mt') {
+            const now = new Date();
+            const year = now.getFullYear().toString().slice(-2);
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const datePart = year + month + day;
+
+            const counterRef = db.collection('counters').doc('orders');
+
+            return db.runTransaction(async (transaction) => {
+                const doc = await transaction.get(counterRef);
+
+                if (doc.exists) {
+                    const data = doc.data();
+                    let { lastLetter, lastNumber, lastDate } = data;
+
+                    if (lastDate !== datePart) {
+                        lastLetter = 'a';
+                        lastNumber = 1;
+                        lastDate = datePart;
+                    } else {
+                        lastNumber++;
+                        if (lastNumber > 99) {
+                            lastNumber = 1;
+                            lastLetter = String.fromCharCode(lastLetter.charCodeAt(0) + 1);
+                            if (lastLetter > 'z') lastLetter = 'a';
+                        }
+                    }
+
+                    transaction.update(counterRef, {
+                        lastLetter,
+                        lastNumber,
+                        lastDate
+                    });
+
+                    return `${prefix}${datePart}${lastLetter}${String(lastNumber).padStart(2, '0')}`;
+                }
+
+                transaction.set(counterRef, {
+                    lastLetter: 'a',
+                    lastNumber: 1,
+                    lastDate: datePart
+                });
+
+                return `${prefix}${datePart}a01`;
+            });
+        }
+
+        // Verificar inputs con contenido
+        function checkInputContent() {
+            const inputs = document.querySelectorAll('.form-control');
+            inputs.forEach(input => {
+                if (input.tagName === 'SELECT') {
+                    input.classList.toggle('input-has-content', input.value !== '');
+                } else {
+                    input.classList.toggle('input-has-content', input.value.trim() !== '');
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Configuración inicial
+            loadStates('US', 'senderState');
+            generateTimeOptions();
+            setupEventListeners();
+            selectPayment('online');
+            checkInputContent();
         });
 
-        // Validar fecha y hora
-        const pickupDateInput = document.getElementById('pickupDate');
-        pickupDateInput.setAttribute('min', new Date().toISOString().split('T')[0]);
-        pickupDateInput.addEventListener('change', generateTimeOptions);
+        function generateTimeOptions() {
+            const pickupTimeSelect = document.getElementById('pickupTime');
+            pickupTimeSelect.innerHTML = '<option value="" disabled selected>Seleccione una hora</option>';
 
-        // Configurar inputs de teléfono
-        setupPhoneInput('senderPhone', 'us');
-        setupPhoneInput('receiverPhone', 'do');
+            const today = new Date();
+            const currentHour = today.getHours();
+            const selectedDate = new Date(document.getElementById('pickupDate').value);
 
-        // Cargar servicio seleccionado
-        loadSelectedService();
+            for (let hour = 8; hour <= 21; hour++) {
+                if (!selectedDate || selectedDate.toDateString() !== today.toDateString() || hour > currentHour) {
+                    const formattedHour = hour.toString().padStart(2, '0') + ':00';
+                    const option = document.createElement('option');
+                    option.value = formattedHour;
+                    option.textContent = formattedHour;
+                    pickupTimeSelect.appendChild(option);
+                }
+            }
+        }
 
-        // Configurar autenticación
-        auth.onAuthStateChanged(loadUserData);
+        function setupEventListeners() {
+            // Formatear cédula
+            document.getElementById('receiverCedula').addEventListener('input', function (e) {
+                let value = this.value.replace(/\D/g, '');
+                let formatted = value.substring(0, 3);
+                if (value.length > 3) formatted += '-' + value.substring(3, 10);
+                if (value.length > 10) formatted += '-' + value.substring(10, 11);
+                this.value = formatted;
+            });
 
-        // Manejar envío del formulario
-        document.getElementById('orderForm').addEventListener('submit', handleFormSubmit);
-    }
+            // Validar fecha y hora
+            const pickupDateInput = document.getElementById('pickupDate');
+            pickupDateInput.setAttribute('min', new Date().toISOString().split('T')[0]);
+            pickupDateInput.addEventListener('change', generateTimeOptions);
 
-    function setupPhoneInput(id, defaultCountry) {
-        const input = document.getElementById(id);
-        window[`${id}Iti`] = window.intlTelInput(input, {
-            preferredCountries: [defaultCountry, defaultCountry === 'us' ? 'do' : 'us'],
-            separateDialCode: true,
-            initialCountry: defaultCountry,
-            utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
-        });
+            // Configurar inputs de teléfono
+            setupPhoneInput('senderPhone', 'us');
+            setupPhoneInput('receiverPhone', 'do');
 
-        input.addEventListener('input', function() {
-            let value = this.value.replace(/\D/g, '');
-            let formatted = value.substring(0, 3);
-            if (value.length > 3) formatted += '-' + value.substring(3, 6);
-            if (value.length > 6) formatted += '-' + value.substring(6, 10);
-            this.value = formatted;
-        });
-    }
+            // Cargar servicio seleccionado
+            loadSelectedService();
 
-   function loadSelectedService() {
-    const selectedService = JSON.parse(localStorage.getItem('selectedService'));
-    const orderItemContainer = document.getElementById('orderItemContainer');
+            // Configurar autenticación
+            auth.onAuthStateChanged(loadUserData);
 
-    if (!selectedService) {
-        window.location.href = 'index.html';
-        return;
-    }
+            // Manejar envío del formulario
+            document.getElementById('orderForm').addEventListener('submit', handleFormSubmit);
+        }
 
-    // Establecer cantidad por defecto si no existe
-    if (!selectedService.quantity) {
-        selectedService.quantity = 1;
-        localStorage.setItem('selectedService', JSON.stringify(selectedService));
-    }
+        function setupPhoneInput(id, defaultCountry) {
+            const input = document.getElementById(id);
+            window[`${id}Iti`] = window.intlTelInput(input, {
+                preferredCountries: [defaultCountry, defaultCountry === 'us' ? 'do' : 'us'],
+                separateDialCode: true,
+                initialCountry: defaultCountry,
+                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+            });
 
-    const isPromo = selectedService.type === 'promo';
-    const priceValue = parseFloat(selectedService.price.replace(/[^\d.]/g, ''));
-    const totalPrice = priceValue * selectedService.quantity;
-const priceHtml = isPromo ? 
-    `US$${totalPrice.toFixed(2)} (${selectedService.quantity} x US$${priceValue.toFixed(2)})` : 
-    `US$${totalPrice.toFixed(2)} (${selectedService.quantity} x US$${priceValue.toFixed(2)})<div class="order-tax">
-        <span>Tax:</span><span>US$0</span>
-    </div>`;
+            input.addEventListener('input', function () {
+                let value = this.value.replace(/\D/g, '');
+                let formatted = value.substring(0, 3);
+                if (value.length > 3) formatted += '-' + value.substring(3, 6);
+                if (value.length > 6) formatted += '-' + value.substring(6, 10);
+                this.value = formatted;
+            });
+        }
 
-    orderItemContainer.innerHTML = `
-        <div class="order-item ${isPromo ? 'promo-summary' : ''}">
-            ${selectedService.icon ? `<img src="${selectedService.icon}" alt="${selectedService.name}">` : ''}
-            <div class="order-details">
-                <div class="order-title">${selectedService.name}</div>
-                ${!isPromo ? `
-                <div>
-                    ${['slot1', 'slot2', 'slot3', 'slot4']
-                        .filter(slot => selectedService[slot])
-                        .map(slot => `<p><strong>${selectedService[slot].split(':')[0]}:</strong> 
-                        ${selectedService[slot].split(':').slice(1).join(':')}</p>`)
-                        .join('')}
-                </div>` : ''}
-                <div class="quantity-control">
-                    <label for="itemQuantity">Cantidad:</label>
-                    <div class="quantity-input">
-                        <button class="quantity-btn minus" onclick="changeQuantity(-1)">-</button>
-                        <input type="number" id="itemQuantity" min="1" value="${selectedService.quantity}" onchange="updateQuantity()">
-                        <button class="quantity-btn plus" onclick="changeQuantity(1)">+</button>
+        // Función para cargar servicio seleccionado con soporte para carrito
+        function loadSelectedService() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const selectedService = JSON.parse(localStorage.getItem('selectedService') || null);
+
+            // Limpiar selectedService si no se usa
+            if (selectedService) {
+                localStorage.removeItem('selectedService');
+            }
+
+            if (cart.length === 0 && !selectedService) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            orderItemContainer.innerHTML = '';
+
+            // Si hay items en el carrito, mostrarlos todos
+            if (cart.length > 0) {
+                let total = 0;
+
+                cart.forEach((item, index) => {
+                    const isPromo = item.type === 'promo';
+                    const priceValue = parseFloat(item.price.replace(/[^\d.]/g, '')) || 0;
+                    const itemTotal = priceValue * (item.quantity || 1);
+                    total += itemTotal;
+
+                    const priceHtml = isPromo ?
+                        item.price :
+                        `US$${priceValue.toFixed(2)}`;
+
+                    const itemElement = document.createElement('div');
+                    itemElement.className = `order-item ${isPromo ? 'promo-summary' : ''}`;
+                    itemElement.innerHTML = `
+                ${item.icon ? `<img src="${item.icon}" alt="${item.name}">` : ''}
+                <div class="order-details">
+                    <div class="order-title">${item.name}</div>
+                    ${!isPromo ? `
+                    <div>
+                        ${['slot1', 'slot2', 'slot3', 'slot4']
+                                .filter(slot => item[slot])
+                                .map(slot => `<p><strong>${item[slot].split(':')[0]}:</strong> 
+                            ${item[slot].split(':').slice(1).join(':')}</p>`)
+                                .join('')}
+                    </div>` : ''}
+                    <div class="order-price">
+                        <span>Precio:</span>
+                        <span>${priceHtml}</span>
+                    </div>
+                    <div style="display: inline-flex;width: 100%;align-items: center;justify-content: space-between;font-weight: bold;">
+                    <div>Subtotal:</div>
+                    <div style="text-align: right; margin-top: 5px;"><strong>US$${itemTotal.toFixed(2)}</strong></div>
+                    </div>
+
+                    <div id="box-counter">
+                        <button onclick="updateQuantity(${index}, -1)">-</button>
+                       <span style="margin: 0 6px;background: #dbdbdb;padding: 0 1rem;border-radius: 7px;">${item.quantity || 1}</span>
+                        <button onclick="updateQuantity(${index}, 1)">+</button>
+                        <button onclick="removeItem(${index})" style="background: none; border: none; color: var(--accent); margin-left: 7px; cursor: pointer;font-size: 1.1rem;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+
+                </div>
+            `;
+
+                    orderItemContainer.appendChild(itemElement);
+                });
+
+                document.getElementById('orderTotal').textContent = `US$${total.toFixed(2)}`;
+            }
+            // Si no hay carrito pero hay un servicio seleccionado
+            else if (selectedService) {
+                const isPromo = selectedService.type === 'promo';
+                const priceValue = parseFloat(selectedService.price.replace(/[^\d.]/g, '')) || 0;
+                const priceHtml = isPromo ?
+                    selectedService.price :
+                    `US$${priceValue.toFixed(2)}`;
+
+                orderItemContainer.innerHTML = `
+            <div class="order-item ${isPromo ? 'promo-summary' : ''}">
+                ${selectedService.icon ? `<img src="${selectedService.icon}" alt="${selectedService.name}">` : ''}
+                <div class="order-details">
+                    <div class="order-title">${selectedService.name}</div>
+                    ${!isPromo ? `
+                    <div>
+                        ${['slot1', 'slot2', 'slot3', 'slot4']
+                            .filter(slot => selectedService[slot])
+                            .map(slot => `<p><strong>${selectedService[slot].split(':')[0]}:</strong> 
+                            ${selectedService[slot].split(':').slice(1).join(':')}</p>`)
+                            .join('')}
+                    </div>` : ''}
+                    <div class="order-price">
+                        <span>Precio:</span>
+                        <span>${priceHtml}</span>
+                    </div>
+                    <div style="text-align: right; margin-top: 10px;">
+                        <strong>Total: US$${priceValue.toFixed(2)}</strong>
                     </div>
                 </div>
-                <div class="order-price">
-                    <span>Precio unitario:</span>
-                    <span>US$${priceValue.toFixed(2)}</span>
-                </div>
-                <div class="order-price">
-                    <span>Total:</span>
-                    <span>${priceHtml}</span>
-                </div>
             </div>
-        </div>
-    `;
+        `;
 
-    updateTotalPrice();
-}
-
-function changeQuantity(change) {
-    const quantityInput = document.getElementById('itemQuantity');
-    let newQuantity = parseInt(quantityInput.value) + change;
-    
-    if (newQuantity < 1) newQuantity = 1;
-    if (newQuantity > 100) newQuantity = 100; // Límite máximo
-    
-    quantityInput.value = newQuantity;
-    updateQuantity();
-}
-
-function updateQuantity() {
-    const quantityInput = document.getElementById('itemQuantity');
-    let quantity = parseInt(quantityInput.value);
-    
-    if (isNaN(quantity)) quantity = 1;  // Se agregó el paréntesis que faltaba
-    if (quantity < 1) quantity = 1;
-    if (quantity > 100) quantity = 100;
-    
-    quantityInput.value = quantity;
-    
-    const selectedService = JSON.parse(localStorage.getItem('selectedService'));
-    selectedService.quantity = quantity;
-    localStorage.setItem('selectedService', JSON.stringify(selectedService));
-    
-    updateTotalPrice();
-}
-
-function updateTotalPrice() {
-    const selectedService = JSON.parse(localStorage.getItem('selectedService'));
-    if (!selectedService) return;
-    
-    const priceValue = parseFloat(selectedService.price.replace(/[^\d.]/g, ''));
-    const totalPrice = priceValue * selectedService.quantity;
-    
-    document.getElementById('orderTotal').textContent = `US$${totalPrice.toFixed(2)}`;
-}
-
-    async function loadUserData(user) {
-        if (!user) return;
-
-        const doc = await db.collection('users').doc(user.uid).get();
-        if (!doc.exists) return;
-
-        const userData = doc.data();
-        document.getElementById('senderName').value = userData.profile?.name || '';
-        document.getElementById('senderEmail').value = user.email;
-
-        if (userData.profile?.phone) {
-            const phoneInput = document.getElementById('senderPhone');
-            phoneInput.value = userData.profile.phone;
-            if (window.senderPhoneIti) {
-                window.senderPhoneIti.setNumber(userData.profile.phone);
+                document.getElementById('orderTotal').textContent =
+                    isPromo && selectedService.price.includes('US$') ?
+                        selectedService.price :
+                        `US$${selectedService.price}`;
             }
         }
 
-        if (userData.profile?.address) {
-            const { street, city, zipCode, state } = userData.profile.address;
-            document.getElementById('senderStreet').value = street || '';
-            document.getElementById('senderCity').value = city || '';
-            document.getElementById('senderZipCode').value = zipCode || '';
-            if (state) {
-                setTimeout(() => {
-                    document.getElementById('senderState').value = state;
-                }, 100);
+
+        // Función para actualizar la cantidad de un artículo
+        function updateQuantity(index, change) {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+            if (index >= 0 && index < cart.length) {
+                // Prevenir que la cantidad sea menor que 1
+                if ((cart[index].quantity || 1) + change < 1) {
+                    return; // Simplemente no hacer nada
+                }
+
+                cart[index].quantity = (cart[index].quantity || 1) + change;
+
+                // Actualizar el carrito y recargar la vista
+                localStorage.setItem('cart', JSON.stringify(cart));
+                loadSelectedService();
             }
         }
-    }
 
-    async function handleFormSubmit(e) {
-        e.preventDefault();
-        const submitBtn = document.getElementById('submitOrderBtn');
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
-        submitBtn.disabled = true;
 
-        // Validar formulario
-        if (!validateForm()) {
-            submitBtn.textContent = 'Confirmar Pedido';
-            submitBtn.disabled = false;
-            return;
-        }
+        // Función para eliminar un artículo del carrito
+        function removeItem(index) {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
 
-        try {
-            const orderId = await generateId('mt');
-            const orderData = await prepareOrderData(orderId);
-            
-            await db.collection('orders').doc(orderId).set(orderData);
-            if (auth.currentUser) {
-                await saveUserOrder(auth.currentUser.uid, orderId, orderData);
-            }
+            if (index >= 0 && index < cart.length) {
+                cart.splice(index, 1);
 
-            await processPayment(orderData, orderId);
-        } catch (error) {
-            console.error('Error:', error);
-            alert(`Error: ${error.message}`);
-        } finally {
-            submitBtn.textContent = 'Confirmar Pedido';
-            submitBtn.disabled = false;
-        }
-    }
+                // Actualizar el carrito y recargar la vista
+                localStorage.setItem('cart', JSON.stringify(cart));
+                loadSelectedService();
 
-    function validateForm() {
-        let isValid = true;
-        const requiredFields = [
-            'senderName', 'senderEmail', 'senderPhone', 'senderStreet',
-            'senderCity', 'senderState', 'senderZipCode',
-            'receiverName', 'receiverPhone', 'receiverCedula',
-            'receiverAddress', 'receiverProvince',
-            'pickupDate', 'pickupTime'
-        ];
-
-        requiredFields.forEach(fieldId => {
-            const field = document.getElementById(fieldId);
-            if (!field.value.trim()) {
-                field.style.borderColor = 'red';
-                isValid = false;
-            } else {
-                field.style.borderColor = '#ddd';
-            }
-        });
-
-        if (!isValid) {
-            alert('Por favor complete todos los campos requeridos');
-            return false;
-        }
-        return true;
-    }
-
-async function prepareOrderData(orderId) {
-    const selectedService = JSON.parse(localStorage.getItem('selectedService'));
-    const priceValue = selectedService.price.replace(/[^\d.]/g, '');
-    const servicePrice = Math.round(parseFloat(priceValue) * 100);
-    const totalPrice = servicePrice * (selectedService.quantity || 1);
-
-    return {
-        id: orderId,
-        service: {
-            id: selectedService.id,
-            name: selectedService.name,
-            price: selectedService.price,
-            numericPrice: servicePrice / 100,
-            totalPrice: totalPrice / 100,
-            quantity: selectedService.quantity || 1,
-            type: selectedService.type,
-            icon: selectedService.icon || null
-            },
-            sender: await getSenderData(),
-            receiver: await getReceiverData(),
-            paymentMethod: document.querySelector('input[name="payment"]:checked').value,
-            additionalNotes: document.getElementById('additionalNotes').value.trim(),
-            status: 'order-pending',
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            userId: auth.currentUser?.uid || null
-        };
-    }
-
-    async function getSenderData() {
-        const phone = await getFormattedPhone('senderPhone');
-        
-        return {
-            name: document.getElementById('senderName').value.trim(),
-            email: document.getElementById('senderEmail').value.trim(),
-            phone: phone,
-            address: {
-                street: document.getElementById('senderStreet').value.trim(),
-                apt: document.getElementById('senderApt').value.trim(),
-                city: document.getElementById('senderCity').value.trim(),
-                state: document.getElementById('senderState').value,
-                zipCode: document.getElementById('senderZipCode').value.trim(),
-                country: 'US'
-            },
-            pickupDateTime: {
-                date: document.getElementById('pickupDate').value,
-                time: document.getElementById('pickupTime').value
-            }
-        };
-    }
-
-    async function getReceiverData() {
-        const phone = await getFormattedPhone('receiverPhone');
-        
-        return {
-            name: document.getElementById('receiverName').value.trim(),
-            phone: phone,
-            cedula: document.getElementById('receiverCedula').value.trim(),
-            address: document.getElementById('receiverAddress').value.trim(),
-            province: document.getElementById('receiverProvince').value,
-            country: 'DO'
-        };
-    }
-
-    async function getFormattedPhone(inputId) {
-        const input = document.getElementById(inputId);
-        let phoneNumber = '';
-        
-        if (window[`${inputId}Iti`]) {
-            phoneNumber = window[`${inputId}Iti`].getNumber(intlTelInputUtils.numberFormat.E164);
-            phoneNumber = phoneNumber.replace(/[-\s]/g, '');
-        } else {
-            phoneNumber = input.value.replace(/[-\s]/g, '');
-            if (!phoneNumber.startsWith('+')) {
-                phoneNumber = '+1' + phoneNumber;
+                // Si el carrito queda vacío, redirigir al inicio
+                if (cart.length === 0) {
+                    window.location.href = 'index.html';
+                }
             }
         }
-        
-        return phoneNumber;
-    }
 
-    async function saveUserOrder(userId, orderId, orderData) {
-        await db.collection('users').doc(userId).collection('userOrders').doc(orderId).set({
-            orderId: orderId,
-            timestamp: orderData.timestamp,
-            status: 'order-pending',
-            serviceName: orderData.service.name,
-            servicePrice: orderData.service.price,
-            pickupDate: orderData.sender.pickupDateTime.date,
-            pickupTime: orderData.sender.pickupDateTime.time
-        });
-    }
 
-async function processPayment(orderData, orderId) {
-    const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
-    
-    if (paymentMethod !== 'online') {
-        localStorage.setItem('lastOrderId', orderId);
-        window.location.href = 'order-complete.html';
-        return;
-    }
+        async function loadUserData(user) {
+            if (!user) return;
 
-    if (!stripe || !elements) {
-        throw new Error('El sistema de pago no está listo. Por favor recarga la página.');
-    }
+            const doc = await db.collection('users').doc(user.uid).get();
+            if (!doc.exists) return;
 
-    try {
-        const createPaymentFunction = firebase.functions().httpsCallable('createStripePaymentIntent');
-        const result = await createPaymentFunction({
-            amount: orderData.service.numericPrice * orderData.service.quantity * 100, // Aquí está el cambio
-            currency: 'usd',
-            metadata: {
-                orderId: orderId,
-                serviceName: orderData.service.name,
-                quantity: orderData.service.quantity
+            const userData = doc.data();
+            document.getElementById('senderName').value = userData.profile?.name || '';
+            document.getElementById('senderEmail').value = user.email;
+
+            if (userData.profile?.phone) {
+                const phoneInput = document.getElementById('senderPhone');
+                phoneInput.value = userData.profile.phone;
+                if (window.senderPhoneIti) {
+                    window.senderPhoneIti.setNumber(userData.profile.phone);
+                }
+            }
+
+            if (userData.profile?.address) {
+                const { street, city, zipCode, state } = userData.profile.address;
+                document.getElementById('senderStreet').value = street || '';
+                document.getElementById('senderCity').value = city || '';
+                document.getElementById('senderZipCode').value = zipCode || '';
+                if (state) {
+                    setTimeout(() => {
+                        document.getElementById('senderState').value = state;
+                    }, 100);
+                }
+            }
+        }
+
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitOrderBtn');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+            submitBtn.disabled = true;
+
+            // Validar formulario
+            if (!validateForm()) {
+                submitBtn.textContent = 'Confirmar Pedido';
+                submitBtn.disabled = false;
+                return;
+            }
+
+            try {
+                const orderId = await generateId('mt');
+                const orderData = await prepareOrderData(orderId);
+
+                await db.collection('orders').doc(orderId).set(orderData);
+                if (auth.currentUser) {
+                    await saveUserOrder(auth.currentUser.uid, orderId, orderData);
+                }
+
+                await processPayment(orderData, orderId);
+            } catch (error) {
+                console.error('Error:', error);
+                alert(`Error: ${error.message}`);
+            } finally {
+                submitBtn.textContent = 'Confirmar Pedido';
+                submitBtn.disabled = false;
+            }
+        }
+
+        function validateForm() {
+            let isValid = true;
+            const requiredFields = [
+                'senderName', 'senderEmail', 'senderPhone', 'senderStreet',
+                'senderCity', 'senderState', 'senderZipCode',
+                'receiverName', 'receiverPhone', 'receiverCedula',
+                'receiverAddress', 'receiverProvince',
+                'pickupDate', 'pickupTime'
+            ];
+
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    field.style.borderColor = 'red';
+                    isValid = false;
+                } else {
+                    field.style.borderColor = '#ddd';
                 }
             });
 
-            const { clientSecret } = result.data;
-            const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-                payment_method: {
-                    card: elements.getElement('card'),
-                    billing_details: {
-                        name: orderData.sender.name,
-                        email: orderData.sender.email,
-                        phone: orderData.sender.phone,
-                        address: {
-                            line1: orderData.sender.address.street,
-                            line2: orderData.sender.address.apt,
-                            city: orderData.sender.address.city,
-                            state: orderData.sender.address.state,
-                            postal_code: orderData.sender.address.zipCode,
-                            country: 'US'
+            if (!isValid) {
+                alert('Por favor complete todos los campos requeridos');
+                return false;
+            }
+            return true;
+        }
+
+        // Función para preparar datos del pedido
+        async function prepareOrderData(orderId) {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+            let services = [];
+            let totalPrice = 0;
+
+            services = cart.map(item => {
+                const priceValue = parseFloat(item.price.replace(/[^\d.]/g, '')) || 0;
+                totalPrice += priceValue * (item.quantity || 1);
+
+                return {
+                    id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    numericPrice: priceValue,
+                    type: item.type,
+                    icon: item.icon || null,
+                    quantity: item.quantity || 1
+                };
+            });
+
+            return {
+                id: orderId,
+                services: services,
+                totalPrice: totalPrice,
+                sender: await getSenderData(),
+                receiver: await getReceiverData(),
+                paymentMethod: document.querySelector('input[name="payment"]:checked').value,
+                additionalNotes: document.getElementById('additionalNotes').value.trim(),
+                status: 'order-pending',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                userId: auth.currentUser?.uid || null
+            };
+        }
+
+        async function getSenderData() {
+            const phone = await getFormattedPhone('senderPhone');
+
+            return {
+                name: document.getElementById('senderName').value.trim(),
+                email: document.getElementById('senderEmail').value.trim(),
+                phone: phone,
+                address: {
+                    street: document.getElementById('senderStreet').value.trim(),
+                    apt: document.getElementById('senderApt').value.trim(),
+                    city: document.getElementById('senderCity').value.trim(),
+                    state: document.getElementById('senderState').value,
+                    zipCode: document.getElementById('senderZipCode').value.trim(),
+                    country: 'US'
+                },
+                pickupDateTime: {
+                    date: document.getElementById('pickupDate').value,
+                    time: document.getElementById('pickupTime').value
+                }
+            };
+        }
+
+        async function getReceiverData() {
+            const phone = await getFormattedPhone('receiverPhone');
+
+            return {
+                name: document.getElementById('receiverName').value.trim(),
+                phone: phone,
+                cedula: document.getElementById('receiverCedula').value.trim(),
+                address: document.getElementById('receiverAddress').value.trim(),
+                province: document.getElementById('receiverProvince').value,
+                country: 'DO'
+            };
+        }
+
+        async function getFormattedPhone(inputId) {
+            const input = document.getElementById(inputId);
+            let phoneNumber = '';
+
+            if (window[`${inputId}Iti`]) {
+                phoneNumber = window[`${inputId}Iti`].getNumber(intlTelInputUtils.numberFormat.E164);
+                phoneNumber = phoneNumber.replace(/[-\s]/g, '');
+            } else {
+                phoneNumber = input.value.replace(/[-\s]/g, '');
+                if (!phoneNumber.startsWith('+')) {
+                    phoneNumber = '+1' + phoneNumber;
+                }
+            }
+
+            return phoneNumber;
+        }
+
+        async function saveUserOrder(userId, orderId, orderData) {
+            await db.collection('users').doc(userId).collection('userOrders').doc(orderId).set({
+                orderId: orderId,
+                timestamp: orderData.timestamp,
+                status: 'order-pending',
+                serviceName: orderData.services.length === 1 ? orderData.services[0].name : 'Múltiples servicios',
+                servicePrice: orderData.totalPrice,
+                pickupDate: orderData.sender.pickupDateTime.date,
+                pickupTime: orderData.sender.pickupDateTime.time
+            });
+        }
+
+        // Función para procesar pago
+        async function processPayment(orderData, orderId) {
+            const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+
+            if (paymentMethod !== 'online') {
+                localStorage.setItem('lastOrderId', orderId);
+                localStorage.removeItem('cart');
+                window.location.href = 'order-complete.html';
+                return;
+            }
+
+            if (!stripe || !elements) {
+                throw new Error('El sistema de pago no está listo. Por favor recarga la página.');
+            }
+
+            try {
+                const createPaymentFunction = firebase.functions().httpsCallable('createStripePaymentIntent');
+                const result = await createPaymentFunction({
+                    amount: orderData.totalPrice * 100,
+                    currency: 'usd',
+                    metadata: {
+                        orderId: orderId,
+                        serviceCount: orderData.services.length
+                    }
+                });
+
+                const { clientSecret } = result.data;
+                const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+                    payment_method: {
+                        card: elements.getElement('card'),
+                        billing_details: {
+                            name: orderData.sender.name,
+                            email: orderData.sender.email,
+                            phone: orderData.sender.phone,
+                            address: {
+                                line1: orderData.sender.address.street,
+                                line2: orderData.sender.address.apt,
+                                city: orderData.sender.address.city,
+                                state: orderData.sender.address.state,
+                                postal_code: orderData.sender.address.zipCode,
+                                country: 'US'
+                            }
                         }
                     }
-                }
-            });
-
-            if (error) throw error;
-
-            await db.collection('orders').doc(orderId).update({
-                status: 'payment-completed',
-                paymentStatus: 'paid',
-                paymentDate: firebase.firestore.FieldValue.serverTimestamp(),
-                stripePaymentId: paymentIntent.id
-            });
-
-            if (auth.currentUser) {
-                await db.collection('users').doc(auth.currentUser.uid).collection('userOrders').doc(orderId).update({
-                    status: 'payment-completed',
-                    paymentStatus: 'paid'
                 });
-            }
 
-            localStorage.setItem('lastOrderId', orderId);
-            window.location.href = `order-complete.html?payment_intent_client_secret=${clientSecret}`;
-        } catch (error) {
-            console.error('Error en el pago:', error);
-            document.getElementById('card-errors').textContent = error.message;
-            throw error;
+                if (error) throw error;
+
+                await db.collection('orders').doc(orderId).update({
+                    status: 'payment-completed',
+                    paymentStatus: 'paid',
+                    paymentDate: firebase.firestore.FieldValue.serverTimestamp(),
+                    stripePaymentId: paymentIntent.id
+                });
+
+                if (auth.currentUser) {
+                    await db.collection('users').doc(auth.currentUser.uid).collection('userOrders').doc(orderId).update({
+                        status: 'payment-completed',
+                        paymentStatus: 'paid'
+                    });
+                }
+
+                localStorage.setItem('lastOrderId', orderId);
+                localStorage.removeItem('cart');
+                window.location.href = `order-complete.html?payment_intent_client_secret=${clientSecret}`;
+            } catch (error) {
+                console.error('Error en el pago:', error);
+                document.getElementById('card-errors').textContent = error.message;
+                throw error;
+            }
         }
-    }
-</script>
+    </script>
 </body>
+
 </html>
