@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Google Fonts -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <!-- Firebase SDK (compat) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-firestore-compat.min.js"></script>
+
     <style>
         :root {
             --primary: #2c3e50;
@@ -138,32 +142,81 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Obtener el ID de la orden del localStorage
-            const orderId = localStorage.getItem('lastOrderId');
-            document.getElementById('order-id-display').textContent = orderId || 'N/A';
+        /******************************* CONFIGURACIÓN DE FIREBASE *******************************/
+        const firebaseConfig = {
+            apiKey: "AIzaSyDUPUM36QOLPGb-FmPx6-qMZoS2pCZdurI",
+            authDomain: "meetransportation.firebaseapp.com",
+            projectId: "meetransportation",
+            storageBucket: "meetransportation.appspot.com",
+            messagingSenderId: "1087042032724",
+            appId: "1:1087042032724:web:0975e57ca30ff342f349c1",
+            measurementId: "G-8XHXKXL0CV"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-            // Verificar el estado del pago desde la URL (para pagos con Stripe)
+        /**************************** UTILIDADES PARA ACTUALIZAR UI *****************************/
+        function setStatusPaid() {
+            const statusBox = document.getElementById('payment-status');
+            statusBox.className = 'payment-status paid';
+            statusBox.innerHTML = '<i class="fas fa-check-circle" style="margin-right: 0.5rem;"></i> Pago completado';
+            document.getElementById('confirmation-title').textContent = '¡Pago Completado!';
+            document.getElementById('confirmation-message').textContent = 'Tu pedido y pago han sido procesados exitosamente. Te enviaremos un correo con los detalles de seguimiento.';
+        }
+
+        function setStatusPending() {
+            const statusBox = document.getElementById('payment-status');
+            statusBox.className = 'payment-status pending';
+            statusBox.innerHTML = '<i class="fas fa-clock" style="margin-right: 0.5rem;"></i> Pago pendiente';
+            document.getElementById('confirmation-title').textContent = 'Pago pendiente';
+            document.getElementById('confirmation-message').textContent = 'Estamos procesando tu pago. Te notificaremos cuando se confirme.';
+        }
+
+        /***************************** LÓGICA PRINCIPAL *****************************/
+        document.addEventListener('DOMContentLoaded', async function() {
             const queryParams = new URLSearchParams(window.location.search);
-            const paymentIntentClientSecret = queryParams.get('payment_intent_client_secret');
-            
-            if (paymentIntentClientSecret) {
-                // Simulamos la verificación del estado del pago
-                // En producción, deberías verificar el estado con tu backend
-                setTimeout(() => {
-                    document.getElementById('payment-status').className = 'payment-status paid';
-                    document.getElementById('payment-status').innerHTML = '<i class="fas fa-check-circle" style="margin-right: 0.5rem;"></i> Pago completado';
-                    document.getElementById('confirmation-title').textContent = '¡Pago Completado!';
-                    document.getElementById('confirmation-message').textContent = 'Tu pedido y pago han sido procesados exitosamente. Te enviaremos un correo con los detalles de seguimiento.';
-                }, 1000);
-            } else {
-                // Para pagos offline
-                document.getElementById('payment-status').className = 'payment-status pending';
-                document.getElementById('payment-status').innerHTML = '<i class="fas fa-clock" style="margin-right: 0.5rem;"></i> Pago pendiente';
-                document.getElementById('confirmation-message').textContent = 'Tu pedido ha sido registrado. Completa el pago según el método seleccionado para procesar tu envío.';
+            const paymentIntentClientSecret = queryParams.get('payment_intent_client_secret'); // flujo antiguo
+            const orderIdParam = queryParams.get('order_id');                                   // NUEVO flujo (Opción B)
+
+            // 1) Si llega order_id en la URL → consultar Firestore (Opción B recomendada)
+            if (orderIdParam) {
+                document.getElementById('order-id-display').textContent = orderIdParam;
+
+                try {
+                    const docSnap = await db.collection('orders').doc(orderIdParam).get();
+                    if (docSnap.exists) {
+                        const { paymentStatus } = docSnap.data();
+                        paymentStatus === 'paid' ? setStatusPaid() : setStatusPending();
+                    } else {
+                        // No existe el documento → pendiente por defecto
+                        setStatusPending();
+                    }
+                } catch (err) {
+                    console.error('Error al obtener pedido:', err);
+                    setStatusPending();
+                }
+
+                // Limpia lastOrderId en caso de que persista
+                localStorage.removeItem('lastOrderId');
+                return; // Evita continuar con el flujo antiguo
             }
 
-            // Limpiar el localStorage
+            // 2) Flujo original basado en localStorage y payment_intent_client_secret
+            const orderIdLocal = localStorage.getItem('lastOrderId');
+            document.getElementById('order-id-display').textContent = orderIdLocal || 'N/A';
+
+            if (paymentIntentClientSecret) {
+                // Simulamos la verificación del estado del pago (flujo antiguo)
+                // En producción, deberías verificar el estado con tu backend o con Stripe directamente.
+                setTimeout(() => {
+                    setStatusPaid();
+                }, 1000);
+            } else {
+                // Para pagos offline (flujo antiguo)
+                setStatusPending();
+            }
+
+            // Limpiar el localStorage (flujo antiguo)
             localStorage.removeItem('lastOrderId');
         });
     </script>
