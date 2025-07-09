@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Chofer - Meetransportation</title>
+
+    <!-- Firebase SDK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-firestore-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-auth-compat.min.js"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+
+    <link rel="stylesheet" href="./css/style-driver.css">
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+
+    <style>
+
+        /* Estilos para el escáner */
+#scanner-overlay {
+    box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.5);
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #333;
+}
+
+/* Estilos para el resultado del escáner */
+#scanner-result.success {
+    color: #5cc528;
+}
+
+#scanner-result.error {
+    color: #ff3333;
+}
+    </style>
+</head>
+
+<body>
+    <div class="driver-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Mee<span style="color:#5cc528;">Transportation</span></h3>
+            </div>
+            <div class="sidebar-menu">
+                <div class="menu-item active" data-tab="my-orders">
+                    <i class="fas fa-truck"></i>
+                    <span>Mis Órdenes</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>Panel de Chofer</h1>
+                <div class="user-info">
+                    <div class="user-details">
+                        <span id="driverEmail"></span>
+                        <span id="driverName" class="user-role"></span>
+                    </div>
+                    <button class="logout-btn" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Salir
+                    </button>
+                </div>
+            </div>
+
+            <!-- My Orders Tab -->
+            <div class="tab-content" id="my-ordersTab">
+                <div class="data-table-container">
+                    <div class="table-header">
+                        <h2>Órdenes Asignadas</h2>
+                        <div class="table-actions">
+                            <button class="btn btn-outline" id="refreshMyOrders">
+                                <i class="fas fa-sync-alt"></i> Actualizar
+                            </button>
+                            <button class="btn btn-primary" id="scanBarcodeBtn">
+                                <i class="fas fa-barcode"></i> Leer Código
+                            </button>
+                        </div>
+                    </div>
+                    <table id="myOrdersTable" class="display" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Servicio</th>
+                                <th>Fecha</th>
+                                <th>Dirección (USA)</th>
+                                <th>Total</th>
+                                <th>Método de Pago</th>
+                                <th>Status de Pago</th>
+                                <th>Estado</th>
+                                <!-- <th>Acciones</th> -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Datos se cargarán dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div class="modal" id="orderModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Detalles de la Orden</h3>
+            </div>
+            <div class="modal-body">
+                <div class="order-details">
+                    <div style="display: inline-flex;width: 100%;gap: 2rem;">
+                        <div class="detail-section">
+                            <h4>Información de la Orden</h4>
+                            <div class="detail-row">
+                                <label class="detail-label">ID:</label>
+                                <div class="detail-value" id="modalOrderId"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Fecha:</label>
+                                <div class="detail-value" id="modalOrderDate"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Estado:</label>
+                                <div class="detail-value" id="modalOrderStatus"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Total:</label>
+                                <div class="detail-value" id="modalOrderTotal"></div>
+                            </div>
+                        </div>
+
+                        <div class="detail-section">
+                            <h4>Servicio</h4>
+                            <div class="detail-row">
+                                <label class="detail-label">Nombre:</label>
+                                <div class="detail-value" id="modalServiceName"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Precio:</label>
+                                <div class="detail-value" id="modalServicePrice"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: inline-flex;width: 100%;gap: 2rem;">
+                        <div class="detail-section">
+                            <h4>Información del Destinatario</h4>
+                            <div class="detail-row">
+                                <label class="detail-label">Nombre:</label>
+                                <div class="detail-value" id="modalReceiverName"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Teléfono:</label>
+                                <div class="detail-value" id="modalReceiverPhone"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Dirección:</label>
+                                <div class="detail-value" id="modalReceiverAddress"></div>
+                            </div>
+                        </div>
+
+                        <div class="detail-section">
+                            <h4>Información del Remitente</h4>
+                            <div class="detail-row">
+                                <label class="detail-label">Nombre:</label>
+                                <div class="detail-value" id="modalSenderName"></div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Teléfono:</label>
+                                <div class="detail-value" id="modalSenderPhone"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4>Artículos</h4>
+                        <div class="items-list" id="modalItemsList">
+                            <!-- Items will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelOrderChanges">Cerrar</button>
+                <button class="btn btn-primary" id="updateOrderStatus">Actualizar Estado</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal" id="scannerModal">
+    <div class="modal-content" style="max-width: 90%;">
+        <div class="modal-header">
+            <h3>Escáner de Código de Barras</h3>
+            <button class="close-btn" id="closeScannerBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="scanner-container" style="width: 100%; height: 300px; position: relative;">
+                <video id="scanner-video" style="width: 100%; height: 100%; object-fit: cover;"></video>
+                <div id="scanner-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 3px solid #5cc528; pointer-events: none;"></div>
+            </div>
+            <div id="scanner-result" style="margin-top: 20px; text-align: center; font-size: 1.2em;"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" id="cancelScannerBtn">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+
+
+    <!-- jQuery and DataTables -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+    <script>
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDUPUM36QOLPGb-FmPx6-qMZoS2pCZdurI",
+            authDomain: "meetransportation.firebaseapp.com",
+            projectId: "meetransportation",
+            storageBucket: "meetransportation.appspot.com",
+            messagingSenderId: "1087042032724",
+            appId: "1:1087042032724:web:0975e57ca30ff342f349c1",
+            measurementId: "G-8XHXKXL0CV"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // Global variables
+        let currentDriver = null;
+        let selectedOrderId = null;
+        let barcodeScanner = null;
+let scannerActive = false;
+
+        // DOM Content Loaded
+        document.addEventListener('DOMContentLoaded', function () {
+            initAuth();
+            initUI();
+            initDataTable();
+            initModals();
+        });
+
+        // Initialize Authentication
+        function initAuth() {
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    // Check if user is a driver
+                    db.collection('users').doc(user.uid).get().then(doc => {
+                        if (doc.exists) {
+                            const userData = doc.data();
+                            if ((userData.role === 'driver_usa' || userData.role === 'driver_rd') && userData.status === 'active') {
+                                currentDriver = {
+                                    id: user.uid,
+                                    ...userData
+                                };
+                                loadDriverProfile();
+                                loadMyOrders();
+                            } else {
+                                if (currentDriver?.ordersUnsubscribe) {
+                                    currentDriver.ordersUnsubscribe();
+                                }
+                                auth.signOut().then(() => {
+                                    window.location.href = 'index.html';
+                                });
+                            }
+                        } else {
+                            if (currentDriver?.ordersUnsubscribe) {
+                                currentDriver.ordersUnsubscribe();
+                            }
+                            auth.signOut().then(() => {
+                                window.location.href = 'index.html';
+                            });
+                        }
+                    });
+                } else {
+                    if (currentDriver?.ordersUnsubscribe) {
+                        currentDriver.ordersUnsubscribe();
+                    }
+                    window.location.href = 'index.html';
+                }
+            });
+        }
+
+        // Initialize UI Elements
+function initUI() {
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const tab = this.getAttribute('data-tab');
+            showTab(tab);
+            
+            document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+    document.getElementById('refreshMyOrders').addEventListener('click', loadMyOrders);
+    
+    // Nuevo: Evento para el botón de escanear código de barras
+    document.getElementById('scanBarcodeBtn').addEventListener('click', startBarcodeScanner);
+    document.getElementById('closeScannerBtn').addEventListener('click', stopBarcodeScanner);
+    document.getElementById('cancelScannerBtn').addEventListener('click', stopBarcodeScanner);
+}
+
+        // Initialize DataTable
+        function initDataTable() {
+            $('#myOrdersTable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+                },
+                order: [[3, 'desc']],
+                columnDefs: [
+                    { targets: [0], visible: true }
+                ]
+            });
+        }
+
+        // Initialize Modals
+        function initModals() {
+            document.getElementById('cancelOrderChanges').addEventListener('click', () => {
+                document.getElementById('orderModal').style.display = 'none';
+            });
+
+            $('#myOrdersTable').on('click', 'tr', function () {
+                const table = $('#myOrdersTable').DataTable();
+                const rowData = table.row(this).data();
+                if (rowData) {
+                    viewOrderDetails(rowData[0]);
+                }
+            });
+        }
+
+        // Load driver profile
+        function loadDriverProfile() {
+            document.getElementById('driverEmail').textContent = currentDriver.email || 'Chofer';
+            document.getElementById('driverName').textContent = currentDriver.profile?.name || '';
+            currentDriver.isUSADriver = currentDriver.role === 'driver_usa';
+        }
+
+        // Show selected tab
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+            document.getElementById(`${tabName}Tab`).style.display = 'block';
+        }
+
+        // Load orders assigned to this driver
+        function loadMyOrders() {
+            const table = $('#myOrdersTable').DataTable();
+            table.clear().draw();
+
+            const ordersQuery = db.collection('orders')
+                .where('assignedDriver', '==', currentDriver.id)
+                .orderBy('timestamp', 'desc');
+
+            const unsubscribe = ordersQuery.onSnapshot(snapshot => {
+                const ordersData = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    data: doc.data()
+                }));
+
+                table.clear();
+
+                ordersData.forEach(order => {
+                    table.row.add(createOrderRowData(order.id, order.data));
+                });
+
+                table.draw();
+
+                snapshot.docChanges().forEach(change => {
+                    if (change.type === "modified") {
+                        console.log("Orden modificada:", change.doc.id);
+                    }
+                });
+            }, error => {
+                console.error("Error en listener de órdenes:", error);
+            });
+
+            currentDriver.ordersUnsubscribe = unsubscribe;
+        }
+
+        function createOrderRowData(id, order) {
+            const date = order.timestamp?.toDate() ? formatDate(order.timestamp.toDate()) : 'N/A';
+
+            let serviceName = 'Múltiples servicios';
+            if (order.services && order.services.length === 1) {
+                serviceName = order.services[0].name;
+            } else if (order.service) {
+                serviceName = order.service.name || 'Servicio no especificado';
+            }
+
+            let totalPrice = 'N/A';
+            if (order.totalPrice) {
+                totalPrice = `US$${order.totalPrice.toFixed(2)}`;
+            } else if (order.service?.price) {
+                totalPrice = order.service.price;
+            }
+
+            let address = 'N/A';
+            if (currentDriver.isUSADriver) {
+                const senderAddressParts = [];
+                if (order.sender?.address?.street) senderAddressParts.push(order.sender.address.street);
+                if (order.sender?.address?.apt) senderAddressParts.push(`Apt/Suite: ${order.sender.address.apt}`);
+                if (order.sender?.address?.city) senderAddressParts.push(order.sender.address.city);
+                if (order.sender?.address?.state) senderAddressParts.push(order.sender.address.state);
+                if (order.sender?.address?.zipCode) senderAddressParts.push(order.sender.address.zipCode);
+                address = senderAddressParts.join(', ') || 'N/A';
+            } else {
+                address = order.receiver?.address || 'N/A';
+            }
+
+            let paymentMethod = order.paymentMethod || 'N/A';
+            if (paymentMethod.toLowerCase() === 'pickup') {
+                paymentMethod = `<span class="payment-pickup">Cobrarlo por ti</span>`;
+            }
+            if (paymentMethod.toLowerCase() === 'online') {
+                paymentMethod = `<span class="payment-online">Online</span>`;
+            }
+            if (paymentMethod.toLowerCase() === 'delivery') {
+                paymentMethod = `<span class="payment-delivery">Pago en RD</span>`;
+            }
+
+            const paymentStatus = order.paymentStatus === 'paid'
+                ? '<span class="payment-status paid">Pagado</span>'
+                : '<span class="payment-status pending">Pendiente</span>';
+
+            return [
+                id,
+                order.sender?.name || 'N/A',
+                serviceName,
+                date,
+                address,
+                totalPrice,
+                paymentMethod,
+                paymentStatus,
+                getStatusBadge(order.status)
+            ];
+        }
+
+        // View Order Details
+        // View Order Details
+        function viewOrderDetails(orderId) {
+            selectedOrderId = orderId;
+
+            db.collection('orders').doc(orderId).get().then(doc => {
+                if (!doc.exists) {
+                    alert('Orden no encontrada');
+                    return;
+                }
+
+                const order = doc.data();
+                const date = order.timestamp?.toDate()?.toLocaleString() || 'N/A';
+
+                // Actualizar los detalles del modal
+                document.getElementById('modalOrderId').textContent = orderId;
+                document.getElementById('modalOrderDate').textContent = date;
+                document.getElementById('modalOrderStatus').textContent = getStatusText(order.status || 'assignedDriver');
+
+                if (order.totalPrice) {
+                    document.getElementById('modalOrderTotal').textContent = `US$${order.totalPrice.toFixed(2)}`;
+                } else if (order.service?.price) {
+                    document.getElementById('modalOrderTotal').textContent = order.service.price;
+                } else {
+                    document.getElementById('modalOrderTotal').textContent = 'N/A';
+                }
+
+                document.getElementById('modalSenderName').textContent = order.sender?.name || 'N/A';
+                document.getElementById('modalSenderPhone').textContent = order.sender?.phone || 'N/A';
+                document.getElementById('modalReceiverName').textContent = order.receiver?.name || 'N/A';
+                document.getElementById('modalReceiverPhone').textContent = order.receiver?.phone || 'N/A';
+
+                if (currentDriver.isUSADriver) {
+                    const senderAddressParts = [];
+                    if (order.sender?.address?.street) senderAddressParts.push(order.sender.address.street);
+                    if (order.sender?.address?.apt) senderAddressParts.push(`Apt/Suite: ${order.sender.address.apt}`);
+                    if (order.sender?.address?.city) senderAddressParts.push(order.sender.address.city);
+                    if (order.sender?.address?.state) senderAddressParts.push(order.sender.address.state);
+                    if (order.sender?.address?.zipCode) senderAddressParts.push(order.sender.address.zipCode);
+                    document.getElementById('modalReceiverAddress').textContent = senderAddressParts.join(', ') || 'N/A';
+                } else {
+                    document.getElementById('modalReceiverAddress').textContent = order.receiver?.address || 'N/A';
+                }
+
+                const itemsList = document.getElementById('modalItemsList');
+                itemsList.innerHTML = '';
+
+                if (order.services && order.services.length > 0) {
+                    order.services.forEach(service => {
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'item-row';
+
+                        const imageSrc = service.icon || './img/default_icon_1.png';
+
+                        itemDiv.innerHTML = `
+                    <img src="${imageSrc}" class="item-image">
+                    <div class="item-info">
+                        <div class="item-name">${service.name}</div>
+                        <div class="item-meta">
+                            <div><strong>Tipo:</strong> ${service.type === 'promo' ? 'Promoción' : 'Regular'}</div>
+                            <div><strong>Precio:</strong> ${service.price}</div>
+                            <div><strong>Cantidad:</strong> ${service.quantity || 1}</div>
+                        </div>
+                    </div>
+                `;
+                        itemsList.appendChild(itemDiv);
+                    });
+                } else {
+                    itemsList.innerHTML = '<p>No hay artículos registrados para esta orden.</p>';
+                }
+
+                const updateBtn = document.getElementById('updateOrderStatus');
+                const isPickupPayment = order.paymentMethod?.toLowerCase() === 'pickup';
+                const isPaymentPending = order.paymentStatus === 'pending';
+                const isAssignedStatus = order.status === 'assignedDriver';
+                const isPickupStatus = order.status === 'driverPickup';
+
+                if (currentDriver.isUSADriver) {
+                    updateBtn.style.display = 'block';
+
+                    if (isPickupPayment && isPaymentPending && isAssignedStatus) {
+                        // Estado inicial: Confirmar pago
+                        updateBtn.textContent = 'Confirmar Pago';
+                        updateBtn.onclick = confirmPayment;
+                        updateBtn.style.backgroundColor = '#ff9800';
+                        updateBtn.disabled = false;
+                    } else if ((isPickupPayment && !isPaymentPending && isAssignedStatus) ||
+                        (!isPickupPayment && isAssignedStatus)) {
+                        // Segundo estado: Marcar como recogido (para todos los métodos de pago)
+                        updateBtn.textContent = 'Marcar como Recogido';
+                        updateBtn.onclick = markAsPickedUp;
+                        updateBtn.style.backgroundColor = '#069bff';
+                        updateBtn.disabled = false;
+                    } else if (isPickupStatus) {
+                        // Estado final: Recogido
+                        updateBtn.textContent = 'Recogido!';
+                        updateBtn.onclick = null;
+                        updateBtn.style.backgroundColor = '#5cc528';
+                        updateBtn.disabled = true;
+                    } else {
+                        // Otros casos
+                        updateBtn.textContent = 'No hay acciones disponibles';
+                        updateBtn.onclick = null;
+                        updateBtn.style.backgroundColor = '#cccccc';
+                        updateBtn.disabled = true;
+                    }
+                } else {
+                    updateBtn.style.display = 'none';
+                }
+
+                document.getElementById('orderModal').style.display = 'flex';
+            });
+        }
+
+        // Confirm Payment
+        function confirmPayment() {
+            if (!selectedOrderId) return;
+
+            if (confirm('¿Confirmas que has recibido el pago del cliente?')) {
+                db.collection('orders').doc(selectedOrderId).update({
+                    paymentStatus: 'paid',
+                    paymentConfirmedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    paymentConfirmedBy: currentDriver.id
+                })
+                    .then(() => {
+                        viewOrderDetails(selectedOrderId); // Recargar para actualizar el estado
+                    })
+                    .catch(error => {
+                        console.error('Error al confirmar el pago:', error);
+                        alert('Error al confirmar el pago: ' + error.message);
+                    });
+            }
+        }
+
+        // Mark as Picked Up
+        function markAsPickedUp() {
+            if (!selectedOrderId) return;
+
+            if (confirm('¿Confirmas que has recogido este paquete?')) {
+                db.collection('orders').doc(selectedOrderId).update({
+                    status: 'driverPickup',
+                    pickupDate: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                })
+                    .then(() => {
+                        viewOrderDetails(selectedOrderId); // Recargar para actualizar el estado
+                    })
+                    .catch(error => {
+                        console.error('Error al actualizar estado:', error);
+                        alert('Error al marcar como recogido: ' + error.message);
+                    });
+            }
+        }
+
+        // Helper Functions
+        function getStatusBadge(status) {
+            const statusMap = {
+                'assignedDriver': ['status-assigned', 'A recoger'],
+                'driverPickup': ['status-completed', 'Recogido']
+            };
+
+            const [badgeClass, badgeText] = statusMap[status] || ['status-assigned', status];
+            return `<span class="status-badge ${badgeClass}">${badgeText}</span>`;
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'assignedDriver': 'Asignada',
+                'driverPickup': 'Recogido'
+            };
+
+            return statusMap[status] || status;
+        }
+
+        function formatDate(date) {
+            if (!date) return 'N/A';
+
+            const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+            const day = date.getDate();
+            const month = months[date.getMonth()];
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+
+            return `${day} ${month} ${hours}:${minutes}`;
+        }
+
+        // Logout
+        function logout() {
+            if (currentDriver?.ordersUnsubscribe) {
+                currentDriver.ordersUnsubscribe();
+            }
+
+            auth.signOut().then(() => {
+                window.location.href = 'index.html';
+            }).catch(error => {
+                alert('Error al cerrar sesión: ' + error.message);
+            });
+        }
+
+
+
+
+
+
+
+        // Agregar estas nuevas funciones para manejar el escáner
+function startBarcodeScanner() {
+    document.getElementById('scannerModal').style.display = 'flex';
+    document.getElementById('scanner-result').textContent = 'Escaneando...';
+    document.getElementById('scanner-result').className = '';
+    
+    // Usar la librería QuaggaJS para escanear códigos de barras
+    if (typeof Quagga !== 'undefined') {
+        initQuaggaScanner();
+    } else {
+        // Cargar la librería dinámicamente si no está disponible
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js';
+        script.onload = initQuaggaScanner;
+        document.head.appendChild(script);
+    }
+}
+
+function initQuaggaScanner() {
+    scannerActive = true;
+    
+    Quagga.init({
+        inputStream: {
+            name: "Live",
+            type: "LiveStream",
+            target: document.querySelector('#scanner-video'),
+            constraints: {
+                facingMode: "environment" // Usar la cámara trasera
+            },
+        },
+        decoder: {
+            readers: ["code_128_reader", "ean_reader", "ean_8_reader", "code_39_reader", "code_39_vin_reader", "codabar_reader", "upc_reader", "upc_e_reader"]
+        },
+    }, function(err) {
+        if (err) {
+            console.error(err);
+            document.getElementById('scanner-result').textContent = 'Error al iniciar el escáner: ' + err.message;
+            document.getElementById('scanner-result').className = 'error';
+            return;
+        }
+        Quagga.start();
+    });
+
+    Quagga.onDetected(function(result) {
+        if (!scannerActive) return;
+        
+        const code = result.codeResult.code;
+        document.getElementById('scanner-result').textContent = `Código detectado: ${code}`;
+        document.getElementById('scanner-result').className = 'success';
+        
+        // Verificar si el código corresponde a una orden
+        checkOrderByBarcode(code);
+    });
+}
+
+function stopBarcodeScanner() {
+    scannerActive = false;
+    document.getElementById('scannerModal').style.display = 'none';
+    
+    if (Quagga) {
+        Quagga.stop();
+    }
+}
+
+function checkOrderByBarcode(barcode) {
+    // Asumimos que el código de barras es el ID de la orden
+    const table = $('#myOrdersTable').DataTable();
+    const orders = table.rows().data().toArray();
+    
+    // Buscar si el código coincide con algún ID de orden
+    const foundOrder = orders.find(order => order[0] === barcode);
+    
+    if (foundOrder) {
+        // Cerrar el escáner y mostrar la orden
+        stopBarcodeScanner();
+        viewOrderDetails(barcode);
+    } else {
+        document.getElementById('scanner-result').textContent = 'Código no encontrado';
+        document.getElementById('scanner-result').className = 'error';
+        
+        // Opcional: mantener el escáner activo para seguir escaneando
+        // setTimeout(() => {
+        //     document.getElementById('scanner-result').textContent = 'Escaneando...';
+        //     document.getElementById('scanner-result').className = '';
+        // }, 2000);
+    }
+}
+
+
+    </script>
+</body>
+
+</html>
+
+<!-- 1 -->
