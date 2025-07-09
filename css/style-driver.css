@@ -401,6 +401,7 @@ span .order-details {
     .modal-content {
         max-height: 100%;
         border-radius: 0px;
+        height: 100%;
     }
 
     .modal-header {
