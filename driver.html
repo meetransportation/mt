@@ -24,90 +24,8 @@
     <style>
 
 
-.close-btn {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #333;
-}
-
-/* Estilos para el resultado del escáner */
-#scanner-result.success {
-    color: #5cc528;
-}
-
-#scanner-result.error {
-    color: #ff3333;
-}
 
 
-
-/* Contenedor flexible para vídeo y canvas de Quagga */
-.scanner-container {
-    position: relative;
-    width: 100%;
-    height: 300px;
-    overflow: hidden;
-    box-shadow: 0px 0px 0px 2px rgb(255 0 0);
-    border-radius: 11px;
-}
-
-/* El <video> que inyecta Quagga */
-.scanner-container video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;   /* llena el área sin deformar */
-}
-
-/* Canvas de líneas/rectángulos que dibuja Quagga */
-.scanner-container canvas.drawingBuffer {
-    position: absolute;
-    top: 0;
-    left: 0;
-}
-
-/* Marco y sombra para guiar el enfoque */
-#scanner-overlay {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-}
-
-
-
-/* Estilos para la línea de escaneo */
-.scan-line {
-    position: absolute;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background-color: #5cc528;
-    box-shadow: 0 0 10px rgba(92, 197, 40, 0.7);
-    animation: scan 2s linear infinite;
-    z-index: 10;
-}
-
-.scan-line {
-    position: absolute;
-    left: 0;
-        top: -155px;
-    width: 100%;
-    height: 150px;
-    background: linear-gradient(0deg, #ff00006b, #ff00002b, transparent);
-    box-shadow: 0px 1px 0px 0px rgb(255 0 0);
-    animation: scan 2s linear infinite;
-    z-index: 10;
-}
-
-@keyframes scan {
-    0% {
-            top: -155px;
-    }
-    100% {
-        top: 100%;
-    }
-}
 
 
     </style>
@@ -272,8 +190,8 @@
     <div class="modal" id="scannerModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3 style="font-size: 1.2rem;">Escáner de Código de Barras</h3>
-            <!-- <button class="close-btn" id="closeScannerBtn">&times;</button> -->
+            <h3>Escáner de Código de Barras</h3>
+            <button class="close-btn" id="closeScannerBtn">&times;</button>
         </div>
         <div class="modal-body">
 <div id="scanner-container" class="scanner-container">
