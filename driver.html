@@ -726,65 +726,67 @@ function initUI() {
         // Agregar estas nuevas funciones para manejar el escáner
 // Reemplaza la función startBarcodeScanner con esta versión mejorada
 function startBarcodeScanner() {
-    const scannerModal = document.getElementById('scannerModal');
+    document.getElementById('scannerModal').style.display = 'flex';
+    document.getElementById('scanner-result').textContent = 'Preparando escáner...';
+    document.getElementById('scanner-result').className = '';
+    
+    // Cargar QuaggaJS si no está disponible
+    if (typeof Quagga === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js';
+        script.onload = function() {
+            console.log("QuaggaJS cargado correctamente");
+            initCameraAndScanner();
+        };
+        script.onerror = function() {
+            document.getElementById('scanner-result').textContent = 'Error al cargar el escáner';
+            document.getElementById('scanner-result').className = 'error';
+        };
+        document.head.appendChild(script);
+    } else {
+        initCameraAndScanner();
+    }
+}
+
+function initCameraAndScanner() {
     const scannerVideo = document.getElementById('scanner-video');
     const scannerResult = document.getElementById('scanner-result');
-    const scanLine = document.querySelector('.scan-line');
     
-    scannerModal.style.display = 'flex';
-    scannerResult.textContent = 'Iniciando cámara...';
-    scannerResult.className = '';
-    
-    // Reiniciar la animación
-    if (scanLine) {
-        scanLine.style.animation = 'scan 2s linear infinite';
-    }
-    // Detener cualquier escáner previo
-    if (barcodeScanner) {
-        stopBarcodeScanner();
-    }
-    
-    // Configurar las opciones de la cámara
-    const constraints = {
+    // Configurar la cámara
+    navigator.mediaDevices.getUserMedia({
         video: {
-            facingMode: 'environment', // Preferir cámara trasera
+            facingMode: 'environment',
             width: { ideal: 1280 },
             height: { ideal: 720 }
         },
         audio: false
-    };
-    
-    // Solicitar acceso a la cámara
-    navigator.mediaDevices.getUserMedia(constraints)
-        .then(function(stream) {
-            scannerVideo.srcObject = stream;
-            scannerVideo.play();
-            scannerResult.textContent = 'Escaneando código de barras...';
-            
-            // Inicializar QuaggaJS después de que el video esté listo
-            scannerVideo.onplaying = function() {
-                initQuaggaScanner();
-            };
-        })
-        .catch(function(err) {
-            console.error("Error al acceder a la cámara:", err);
-            scannerResult.textContent = 'Error al acceder a la cámara: ' + err.message;
-            scannerResult.className = 'error';
-        });
+    }).then(function(stream) {
+        scannerVideo.srcObject = stream;
+        scannerVideo.play();
+        scannerResult.textContent = 'Escaneando código de barras...';
+        
+        // Iniciar Quagga después de que el video esté listo
+        scannerVideo.onplaying = function() {
+            initQuaggaScanner();
+        };
+    }).catch(function(err) {
+        console.error("Error al acceder a la cámara:", err);
+        scannerResult.textContent = 'Error al acceder a la cámara: ' + err.message;
+        scannerResult.className = 'error';
+    });
 }
 
 // Modifica la función initQuaggaScanner para usar el stream de video existente
 function initQuaggaScanner() {
     if (!scannerActive) return;
     
-    const scannerVideo = document.getElementById('scanner-video');
-    const scannerResult = document.getElementById('scanner-result');
+    console.log("Iniciando Quagga scanner..."); // Depuración
     
     Quagga.init({
         inputStream: {
             name: "Live",
             type: "LiveStream",
-            target: scannerVideo,
+            target: document.querySelector('#scanner-video'),
             constraints: {
                 facingMode: "environment",
                 width: { min: 640 },
@@ -799,23 +801,23 @@ function initQuaggaScanner() {
         frequency: 10
     }, function(err) {
         if (err) {
-            console.error(err);
-            scannerResult.textContent = 'Error al iniciar el escáner: ' + err.message;
-            scannerResult.className = 'error';
+            console.error("Error al iniciar Quagga:", err); // Depuración
+            document.getElementById('scanner-result').textContent = 'Error al iniciar el escáner: ' + err.message;
+            document.getElementById('scanner-result').className = 'error';
             return;
         }
+        console.log("Quagga iniciado correctamente"); // Depuración
         Quagga.start();
-        scannerResult.textContent = 'Escaneando código de barras...';
     });
 
     Quagga.onDetected(function(result) {
+        console.log("Código detectado:", result.codeResult); // Depuración
         if (!scannerActive) return;
         
         const code = result.codeResult.code;
-        scannerResult.textContent = `Código detectado: ${code}`;
-        scannerResult.className = 'success';
+        document.getElementById('scanner-result').textContent = `Código detectado: ${code}`;
+        document.getElementById('scanner-result').className = 'success';
         
-        // Verificar si el código corresponde a una orden
         checkOrderByBarcode(code);
     });
 }
@@ -852,26 +854,32 @@ function stopBarcodeScanner() {
 
 
 function checkOrderByBarcode(barcode) {
-    // Asumimos que el código de barras es el ID de la orden
+    // Limpiar y estandarizar el código escaneado
+    const cleanedCode = barcode.trim();
+    
     const table = $('#myOrdersTable').DataTable();
     const orders = table.rows().data().toArray();
     
     // Buscar si el código coincide con algún ID de orden
-    const foundOrder = orders.find(order => order[0] === barcode);
+    const foundOrder = orders.find(order => {
+        // Comparar con el ID de la orden (primera columna)
+        return order[0] === cleanedCode;
+    });
     
     if (foundOrder) {
         // Cerrar el escáner y mostrar la orden
         stopBarcodeScanner();
-        viewOrderDetails(barcode);
+        viewOrderDetails(cleanedCode);
     } else {
-        document.getElementById('scanner-result').textContent = 'Código no encontrado';
-        document.getElementById('scanner-result').className = 'error';
+        const scannerResult = document.getElementById('scanner-result');
+        scannerResult.textContent = 'Orden no encontrada. Código: ' + cleanedCode;
+        scannerResult.className = 'error';
         
         // Opcional: mantener el escáner activo para seguir escaneando
-        // setTimeout(() => {
-        //     document.getElementById('scanner-result').textContent = 'Escaneando...';
-        //     document.getElementById('scanner-result').className = '';
-        // }, 2000);
+        setTimeout(() => {
+            scannerResult.textContent = 'Escaneando...';
+            scannerResult.className = '';
+        }, 2000);
     }
 }
 
