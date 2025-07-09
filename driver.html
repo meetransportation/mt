@@ -20,15 +20,6 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
 
     <link rel="stylesheet" href="./css/style-driver.css">
-
-    <style>
-
-
-
-
-
-
-    </style>
 </head>
 
 <body>
@@ -188,28 +179,30 @@
 
 
     <div class="modal" id="scannerModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Escáner de Código de Barras</h3>
-            <button class="close-btn" id="closeScannerBtn">&times;</button>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Escáner de Código de Barras</h3>
+                <button class="close-btn" id="closeScannerBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="scanner-container" class="scanner-container">
+                    <!-- Quagga añadirá aquí el <video> y el <canvas> -->
+                    <div id="scanner-overlay">
+                        <div class="scan-line"></div>
+                    </div>
+                </div>
+                <div id="scanner-result" style="margin-top: 20px; text-align: center; font-size: 1.2em;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelScannerBtn">Cancelar</button>
+            </div>
         </div>
-        <div class="modal-body">
-<div id="scanner-container" class="scanner-container">
-    <!-- Quagga añadirá aquí el <video> y el <canvas> -->
-    <div id="scanner-overlay">
-        <div class="scan-line"></div>
     </div>
-</div>
-            <div id="scanner-result" style="margin-top: 20px; text-align: center; font-size: 1.2em;"></div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-outline" id="cancelScannerBtn">Cancelar</button>
-        </div>
-    </div>
-</div>
 
 
-
+    <!-- Agrega esto en el body, antes de los scripts -->
+    <audio id="scanSuccessSound" src="./sound/scanner-success.mp3"
+        preload="auto"></audio>
     <!-- jQuery and DataTables -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
@@ -236,7 +229,7 @@
         let currentDriver = null;
         let selectedOrderId = null;
         let barcodeScanner = null;
-let scannerActive = false;
+        let scannerActive = false;
 
         // DOM Content Loaded
         document.addEventListener('DOMContentLoaded', function () {
@@ -288,25 +281,25 @@ let scannerActive = false;
         }
 
         // Initialize UI Elements
-function initUI() {
-    document.querySelectorAll('.menu-item').forEach(item => {
-        item.addEventListener('click', function() {
-            const tab = this.getAttribute('data-tab');
-            showTab(tab);
-            
-            document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
-            this.classList.add('active');
-        });
-    });
+        function initUI() {
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.addEventListener('click', function () {
+                    const tab = this.getAttribute('data-tab');
+                    showTab(tab);
 
-    document.getElementById('logoutBtn').addEventListener('click', logout);
-    document.getElementById('refreshMyOrders').addEventListener('click', loadMyOrders);
-    
-    // Nuevo: Evento para el botón de escanear código de barras
-    document.getElementById('scanBarcodeBtn').addEventListener('click', startBarcodeScanner);
-    document.getElementById('closeScannerBtn').addEventListener('click', stopBarcodeScanner);
-    document.getElementById('cancelScannerBtn').addEventListener('click', stopBarcodeScanner);
-}
+                    document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            document.getElementById('refreshMyOrders').addEventListener('click', loadMyOrders);
+
+            // Nuevo: Evento para el botón de escanear código de barras
+            document.getElementById('scanBarcodeBtn').addEventListener('click', startBarcodeScanner);
+            document.getElementById('closeScannerBtn').addEventListener('click', stopBarcodeScanner);
+            document.getElementById('cancelScannerBtn').addEventListener('click', stopBarcodeScanner);
+        }
 
         // Initialize DataTable
         function initDataTable() {
@@ -648,73 +641,74 @@ function initUI() {
 
 
         // Agregar estas nuevas funciones para manejar el escáner
-function startBarcodeScanner() {
-    document.getElementById('scannerModal').style.display = 'flex';
-    document.getElementById('scanner-result').textContent = 'Escaneando...';
-    document.getElementById('scanner-result').className = '';
-    
-    // Usar la librería QuaggaJS para escanear códigos de barras
-    if (typeof Quagga !== 'undefined') {
-        initQuaggaScanner();
-    } else {
-        // Cargar la librería dinámicamente si no está disponible
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js';
-        script.onload = initQuaggaScanner;
-        document.head.appendChild(script);
-    }
-}
+        function startBarcodeScanner() {
+            document.getElementById('scannerModal').style.display = 'flex';
+            document.getElementById('scanner-result').textContent = 'Escaneando...';
+            document.getElementById('scanner-result').className = '';
 
-function initQuaggaScanner() {
-    scannerActive = true;
-    
-Quagga.init({
-  inputStream: {
-    name: "Live",
-    type: "LiveStream",
-    target: document.querySelector('#scanner-container'), // <-- antes era #scanner-video
-    constraints: {
-      facingMode: "environment"      // trasera en móviles
-    }
-  },
-  decoder: {
-    readers: [
-      "code_128_reader", "ean_reader", "ean_8_reader",
-      "code_39_reader", "code_39_vin_reader",
-      "codabar_reader", "upc_reader", "upc_e_reader"
-    ]
-        },
-    }, function(err) {
-        if (err) {
-            console.error(err);
-            document.getElementById('scanner-result').textContent = 'Error al iniciar el escáner: ' + err.message;
-            document.getElementById('scanner-result').className = 'error';
-            return;
+            // Usar la librería QuaggaJS para escanear códigos de barras
+            if (typeof Quagga !== 'undefined') {
+                initQuaggaScanner();
+            } else {
+                // Cargar la librería dinámicamente si no está disponible
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js';
+                script.onload = initQuaggaScanner;
+                document.head.appendChild(script);
+            }
         }
-        Quagga.start();
-    });
 
-    Quagga.onDetected(function(result) {
-        if (!scannerActive) return;
-        
-        const code = result.codeResult.code;
-        document.getElementById('scanner-result').textContent = `Código detectado: ${code}`;
-        document.getElementById('scanner-result').className = 'success';
-        
-        // Verificar si el código corresponde a una orden
-        checkOrderByBarcode(code);
-    });
-}
+        function initQuaggaScanner() {
+            scannerActive = true;
 
-function stopBarcodeScanner() {
-    scannerActive = false;
-    document.getElementById('scannerModal').style.display = 'none';
-    
-    if (Quagga) {
-        Quagga.stop();
-    }
-}
+            Quagga.init({
+                inputStream: {
+                    name: "Live",
+                    type: "LiveStream",
+                    target: document.querySelector('#scanner-container'), // <-- antes era #scanner-video
+                    constraints: {
+                        facingMode: "environment"      // trasera en móviles
+                    }
+                },
+                decoder: {
+                    readers: [
+                        "code_128_reader", "ean_reader", "ean_8_reader",
+                        "code_39_reader", "code_39_vin_reader",
+                        "codabar_reader", "upc_reader", "upc_e_reader"
+                    ]
+                },
+            }, function (err) {
+                if (err) {
+                    console.error(err);
+                    document.getElementById('scanner-result').textContent = 'Error al iniciar el escáner: ' + err.message;
+                    document.getElementById('scanner-result').className = 'error';
+                    return;
+                }
+                Quagga.start();
+            });
 
+            Quagga.onDetected(function (result) {
+                if (!scannerActive) return;
+
+                const code = result.codeResult.code;
+                document.getElementById('scanner-result').textContent = `Código detectado: ${code}`;
+                document.getElementById('scanner-result').className = 'success';
+
+                // Verificar si el código corresponde a una orden
+                checkOrderByBarcode(code);
+            });
+        }
+
+        function stopBarcodeScanner() {
+            scannerActive = false;
+            document.getElementById('scannerModal').style.display = 'none';
+
+            if (Quagga) {
+                Quagga.stop();
+            }
+        }
+
+// Modifica la función checkOrderByBarcode
 function checkOrderByBarcode(barcode) {
     // Asumimos que el código de barras es el ID de la orden
     const table = $('#myOrdersTable').DataTable();
@@ -724,24 +718,29 @@ function checkOrderByBarcode(barcode) {
     const foundOrder = orders.find(order => order[0] === barcode);
     
     if (foundOrder) {
+        // Reproducir sonido de éxito
+        const successSound = document.getElementById('scanSuccessSound');
+        successSound.currentTime = 0; // Reiniciar el sonido si ya estaba reproduciéndose
+        successSound.play().catch(e => console.log("No se pudo reproducir sonido:", e));
+        
         // Cerrar el escáner y mostrar la orden
         stopBarcodeScanner();
         viewOrderDetails(barcode);
     } else {
         document.getElementById('scanner-result').textContent = 'Código no encontrado';
         document.getElementById('scanner-result').className = 'error';
-        
-        // Opcional: mantener el escáner activo para seguir escaneando
-        // setTimeout(() => {
-        //     document.getElementById('scanner-result').textContent = 'Escaneando...';
-        //     document.getElementById('scanner-result').className = '';
-        // }, 2000);
-    }
-}
+
+                // Opcional: mantener el escáner activo para seguir escaneando
+                // setTimeout(() => {
+                //     document.getElementById('scanner-result').textContent = 'Escaneando...';
+                //     document.getElementById('scanner-result').className = '';
+                // }, 2000);
+            }
+        }
 
     </script>
 </body>
 
 </html>
 
-<!-- 2 -->
+<!-- 1 -->
