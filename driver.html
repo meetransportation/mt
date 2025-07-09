@@ -23,10 +23,6 @@
 
     <style>
 
-        /* Estilos para el escáner */
-#scanner-overlay {
-    box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.5);
-}
 
 .close-btn {
     background: none;
@@ -53,6 +49,8 @@
     width: 100%;
     height: 300px;
     overflow: hidden;
+    box-shadow: 0px 0px 0px 2px rgb(255 0 0);
+    border-radius: 11px;
 }
 
 /* El <video> que inyecta Quagga */
@@ -73,11 +71,43 @@
 #scanner-overlay {
     position: absolute;
     inset: 0;
-    border: 3px solid #5cc528;
-    box-shadow: inset 0 0 0 1000px rgba(0,0,0,.35);
     pointer-events: none;
 }
 
+
+
+/* Estilos para la línea de escaneo */
+.scan-line {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: #5cc528;
+    box-shadow: 0 0 10px rgba(92, 197, 40, 0.7);
+    animation: scan 2s linear infinite;
+    z-index: 10;
+}
+
+.scan-line {
+    position: absolute;
+    left: 0;
+        top: -155px;
+    width: 100%;
+    height: 150px;
+    background: linear-gradient(0deg, #ff00006b, #ff00002b, transparent);
+    box-shadow: 0px 1px 0px 0px rgb(255 0 0);
+    animation: scan 2s linear infinite;
+    z-index: 10;
+}
+
+@keyframes scan {
+    0% {
+            top: -155px;
+    }
+    100% {
+        top: 100%;
+    }
+}
 
 
     </style>
@@ -240,15 +270,17 @@
 
 
     <div class="modal" id="scannerModal">
-    <div class="modal-content" style="max-width: 90%;">
+    <div class="modal-content">
         <div class="modal-header">
-            <h3>Escáner de Código de Barras</h3>
-            <button class="close-btn" id="closeScannerBtn">&times;</button>
+            <h3 style="font-size: 1.2rem;">Escáner de Código de Barras</h3>
+            <!-- <button class="close-btn" id="closeScannerBtn">&times;</button> -->
         </div>
         <div class="modal-body">
 <div id="scanner-container" class="scanner-container">
     <!-- Quagga añadirá aquí el <video> y el <canvas> -->
-    <div id="scanner-overlay"></div>
+    <div id="scanner-overlay">
+        <div class="scan-line"></div>
+    </div>
 </div>
             <div id="scanner-result" style="margin-top: 20px; text-align: center; font-size: 1.2em;"></div>
         </div>
