@@ -302,17 +302,46 @@
         }
 
         // Initialize DataTable
-        function initDataTable() {
-            $('#myOrdersTable').DataTable({
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
-                },
-                order: [[3, 'desc']],
-                columnDefs: [
-                    { targets: [0], visible: true }
-                ]
-            });
+function initDataTable() {
+    const table = $('#myOrdersTable').DataTable({
+        language: {
+            url: "https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json",
+            search: "", // Elimina el texto "Buscar:"
+            searchPlaceholder: "Buscar..." // Añade un placeholder
+        },
+        order: [[3, 'desc']],
+        responsive: true,
+        columnDefs: [
+            { 
+                targets: '_all',
+                render: function(data, type, row) {
+                    if (type === 'display' && window.innerWidth <= 768) {
+                        return data;
+                    }
+                    return data;
+                }
+            }
+        ],
+        // Opcional: Ajusta el estilo del input de búsqueda
+        initComplete: function() {
+            $('.dataTables_filter input').addClass('form-control');
+            $('.dataTables_filter label').contents().filter(function() {
+                return this.nodeType === 3; // Elimina cualquier texto suelto en el label
+            }).remove();
         }
+    });
+
+    
+
+    // Manejar el clic en las filas de la tabla
+    $('#myOrdersTable tbody').on('click', 'tr', function () {
+        const rowData = table.row(this).data();
+        if (rowData) {
+            const orderId = rowData[0];  // <-- Ahora rowData[0] es el ID limpio (sin HTML)
+            viewOrderDetails(orderId);   // Pasa el ID correctamente a Firestore
+        }
+    });
+}
 
         // Initialize Modals
         function initModals() {
@@ -377,63 +406,64 @@
             currentDriver.ordersUnsubscribe = unsubscribe;
         }
 
-        function createOrderRowData(id, order) {
-            const date = order.timestamp?.toDate() ? formatDate(order.timestamp.toDate()) : 'N/A';
+       function createOrderRowData(id, order) {
+    const date = order.timestamp?.toDate() ? formatDate(order.timestamp.toDate()) : 'N/A';
 
-            let serviceName = 'Múltiples servicios';
-            if (order.services && order.services.length === 1) {
-                serviceName = order.services[0].name;
-            } else if (order.service) {
-                serviceName = order.service.name || 'Servicio no especificado';
-            }
+    let serviceName = 'Múltiples servicios';
+    if (order.services && order.services.length === 1) {
+        serviceName = order.services[0].name;
+    } else if (order.service) {
+        serviceName = order.service.name || 'Servicio no especificado';
+    }
 
-            let totalPrice = 'N/A';
-            if (order.totalPrice) {
-                totalPrice = `US$${order.totalPrice.toFixed(2)}`;
-            } else if (order.service?.price) {
-                totalPrice = order.service.price;
-            }
+    let totalPrice = 'N/A';
+    if (order.totalPrice) {
+        totalPrice = `US$${order.totalPrice.toFixed(2)}`;
+    } else if (order.service?.price) {
+        totalPrice = order.service.price;
+    }
 
-            let address = 'N/A';
-            if (currentDriver.isUSADriver) {
-                const senderAddressParts = [];
-                if (order.sender?.address?.street) senderAddressParts.push(order.sender.address.street);
-                if (order.sender?.address?.apt) senderAddressParts.push(`Apt/Suite: ${order.sender.address.apt}`);
-                if (order.sender?.address?.city) senderAddressParts.push(order.sender.address.city);
-                if (order.sender?.address?.state) senderAddressParts.push(order.sender.address.state);
-                if (order.sender?.address?.zipCode) senderAddressParts.push(order.sender.address.zipCode);
-                address = senderAddressParts.join(', ') || 'N/A';
-            } else {
-                address = order.receiver?.address || 'N/A';
-            }
+    let address = 'N/A';
+    if (currentDriver.isUSADriver) {
+        const senderAddressParts = [];
+        if (order.sender?.address?.street) senderAddressParts.push(order.sender.address.street);
+        if (order.sender?.address?.apt) senderAddressParts.push(`Apt/Suite: ${order.sender.address.apt}`);
+        if (order.sender?.address?.city) senderAddressParts.push(order.sender.address.city);
+        if (order.sender?.address?.state) senderAddressParts.push(order.sender.address.state);
+        if (order.sender?.address?.zipCode) senderAddressParts.push(order.sender.address.zipCode);
+        address = senderAddressParts.join(', ') || 'N/A';
+    } else {
+        address = order.receiver?.address || 'N/A';
+    }
 
-            let paymentMethod = order.paymentMethod || 'N/A';
-            if (paymentMethod.toLowerCase() === 'pickup') {
-                paymentMethod = `<span class="payment-pickup">Cobrarlo por ti</span>`;
-            }
-            if (paymentMethod.toLowerCase() === 'online') {
-                paymentMethod = `<span class="payment-online">Online</span>`;
-            }
-            if (paymentMethod.toLowerCase() === 'delivery') {
-                paymentMethod = `<span class="payment-delivery">Pago en RD</span>`;
-            }
+    let paymentMethod = order.paymentMethod || 'N/A';
+    if (paymentMethod.toLowerCase() === 'pickup') {
+        paymentMethod = `<span class="payment-pickup">Cobrarlo por ti</span>`;
+    }
+    if (paymentMethod.toLowerCase() === 'online') {
+        paymentMethod = `<span class="payment-online">Online</span>`;
+    }
+    if (paymentMethod.toLowerCase() === 'delivery') {
+        paymentMethod = `<span class="payment-delivery">Pago en RD</span>`;
+    }
 
-            const paymentStatus = order.paymentStatus === 'paid'
-                ? '<span class="payment-status paid">Pagado</span>'
-                : '<span class="payment-status pending">Pendiente</span>';
+    const paymentStatus = order.paymentStatus === 'paid'
+        ? '<span class="payment-status paid">Pagado</span>'
+        : '<span class="payment-status pending">Pendiente</span>';
 
-            return [
-                id,
-                order.sender?.name || 'N/A',
-                serviceName,
-                date,
-                address,
-                totalPrice,
-                paymentMethod,
-                paymentStatus,
-                getStatusBadge(order.status)
-            ];
-        }
+    // Modificado para incluir data-label correctamente
+    return [
+        id,  // <-- Cambia esto: Envía el ID directo (sin <div>)
+        `<div data-label="Cliente">${order.sender?.name || 'N/A'}</div>`,
+        `<div data-label="Servicio">${serviceName}</div>`,
+        `<div data-label="Fecha" class="sorting_1">${date}</div>`,
+        `<div data-label="Dirección">${address}</div>`,
+        `<div data-label="Total">${totalPrice}</div>`,
+        `<div data-label="Método Pago">${paymentMethod}</div>`,
+        `<div data-label="Estado Pago">${paymentStatus}</div>`,
+        `<div data-label="Estado">${getStatusBadge(order.status)}</div>`
+    ];
+}
 
         // View Order Details
         // View Order Details
