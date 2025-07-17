@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
 
     <!-- Agrega esto con los otros scripts -->
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 
     <link rel="stylesheet" href="./css/style-driver.css">
 </head>
@@ -241,27 +241,27 @@
     </div>
 
 
-<div class="modal" id="scannerModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Escáner de Códigos</h3>
-            <button class="close-btn" id="closeScannerBtn">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div id="scanner-container" class="scanner-container">
-                <!-- Quagga añadirá aquí el <video> -->
-                <div id="scanner-overlay">
-                    <div class="scan-line"></div>
-                </div>
+    <div class="modal" id="scannerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Escáner de Códigos</h3>
+                <button class="close-btn" id="closeScannerBtn">&times;</button>
             </div>
-            <canvas id="scanner-canvas" style="display: none;"></canvas>
-            <div id="scanner-result" style="margin-top: 20px; text-align: center; font-size: 1.2em;"></div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-outline" id="cancelScannerBtn">Cancelar</button>
+            <div class="modal-body">
+                <div id="scanner-container" class="scanner-container">
+                    <!-- Quagga añadirá aquí el <video> -->
+                    <div id="scanner-overlay">
+                        <div class="scan-line"></div>
+                    </div>
+                </div>
+                <canvas id="scanner-canvas" style="display: none;"></canvas>
+                <div id="scanner-result" style="margin-top: 20px; text-align: center; font-size: 1.2em;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelScannerBtn">Cancelar</button>
+            </div>
         </div>
     </div>
-</div>
 
 
     <!-- Agrega esto en el body, antes de los scripts -->
@@ -503,13 +503,13 @@
                     .where('status', 'in', ['assignedDriver', 'driverPickup'])
                     .orderBy('timestamp', 'desc');
             }
-    else if (currentDriver.role === 'driver_rd') {
-        // Modificado para incluir órdenes en 'assignedDriver_rd' y 'Warehouse_Exit_rd'
-        ordersQuery = db.collection('orders')
-            .where('assignedDriverRD', '==', currentDriver.id)
-            .where('status', 'in', ['assignedDriver_rd', 'Warehouse_Exit_rd'])
-            .orderBy('timestamp', 'desc');
-    }
+            else if (currentDriver.role === 'driver_rd') {
+                // Modificado para incluir órdenes en 'assignedDriver_rd' y 'Warehouse_Exit_rd'
+                ordersQuery = db.collection('orders')
+                    .where('assignedDriverRD', '==', currentDriver.id)
+                    .where('status', 'in', ['assignedDriver_rd', 'Warehouse_Exit_rd'])
+                    .orderBy('timestamp', 'desc');
+            }
             else if (currentDriver.role === 'warehouse_usa') {
                 // Para warehouse_usa, mostrar órdenes en estados específicos
                 ordersQuery = db.collection('orders')
@@ -1256,98 +1256,144 @@
         }
 
         function initQuaggaScanner() {
-    scannerActive = true;
-    
-    // Inicializar Quagga para códigos de barras
-    Quagga.init({
-        inputStream: {
-            name: "Live",
-            type: "LiveStream",
-            target: document.querySelector('#scanner-container'),
-            constraints: {
-                facingMode: "environment"
+            scannerActive = true;
+
+            // Limpiar cualquier instancia previa
+            if (window.quaggaInstance) {
+                Quagga.stop();
             }
-        },
-        decoder: {
-            readers: [
-                "code_128_reader", "ean_reader", "ean_8_reader",
-                "code_39_reader", "code_39_vin_reader",
-                "codabar_reader", "upc_reader", "upc_e_reader"
-            ]
-        },
-    }, function(err) {
-        if (err) {
-            console.error(err);
-            document.getElementById('scanner-result').textContent = 'Error al iniciar el escáner: ' + err.message;
-            document.getElementById('scanner-result').className = 'error';
-            return;
-        }
-        Quagga.start();
-    });
 
-    // Configurar el escáner de QR
-    const video = document.createElement("video");
-    const canvasElement = document.getElementById("scanner-canvas");
-    const canvas = canvasElement.getContext("2d");
-    
-    // Asegúrate de tener este elemento en tu HTML (añádelo en el modal del escáner)
-    // <canvas id="scanner-canvas" style="display: none;"></canvas>
-
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function(stream) {
-        video.srcObject = stream;
-        video.setAttribute("playsinline", true); // required for iOS
-        video.play();
-        requestAnimationFrame(tick);
-    });
-
-    function tick() {
-        if (!scannerActive) return;
-        
-        if (video.readyState === video.HAVE_ENOUGH_DATA) {
-            canvasElement.hidden = false;
-            canvasElement.height = video.videoHeight;
-            canvasElement.width = video.videoWidth;
-            canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
-            
-            const imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
-            const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                inversionAttempts: "dontInvert",
+            Quagga.init({
+                inputStream: {
+                    name: "Live",
+                    type: "LiveStream",
+                    target: document.querySelector('#scanner-container'),
+                    constraints: {
+                        facingMode: "environment"
+                    }
+                },
+                decoder: {
+                    readers: [
+                        "code_128_reader", "ean_reader", "ean_8_reader",
+                        "code_39_reader", "code_39_vin_reader",
+                        "codabar_reader", "upc_reader", "upc_e_reader"
+                    ]
+                },
+            }, function (err) {
+                if (err) {
+                    console.error(err);
+                    document.getElementById('scanner-result').textContent = 'Error al iniciar el escáner: ' + err.message;
+                    document.getElementById('scanner-result').className = 'error';
+                    return;
+                }
+                window.quaggaInstance = true;
+                Quagga.start();
             });
-            
-            if (code) {
-                document.getElementById('scanner-result').textContent = `Código QR detectado: ${code.data}`;
+
+            // Configurar el escáner de QR
+            const video = document.createElement("video");
+            const canvasElement = document.getElementById("scanner-canvas");
+            const canvas = canvasElement.getContext("2d");
+
+            // Guardar referencia al stream para poder detenerlo luego
+            let qrStream = null;
+
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function (stream) {
+                qrStream = stream;
+                video.srcObject = stream;
+                video.setAttribute("playsinline", true);
+                video.play();
+                requestAnimationFrame(tick);
+            });
+
+            function tick() {
+                if (!scannerActive) {
+                    if (qrStream) {
+                        qrStream.getTracks().forEach(track => track.stop());
+                    }
+                    return;
+                }
+
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    canvasElement.hidden = false;
+                    canvasElement.height = video.videoHeight;
+                    canvasElement.width = video.videoWidth;
+                    canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+
+                    const imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                        inversionAttempts: "dontInvert",
+                    });
+
+                    if (code) {
+                        document.getElementById('scanner-result').textContent = `Código QR detectado: ${code.data}`;
+                        document.getElementById('scanner-result').className = 'success';
+                        checkOrderByBarcode(code.data);
+                    }
+                }
+                requestAnimationFrame(tick);
+            }
+
+            const detectionListener = function (result) {
+                if (!scannerActive) return;
+                const code = result.codeResult.code;
+                document.getElementById('scanner-result').textContent = `Código de barras detectado: ${code}`;
                 document.getElementById('scanner-result').className = 'success';
-                checkOrderByBarcode(code.data);
+                checkOrderByBarcode(code);
+            };
+
+            Quagga.onDetected(detectionListener);
+
+            // Guardar referencia al listener para poder removerlo luego
+            window.quaggaDetectionListener = detectionListener;
+        }
+
+        function stopBarcodeScanner() {
+            scannerActive = false;
+            document.getElementById('scannerModal').style.display = 'none';
+
+            // Detener Quagga completamente
+            if (typeof Quagga !== 'undefined') {
+                if (window.quaggaDetectionListener) {
+                    Quagga.offDetected(window.quaggaDetectionListener);
+                    delete window.quaggaDetectionListener;
+                }
+                Quagga.stop();
+                delete window.quaggaInstance;
+            }
+
+            // Detener todos los streams de video
+            const videos = document.querySelectorAll('video');
+            videos.forEach(video => {
+                if (video.srcObject) {
+                    video.srcObject.getTracks().forEach(track => track.stop());
+                    video.srcObject = null;
+                }
+                if (video.parentNode) {
+                    video.parentNode.removeChild(video);
+                }
+            });
+
+            // Limpiar el canvas
+            const canvas = document.getElementById('scanner-canvas');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+
+            // Limpiar el resultado
+            const resultElement = document.getElementById('scanner-result');
+            if (resultElement) {
+                resultElement.textContent = '';
+                resultElement.className = '';
+            }
+
+            // Limpiar el contenedor del escáner
+            const scannerContainer = document.getElementById('scanner-container');
+            if (scannerContainer) {
+                scannerContainer.innerHTML = '';
             }
         }
-        requestAnimationFrame(tick);
-    }
-
-    Quagga.onDetected(function(result) {
-        if (!scannerActive) return;
-
-        const code = result.codeResult.code;
-        document.getElementById('scanner-result').textContent = `Código de barras detectado: ${code}`;
-        document.getElementById('scanner-result').className = 'success';
-        checkOrderByBarcode(code);
-    });
-}
-
-function stopBarcodeScanner() {
-    scannerActive = false;
-    document.getElementById('scannerModal').style.display = 'none';
-
-    // Detener Quagga
-    if (Quagga) {
-        Quagga.stop();
-    }
-    
-    // Detener el stream de video
-    const video = document.querySelector('video');
-    if (video && video.srcObject) {
-        video.srcObject.getTracks().forEach(track => track.stop());
-    }
-}
 
         // Modifica la función checkOrderByBarcode
         function checkOrderByBarcode(barcode) {
