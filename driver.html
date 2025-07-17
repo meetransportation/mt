@@ -19,6 +19,9 @@
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
 
+    <!-- Agrega esto con los otros scripts -->
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
     <link rel="stylesheet" href="./css/style-driver.css">
 </head>
 
@@ -40,7 +43,7 @@
         <!-- Main Content -->
         <div class="main-content">
             <div class="header">
-                <h1>Panel de Chofer</h1>
+                <h1 id="panelTitle">Panel de </h1>
                 <div class="user-info">
                     <div class="user-details">
                         <span id="driverEmail"></span>
@@ -95,114 +98,174 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Detalles de la Orden</h3>
+                <button class="close-modal" id="cancelOrderChanges">X</button>
             </div>
+
             <div class="modal-body">
-                <div class="order-details">
-                    <div style="display: inline-flex;width: 100%;gap: 2rem;">
-                        <div class="detail-section">
-                            <h4>Información de la Orden</h4>
-                            <div class="detail-row">
-                                <label class="detail-label">ID:</label>
-                                <div class="detail-value" id="modalOrderId"></div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Fecha:</label>
-                                <div class="detail-value" id="modalOrderDate"></div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Estado:</label>
-                                <div class="detail-value" id="modalOrderStatus"></div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Total:</label>
-                                <div class="detail-value" id="modalOrderTotal"></div>
-                            </div>
+                <div class="order-details" id="divHorizontal">
+                    <div class="detail-section">
+                        <h4>Información Básica</h4>
+                        <div class="detail-row">
+                            <label class="detail-label">ID de la orden:</label>
+                            <div class="detail-value" id="modalOrderId"></div>
                         </div>
-
-                        <div class="detail-section">
-                            <h4>Servicio</h4>
-                            <div class="detail-row">
-                                <label class="detail-label">Nombre:</label>
-                                <div class="detail-value" id="modalServiceName"></div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Precio:</label>
-                                <div class="detail-value" id="modalServicePrice"></div>
-                            </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Fecha de solicitud:</label>
+                            <div class="detail-value" id="modalOrderDate"></div>
                         </div>
-                    </div>
-
-                    <div style="display: inline-flex;width: 100%;gap: 2rem;">
-                        <div class="detail-section">
-                            <h4>Información del Destinatario</h4>
-                            <div class="detail-row">
-                                <label class="detail-label">Nombre:</label>
-                                <div class="detail-value" id="modalReceiverName"></div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Teléfono:</label>
-                                <div class="detail-value" id="modalReceiverPhone"></div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Dirección:</label>
-                                <div class="detail-value" id="modalReceiverAddress"></div>
-                            </div>
-                        </div>
-
-                        <div class="detail-section">
-                            <h4>Información del Remitente</h4>
-                            <div class="detail-row">
-                                <label class="detail-label">Nombre:</label>
-                                <div class="detail-value" id="modalSenderName"></div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Teléfono:</label>
-                                <div class="detail-value" id="modalSenderPhone"></div>
-                            </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Estado:</label>
+                            <div class="detail-value" id="modalOrderStatusDisplay"></div>
                         </div>
                     </div>
 
                     <div class="detail-section">
-                        <h4>Artículos</h4>
-                        <div class="items-list" id="modalItemsList">
-                            <!-- Items will be loaded here -->
+                        <h4>Detalles de Recogida</h4>
+                        <div class="detail-row">
+                            <label class="detail-label">Fecha/hora de recogida:</label>
+                            <div class="detail-value" id="modalPickupDateTime"></div>
                         </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Dias restantes:</label>
+                            <div class="detail-value" id="modalDaysRemaining"></div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Cantidad de articulos:</label>
+                            <div class="detail-value" id="modalItemsCount"></div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4>Detalles del Pago</h4>
+                        <div class="detail-row">
+                            <label class="detail-label">Método de Pago:</label>
+                            <div class="detail-value" id="modalPaymentMethod"></div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Estado del Pago:</label>
+                            <div class="detail-value" id="modalPaymentStatus"></div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Total:</label>
+                            <div class="detail-value" id="modalOrderTotal"></div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section" style="flex: 1;">
+                        <h4>Notas Internas</h4>
+                        <div class="detail-row">
+                            <label class="detail-label">Para uso del personal:</label>
+                            <div class="detail-value" style="flex: 1;">
+                                <textarea style="width: 100%;height: 100px;max-width: 100%;" id="modalInternalNotes"
+                                    class="form-control" rows="4"
+                                    placeholder="Notas internas para esta orden..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="divHorizontal">
+                    <div class="detail-section" style="width: 60%;">
+                        <h4>Información del Remitente (USA)<img src="./img/Bandera_USA_1.png"
+                                style="height: 24px;margin: 0px 5px;"></h4>
+                        <div class="detail-row">
+                            <label class="detail-label">👤 Nombre:</label>
+                            <div class="detail-value" id="modalSenderName"></div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">📧 Email:</label>
+                            <div class="detail-value" id="modalSenderEmail"></div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">📞 Teléfono:</label>
+                            <div class="detail-value" id="modalSenderPhone"></div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">📍 Dirección:</label>
+                            <div class="detail-value" id="modalSenderAddress"></div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">📆 Fecha Recogida:</label>
+                            <div class="detail-value" id="modalPickupDate"></div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">🕜 Hora Recogida:</label>
+                            <div class="detail-value" id="modalPickupTime"></div>
+                        </div>
+                        <div class="detail-row" style="display: inline-flex;flex-direction: row;gap: 0.5rem;">
+                            <label class="detail-label">📅 Días restantes para recogida:</label>
+                            <div class="detail-value" id="modalDaysUntilPickup"></div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section" style="width: 40%;">
+                        <h4>Información del Destinatario (RD)<img src="./img/Bandera_RD_1.png"
+                                style="height: 24px;margin: 0px 5px;"></h4>
+                        <div class="detail-row">
+                            <label class="detail-label">👤 Nombre:</label>
+                            <div class="detail-value" id="modalReceiverName"></div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">📞 Teléfono:</label>
+                            <div class="detail-value" id="modalReceiverPhone"></div>
+                        </div>
+                        <div class="detail-row" style="display: none;">
+                            <label class="detail-label">Cédula:</label>
+                            <div class="detail-value" id="modalReceiverCedula"></div>
+                        </div>
+                        <div class="detail-row" style="display: none;">
+                            <label class="detail-label">Dirección:</label>
+                            <div class="detail-value" id="modalReceiverAddress"></div>
+                        </div>
+                        <div class="detail-row" style="display: none;">
+                            <label class="detail-label">Provincia:</label>
+                            <div class="detail-value" id="modalReceiverProvince"></div>
+                        </div>
+                        <h4 style="padding-bottom: 0rem;display: none;">Notas Adicionales</h4>
+                        <div class="detail-value" id="modalAdditionalNotes" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h4>Artículos:</h4>
+                    <div class="items-list" id="modalItemsList">
+                        <!-- Items will be loaded here -->
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" id="cancelOrderChanges">Cerrar</button>
+                <button class="btn btn-outline" id="saveOrderChanges">Guardar Cambio</button>
                 <button class="btn btn-primary" id="updateOrderStatus">Actualizar Estado</button>
             </div>
         </div>
     </div>
 
 
-    <div class="modal" id="scannerModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Escáner de Código de Barras</h3>
-                <button class="close-btn" id="closeScannerBtn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="scanner-container" class="scanner-container">
-                    <!-- Quagga añadirá aquí el <video> y el <canvas> -->
-                    <div id="scanner-overlay">
-                        <div class="scan-line"></div>
-                    </div>
+<div class="modal" id="scannerModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Escáner de Códigos</h3>
+            <button class="close-btn" id="closeScannerBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="scanner-container" class="scanner-container">
+                <!-- Quagga añadirá aquí el <video> -->
+                <div id="scanner-overlay">
+                    <div class="scan-line"></div>
                 </div>
-                <div id="scanner-result" style="margin-top: 20px; text-align: center; font-size: 1.2em;"></div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" id="cancelScannerBtn">Cancelar</button>
-            </div>
+            <canvas id="scanner-canvas" style="display: none;"></canvas>
+            <div id="scanner-result" style="margin-top: 20px; text-align: center; font-size: 1.2em;"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" id="cancelScannerBtn">Cancelar</button>
         </div>
     </div>
+</div>
 
 
     <!-- Agrega esto en el body, antes de los scripts -->
-    <audio id="scanSuccessSound" src="./sound/scanner-success.mp3"
-        preload="auto"></audio>
+    <audio id="scanSuccessSound" src="./sound/scanner-success.mp3" preload="auto"></audio>
     <!-- jQuery and DataTables -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
@@ -243,11 +306,13 @@
         function initAuth() {
             auth.onAuthStateChanged(user => {
                 if (user) {
-                    // Check if user is a driver
+                    // Check user role and status
                     db.collection('users').doc(user.uid).get().then(doc => {
                         if (doc.exists) {
                             const userData = doc.data();
-                            if ((userData.role === 'driver_usa' || userData.role === 'driver_rd') && userData.status === 'active') {
+                            const allowedRoles = ['driver_usa', 'driver_rd', 'warehouse_usa', 'warehouse_rd'];
+
+                            if (allowedRoles.includes(userData.role) && userData.status === 'active') {
                                 currentDriver = {
                                     id: user.uid,
                                     ...userData
@@ -302,46 +367,46 @@
         }
 
         // Initialize DataTable
-function initDataTable() {
-    const table = $('#myOrdersTable').DataTable({
-        language: {
-            url: "https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json",
-            search: "", // Elimina el texto "Buscar:"
-            searchPlaceholder: "Buscar..." // Añade un placeholder
-        },
-        order: [[3, 'desc']],
-        responsive: true,
-        columnDefs: [
-            { 
-                targets: '_all',
-                render: function(data, type, row) {
-                    if (type === 'display' && window.innerWidth <= 768) {
-                        return data;
+        function initDataTable() {
+            const table = $('#myOrdersTable').DataTable({
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json",
+                    search: "", // Elimina el texto "Buscar:"
+                    searchPlaceholder: "Buscar..." // Añade un placeholder
+                },
+                order: [[3, 'desc']],
+                responsive: true,
+                columnDefs: [
+                    {
+                        targets: '_all',
+                        render: function (data, type, row) {
+                            if (type === 'display' && window.innerWidth <= 768) {
+                                return data;
+                            }
+                            return data;
+                        }
                     }
-                    return data;
+                ],
+                // Opcional: Ajusta el estilo del input de búsqueda
+                initComplete: function () {
+                    $('.dataTables_filter input').addClass('form-control');
+                    $('.dataTables_filter label').contents().filter(function () {
+                        return this.nodeType === 3; // Elimina cualquier texto suelto en el label
+                    }).remove();
                 }
-            }
-        ],
-        // Opcional: Ajusta el estilo del input de búsqueda
-        initComplete: function() {
-            $('.dataTables_filter input').addClass('form-control');
-            $('.dataTables_filter label').contents().filter(function() {
-                return this.nodeType === 3; // Elimina cualquier texto suelto en el label
-            }).remove();
-        }
-    });
+            });
 
-    
 
-    // Manejar el clic en las filas de la tabla
-    $('#myOrdersTable tbody').on('click', 'tr', function () {
-        const rowData = table.row(this).data();
-        if (rowData) {
-            const orderId = rowData[0];  // <-- Ahora rowData[0] es el ID limpio (sin HTML)
-            viewOrderDetails(orderId);   // Pasa el ID correctamente a Firestore
+
+            // Manejar el clic en las filas de la tabla
+            $('#myOrdersTable tbody').on('click', 'tr', function () {
+                const rowData = table.row(this).data();
+                if (rowData) {
+                    const orderId = rowData[0];  // <-- Ahora rowData[0] es el ID limpio (sin HTML)
+                    viewOrderDetails(orderId);   // Pasa el ID correctamente a Firestore
+                }
+            });
         }
-    });
-}
 
         // Initialize Modals
         function initModals() {
@@ -349,21 +414,73 @@ function initDataTable() {
                 document.getElementById('orderModal').style.display = 'none';
             });
 
-            $('#myOrdersTable').on('click', 'tr', function () {
-                const table = $('#myOrdersTable').DataTable();
-                const rowData = table.row(this).data();
-                if (rowData) {
-                    viewOrderDetails(rowData[0]);
-                }
-            });
+
+            document.getElementById('saveOrderChanges').addEventListener('click', saveInternalNotes);
+
+            // Agrega esta nueva función para guardar las notas:
+            function saveInternalNotes() {
+                if (!selectedOrderId) return;
+
+                const newNotes = document.getElementById('modalInternalNotes').value;
+
+                db.collection('orders').doc(selectedOrderId).update({
+                    internalNotes: newNotes,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                })
+                    .then(() => {
+                        // Mostrar confirmación visual
+                        const saveBtn = document.getElementById('saveOrderChanges');
+                        const originalText = saveBtn.textContent;
+                        saveBtn.textContent = 'Guardado!';
+                        saveBtn.style.backgroundColor = '#5cc5281a';
+
+                        // Restaurar el botón después de 2 segundos
+                        setTimeout(() => {
+                            saveBtn.textContent = originalText;
+                            saveBtn.style.backgroundColor = '';
+                        }, 1000);
+
+                        // Actualizar la tabla si es necesario
+                        loadMyOrders();
+                    })
+                    .catch(error => {
+                        console.error('Error al guardar notas:', error);
+                        alert('Error al guardar las notas: ' + error.message);
+                    });
+            }
         }
 
         // Load driver profile
         function loadDriverProfile() {
-            document.getElementById('driverEmail').textContent = currentDriver.email || 'Chofer';
+            document.getElementById('driverEmail').textContent = currentDriver.email || 'Usuario';
             document.getElementById('driverName').textContent = currentDriver.profile?.name || '';
-            currentDriver.isUSADriver = currentDriver.role === 'driver_usa';
+
+            // Determinar el tipo de usuario y configurar el título del panel
+            let panelTitle = "Panel de ";
+            switch (currentDriver.role) {
+                case 'driver_usa':
+                    panelTitle += "Chofer USA";
+                    currentDriver.isUSADriver = true;
+                    break;
+                case 'driver_rd':
+                    panelTitle += "Chofer RD";
+                    currentDriver.isUSADriver = false;
+                    break;
+                case 'warehouse_usa':
+                    panelTitle += "Almacén USA";
+                    currentDriver.isWarehouse = true;
+                    break;
+                case 'warehouse_rd':
+                    panelTitle += "Almacén RD";
+                    currentDriver.isWarehouse = true;
+                    break;
+                default:
+                    panelTitle += "Usuario";
+            }
+            document.getElementById('panelTitle').textContent = panelTitle;
         }
+
+
 
         // Show selected tab
         function showTab(tabName) {
@@ -371,14 +488,40 @@ function initDataTable() {
             document.getElementById(`${tabName}Tab`).style.display = 'block';
         }
 
+
         // Load orders assigned to this driver
         function loadMyOrders() {
             const table = $('#myOrdersTable').DataTable();
             table.clear().draw();
 
-            const ordersQuery = db.collection('orders')
-                .where('assignedDriver', '==', currentDriver.id)
-                .orderBy('timestamp', 'desc');
+            let ordersQuery;
+
+            if (currentDriver.role === 'driver_usa') {
+                // Para driver_usa, solo mostrar órdenes con status "assignedDriver" o "driverPickup"
+                ordersQuery = db.collection('orders')
+                    .where('assignedDriver', '==', currentDriver.id)
+                    .where('status', 'in', ['assignedDriver', 'driverPickup'])
+                    .orderBy('timestamp', 'desc');
+            }
+    else if (currentDriver.role === 'driver_rd') {
+        // Modificado para incluir órdenes en 'assignedDriver_rd' y 'Warehouse_Exit_rd'
+        ordersQuery = db.collection('orders')
+            .where('assignedDriverRD', '==', currentDriver.id)
+            .where('status', 'in', ['assignedDriver_rd', 'Warehouse_Exit_rd'])
+            .orderBy('timestamp', 'desc');
+    }
+            else if (currentDriver.role === 'warehouse_usa') {
+                // Para warehouse_usa, mostrar órdenes en estados específicos
+                ordersQuery = db.collection('orders')
+                    .where('status', 'in', ['driverPickup', 'Received_Warehouse_usa', 'Warehouse_Exit_usa'])
+                    .orderBy('timestamp', 'desc');
+            }
+            else if (currentDriver.role === 'warehouse_rd') {
+                // Para warehouse_rd, mostrar órdenes en estados específicos
+                ordersQuery = db.collection('orders')
+                    .where('status', 'in', ['Warehouse_Exit_usa', 'Received_Warehouse_rd', 'assignedDriver_rd'])
+                    .orderBy('timestamp', 'desc');
+            }
 
             const unsubscribe = ordersQuery.onSnapshot(snapshot => {
                 const ordersData = snapshot.docs.map(doc => ({
@@ -406,66 +549,66 @@ function initDataTable() {
             currentDriver.ordersUnsubscribe = unsubscribe;
         }
 
-       function createOrderRowData(id, order) {
-    const date = order.timestamp?.toDate() ? formatDate(order.timestamp.toDate()) : 'N/A';
+        function createOrderRowData(id, order) {
+            const date = order.timestamp?.toDate() ? formatDate(order.timestamp.toDate()) : 'N/A';
 
-    let serviceName = 'Múltiples servicios';
-    if (order.services && order.services.length === 1) {
-        serviceName = order.services[0].name;
-    } else if (order.service) {
-        serviceName = order.service.name || 'Servicio no especificado';
-    }
+            let serviceName = 'Múltiples servicios';
+            if (order.services && order.services.length === 1) {
+                serviceName = order.services[0].name;
+            } else if (order.service) {
+                serviceName = order.service.name || 'Servicio no especificado';
+            }
 
-    let totalPrice = 'N/A';
-    if (order.totalPrice) {
-        totalPrice = `US$${order.totalPrice.toFixed(2)}`;
-    } else if (order.service?.price) {
-        totalPrice = order.service.price;
-    }
+            let totalPrice = 'N/A';
+            if (order.totalPrice) {
+                totalPrice = `US$${order.totalPrice.toFixed(2)}`;
+            } else if (order.service?.price) {
+                totalPrice = order.service.price;
+            }
 
-    let address = 'N/A';
-    if (currentDriver.isUSADriver) {
-        const senderAddressParts = [];
-        if (order.sender?.address?.street) senderAddressParts.push(order.sender.address.street);
-        if (order.sender?.address?.apt) senderAddressParts.push(`Apt/Suite: ${order.sender.address.apt}`);
-        if (order.sender?.address?.city) senderAddressParts.push(order.sender.address.city);
-        if (order.sender?.address?.state) senderAddressParts.push(order.sender.address.state);
-        if (order.sender?.address?.zipCode) senderAddressParts.push(order.sender.address.zipCode);
-        address = senderAddressParts.join(', ') || 'N/A';
-    } else {
-        address = order.receiver?.address || 'N/A';
-    }
+            let address = 'N/A';
+            if (currentDriver.isUSADriver) {
+                const senderAddressParts = [];
+                if (order.sender?.address?.street) senderAddressParts.push(order.sender.address.street);
+                if (order.sender?.address?.apt) senderAddressParts.push(`Apt/Suite: ${order.sender.address.apt}`);
+                if (order.sender?.address?.city) senderAddressParts.push(order.sender.address.city);
+                if (order.sender?.address?.state) senderAddressParts.push(order.sender.address.state);
+                if (order.sender?.address?.zipCode) senderAddressParts.push(order.sender.address.zipCode);
+                address = senderAddressParts.join(', ') || 'N/A';
+            } else {
+                address = order.receiver?.address || 'N/A';
+            }
 
-    let paymentMethod = order.paymentMethod || 'N/A';
-    if (paymentMethod.toLowerCase() === 'pickup') {
-        paymentMethod = `<span class="payment-pickup">Cobrarlo por ti</span>`;
-    }
-    if (paymentMethod.toLowerCase() === 'online') {
-        paymentMethod = `<span class="payment-online">Online</span>`;
-    }
-    if (paymentMethod.toLowerCase() === 'delivery') {
-        paymentMethod = `<span class="payment-delivery">Pago en RD</span>`;
-    }
+            let paymentMethod = order.paymentMethod || 'N/A';
+            if (paymentMethod.toLowerCase() === 'pickup') {
+                paymentMethod = `<span class="payment-pickup">Cobrarlo por ti</span>`;
+            }
+            if (paymentMethod.toLowerCase() === 'online') {
+                paymentMethod = `<span class="payment-online">Online</span>`;
+            }
+            if (paymentMethod.toLowerCase() === 'delivery') {
+                paymentMethod = `<span class="payment-delivery">Pago en RD</span>`;
+            }
 
-    const paymentStatus = order.paymentStatus === 'paid'
-        ? '<span class="payment-status paid">Pagado</span>'
-        : '<span class="payment-status pending">Pendiente</span>';
+            const paymentStatus = order.paymentStatus === 'paid'
+                ? '<span class="payment-status paid">Pagado</span>'
+                : '<span class="payment-status pending">Pendiente</span>';
 
-    // Modificado para incluir data-label correctamente
-    return [
-        id,  // <-- Cambia esto: Envía el ID directo (sin <div>)
-        `<div data-label="Cliente">${order.sender?.name || 'N/A'}</div>`,
-        `<div data-label="Servicio">${serviceName}</div>`,
-        `<div data-label="Fecha" class="sorting_1">${date}</div>`,
-        `<div data-label="Dirección">${address}</div>`,
-        `<div data-label="Total">${totalPrice}</div>`,
-        `<div data-label="Método Pago">${paymentMethod}</div>`,
-        `<div data-label="Estado Pago">${paymentStatus}</div>`,
-        `<div data-label="Estado">${getStatusBadge(order.status)}</div>`
-    ];
-}
+            // Modificado para incluir data-label correctamente
+            return [
+                id,  // <-- Cambia esto: Envía el ID directo (sin <div>)
+                `<div data-label="Cliente">${order.sender?.name || 'N/A'}</div>`,
+                `<div data-label="Servicio">${serviceName}</div>`,
+                `<div data-label="Fecha" class="sorting_1">${date}</div>`,
+                `<div data-label="Dirección">${address}</div>`,
+                `<div data-label="Total">${totalPrice}</div>`,
+                `<div data-label="Método Pago">${paymentMethod}</div>`,
+                `<div data-label="Estado Pago">${paymentStatus}</div>`,
+                `<div data-label="Estado">${getStatusBadge(order.status)}</div>`
+            ];
+        }
 
-        // View Order Details
+
         // View Order Details
         function viewOrderDetails(orderId) {
             selectedOrderId = orderId;
@@ -477,13 +620,17 @@ function initDataTable() {
                 }
 
                 const order = doc.data();
-                const date = order.timestamp?.toDate()?.toLocaleString() || 'N/A';
+                const date = order.timestamp?.toDate() ? formatFullDateWithTime(order.timestamp.toDate()) : 'N/A';
 
-                // Actualizar los detalles del modal
+                // Fill modal with order data
                 document.getElementById('modalOrderId').textContent = orderId;
                 document.getElementById('modalOrderDate').textContent = date;
-                document.getElementById('modalOrderStatus').textContent = getStatusText(order.status || 'assignedDriver');
+                document.getElementById('modalOrderStatusDisplay').innerHTML = getStatusBadge(order.status || 'order-pending');
+                document.getElementById('modalPaymentStatus').innerHTML = getPaymentStatusBadge(order.paymentStatus || 'pending');
+                document.getElementById('modalPaymentMethod').textContent = getPaymentMethodText(order.paymentMethod || 'pickup');
+                document.getElementById('modalInternalNotes').value = order.internalNotes || '';
 
+                // Mostrar precio total
                 if (order.totalPrice) {
                     document.getElementById('modalOrderTotal').textContent = `US$${order.totalPrice.toFixed(2)}`;
                 } else if (order.service?.price) {
@@ -492,23 +639,108 @@ function initDataTable() {
                     document.getElementById('modalOrderTotal').textContent = 'N/A';
                 }
 
+                // Sender info
                 document.getElementById('modalSenderName').textContent = order.sender?.name || 'N/A';
+                document.getElementById('modalSenderEmail').textContent = order.sender?.email || 'N/A';
                 document.getElementById('modalSenderPhone').textContent = order.sender?.phone || 'N/A';
-                document.getElementById('modalReceiverName').textContent = order.receiver?.name || 'N/A';
-                document.getElementById('modalReceiverPhone').textContent = order.receiver?.phone || 'N/A';
 
-                if (currentDriver.isUSADriver) {
-                    const senderAddressParts = [];
-                    if (order.sender?.address?.street) senderAddressParts.push(order.sender.address.street);
-                    if (order.sender?.address?.apt) senderAddressParts.push(`Apt/Suite: ${order.sender.address.apt}`);
-                    if (order.sender?.address?.city) senderAddressParts.push(order.sender.address.city);
-                    if (order.sender?.address?.state) senderAddressParts.push(order.sender.address.state);
-                    if (order.sender?.address?.zipCode) senderAddressParts.push(order.sender.address.zipCode);
-                    document.getElementById('modalReceiverAddress').textContent = senderAddressParts.join(', ') || 'N/A';
-                } else {
-                    document.getElementById('modalReceiverAddress').textContent = order.receiver?.address || 'N/A';
+                // Construir dirección del remitente
+                const senderAddressParts = [];
+                if (order.sender?.address?.street) senderAddressParts.push(order.sender.address.street);
+                if (order.sender?.address?.apt) senderAddressParts.push(`Apt/Suite: ${order.sender.address.apt}`);
+                if (order.sender?.address?.city) senderAddressParts.push(order.sender.address.city);
+                if (order.sender?.address?.state) senderAddressParts.push(order.sender.address.state);
+                if (order.sender?.address?.zipCode) senderAddressParts.push(order.sender.address.zipCode);
+                document.getElementById('modalSenderAddress').textContent = senderAddressParts.join(', ') || 'N/A';
+
+                // Pickup date and time
+                if (order.sender?.pickupDateTime?.date) {
+                    const [year, month, day] = order.sender.pickupDateTime.date.split('-');
+                    const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                    const formattedDate = `${day}/${monthNames[parseInt(month) - 1]}/${year}`;
+                    document.getElementById('modalPickupDate').textContent = formattedDate;
+                }
+                if (order.sender?.pickupDateTime?.time) {
+                    document.getElementById('modalPickupTime').textContent = order.sender.pickupDateTime.time;
                 }
 
+                // Calcular días restantes para recogida
+                if (order.sender?.pickupDateTime?.date) {
+                    const pickupDate = new Date(order.sender.pickupDateTime.date);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+
+                    const timeDiff = pickupDate.getTime() - today.getTime();
+                    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+                    let daysText = 'N/A';
+                    let urgencyClass = '';
+
+                    if (daysDiff > 1) {
+                        daysText = `${daysDiff} días`;
+                        urgencyClass = 'normal';
+                    } else if (daysDiff === 1) {
+                        daysText = 'Mañana';
+                        urgencyClass = 'tomorrow';
+                    } else if (daysDiff === 0) {
+                        daysText = 'Hoy';
+                        urgencyClass = 'today';
+                    } else {
+                        daysText = 'Fecha pasada';
+                        urgencyClass = 'past';
+                    }
+
+                    const daysElement = document.getElementById('modalDaysUntilPickup');
+                    daysElement.textContent = daysText;
+                    daysElement.dataset.urgency = urgencyClass;
+                } else {
+                    document.getElementById('modalDaysUntilPickup').textContent = 'No programada';
+                }
+
+                // Receiver info
+                document.getElementById('modalReceiverName').textContent = order.receiver?.name || 'N/A';
+                document.getElementById('modalReceiverPhone').textContent = order.receiver?.phone || 'N/A';
+                document.getElementById('modalReceiverCedula').textContent = order.receiver?.cedula || 'N/A';
+                document.getElementById('modalReceiverAddress').textContent = order.receiver?.address || 'N/A';
+                document.getElementById('modalReceiverProvince').textContent = order.receiver?.province || 'N/A';
+
+                // Service info
+                let serviceName = 'Múltiples servicios';
+                if (order.services && order.services.length === 1) {
+                    serviceName = order.services[0].name;
+                } else if (order.service) {
+                    serviceName = order.service.name || 'Servicio no especificado';
+                }
+
+                // Mostrar la cantidad de artículos en la orden
+                let pickupDateTime = 'N/A';
+                if (order.sender?.pickupDateTime?.date && order.sender?.pickupDateTime?.time) {
+                    // Parsear la fecha (asumiendo formato YYYY-MM-DD)
+                    const [year, month, day] = order.sender.pickupDateTime.date.split('-');
+                    const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                    const shortYear = year.slice(0); // Tomar los últimos 2 dígitos del año
+                    const formattedDate = `${day}/${monthNames[parseInt(month) - 1]}/${shortYear}`;
+
+                    // Combinar con la hora
+                    pickupDateTime = `${formattedDate} - ${order.sender.pickupDateTime.time}`;
+                }
+                document.getElementById('modalPickupDateTime').textContent = pickupDateTime;
+
+                // Mostrar días restantes (ya existe este cálculo más arriba en la función)
+                const daysElement = document.getElementById('modalDaysRemaining');
+                daysElement.textContent = document.getElementById('modalDaysUntilPickup').textContent;
+                daysElement.dataset.urgency = document.getElementById('modalDaysUntilPickup').dataset.urgency;
+
+                // Mostrar cantidad de artículos
+                // Mostrar cantidad de artículos
+                const itemsCount = order.services?.length || (order.service ? 1 : 0);
+                document.getElementById('modalItemsCount').textContent = `${itemsCount} artículo${itemsCount !== 1 ? 's' : ''}`;
+
+
+                // Additional notes
+                document.getElementById('modalAdditionalNotes').textContent = order.additionalNotes || 'Ninguna';
+
+                // Items list
                 const itemsList = document.getElementById('modalItemsList');
                 itemsList.innerHTML = '';
 
@@ -520,13 +752,15 @@ function initDataTable() {
                         const imageSrc = service.icon || './img/default_icon_1.png';
 
                         itemDiv.innerHTML = `
-                    <img src="${imageSrc}" class="item-image">
+                    ${imageSrc ? `<img src="${imageSrc}" class="item-image">` : ''}
                     <div class="item-info">
-                        <div class="item-name">${service.name}</div>
+                        ${service.name ? `<div class="item-name">${service.name}</div>` : ''}
                         <div class="item-meta">
-                            <div><strong>Tipo:</strong> ${service.type === 'promo' ? 'Promoción' : 'Regular'}</div>
-                            <div><strong>Precio:</strong> ${service.price}</div>
-                            <div><strong>Cantidad:</strong> ${service.quantity || 1}</div>
+                            ${service.subId ? `<div><strong>Sub-ID:</strong> ${service.subId}</div>` : ''}
+                            ${service.dimensions ? `<div><strong>Dimensiones:</strong> ${service.dimensions}</div>` : ''}
+                            ${service.type ? `<div><strong>Tipo:</strong> ${service.type === 'promo' ? 'Promoción' : 'Regular'}</div>` : ''}
+                            ${service.weight ? `<div><strong>Peso (lbs):</strong> ${service.weight}</div>` : ''}
+                            ${service.price ? `<div><strong>Precio (USD):</strong> <span style="color: #299bef;font-weight: bold;">${service.price}</span></div>` : ''}
                         </div>
                     </div>
                 `;
@@ -536,48 +770,347 @@ function initDataTable() {
                     itemsList.innerHTML = '<p>No hay artículos registrados para esta orden.</p>';
                 }
 
+                // Configurar botón de actualización de estado según el rol
                 const updateBtn = document.getElementById('updateOrderStatus');
                 const isPickupPayment = order.paymentMethod?.toLowerCase() === 'pickup';
                 const isPaymentPending = order.paymentStatus === 'pending';
                 const isAssignedStatus = order.status === 'assignedDriver';
                 const isPickupStatus = order.status === 'driverPickup';
+                const isReceivedStatus = order.status === 'Received_Warehouse_usa';
+                const isExitStatus = order.status === 'Warehouse_Exit_usa';
 
-                if (currentDriver.isUSADriver) {
+                // Calcular la cantidad total de artículos
+                const totalItems = order.services?.reduce((total, service) => {
+                    return total + (service.quantity || 1);
+                }, 0) || 0;
+
+                if (currentDriver.role === 'driver_usa') {
                     updateBtn.style.display = 'block';
 
                     if (isPickupPayment && isPaymentPending && isAssignedStatus) {
-                        // Estado inicial: Confirmar pago
                         updateBtn.textContent = 'Confirmar Pago';
                         updateBtn.onclick = confirmPayment;
                         updateBtn.style.backgroundColor = '#ff9800';
                         updateBtn.disabled = false;
-                    } else if ((isPickupPayment && !isPaymentPending && isAssignedStatus) ||
+                    }
+                    else if ((isPickupPayment && !isPaymentPending && isAssignedStatus) ||
                         (!isPickupPayment && isAssignedStatus)) {
-                        // Segundo estado: Marcar como recogido (para todos los métodos de pago)
-                        updateBtn.textContent = 'Marcar como Recogido';
-                        updateBtn.onclick = markAsPickedUp;
+                        updateBtn.textContent = `Marcar como Recogido (${totalItems})`;
+                        updateBtn.onclick = () => markAsPickedUp(totalItems);
                         updateBtn.style.backgroundColor = '#069bff';
                         updateBtn.disabled = false;
-                    } else if (isPickupStatus) {
-                        // Estado final: Recogido
+                    }
+                    else if (isPickupStatus) {
                         updateBtn.textContent = 'Recogido!';
                         updateBtn.onclick = null;
                         updateBtn.style.backgroundColor = '#5cc528';
                         updateBtn.disabled = true;
-                    } else {
-                        // Otros casos
+                    }
+                    else {
                         updateBtn.textContent = 'No hay acciones disponibles';
                         updateBtn.onclick = null;
                         updateBtn.style.backgroundColor = '#cccccc';
                         updateBtn.disabled = true;
                     }
-                } else {
+                }
+                else if (currentDriver.role === 'warehouse_usa') {
+                    updateBtn.style.display = 'block';
+
+                    if (isPickupStatus) {
+                        updateBtn.textContent = `Marcar como Recibido (${totalItems})`;
+                        updateBtn.onclick = () => markAsReceivedInWarehouse(totalItems);
+                        updateBtn.style.backgroundColor = '#069bff';
+                        updateBtn.disabled = false;
+                    }
+                    else if (isReceivedStatus) {
+                        updateBtn.textContent = `Marcar como Salida (${totalItems})`;
+                        updateBtn.onclick = () => markAsWarehouseExit(totalItems);
+                        updateBtn.style.backgroundColor = '#ff9800';
+                        updateBtn.disabled = false;
+                    }
+                    else if (isExitStatus) {
+                        updateBtn.textContent = 'Salida registrada!';
+                        updateBtn.onclick = null;
+                        updateBtn.style.backgroundColor = '#5cc528';
+                        updateBtn.disabled = true;
+                    }
+                    else {
+                        updateBtn.textContent = 'No hay acciones disponibles';
+                        updateBtn.onclick = null;
+                        updateBtn.style.backgroundColor = '#cccccc';
+                        updateBtn.disabled = true;
+                    }
+                }
+                else if (currentDriver.role === 'warehouse_rd') {
+                    updateBtn.style.display = 'block';
+
+                    if (order.status === 'Warehouse_Exit_usa') {
+                        updateBtn.textContent = `Marcar como Recibido (${totalItems})`;
+                        updateBtn.onclick = () => markAsReceivedInWarehouseRD(totalItems);
+                        updateBtn.style.backgroundColor = '#069bff';
+                        updateBtn.disabled = false;
+                    }
+                    else if (order.status === 'Received_Warehouse_rd') {
+                        // Cambio aquí: Mostrar solo "En almacén" sin acción
+                        updateBtn.textContent = 'En almacén RD';
+                        updateBtn.onclick = null;
+                        updateBtn.style.backgroundColor = '#5cc528';
+                        updateBtn.disabled = true;
+                    }
+                    else if (order.status === 'assignedDriver_rd') {
+                        updateBtn.textContent = 'Asignada a chofer RD';
+                        updateBtn.onclick = null;
+                        updateBtn.style.backgroundColor = '#cccccc';
+                        updateBtn.disabled = true;
+                    }
+                    else {
+                        updateBtn.textContent = 'No hay acciones disponibles';
+                        updateBtn.onclick = null;
+                        updateBtn.style.backgroundColor = '#cccccc';
+                        updateBtn.disabled = true;
+                    }
+                }
+
+                else if (currentDriver.role === 'driver_rd') {
+                    updateBtn.style.display = 'block';
+                    const isDeliveryPayment = order.paymentMethod?.toLowerCase() === 'delivery';
+                    const isPaymentPending = order.paymentStatus === 'pending';
+
+                    if (order.status === 'assignedDriver_rd') {
+                        updateBtn.textContent = `Marcar como recibido (${totalItems})`;
+                        updateBtn.onclick = () => markAsReceivedByDriverRD(totalItems);
+                        updateBtn.style.backgroundColor = '#069bff';
+                        updateBtn.disabled = false;
+                    }
+                    else if (order.status === 'Warehouse_Exit_rd') {
+                        if (isDeliveryPayment && isPaymentPending) {
+                            updateBtn.textContent = 'Confirmar pago';
+                            updateBtn.onclick = confirmPaymentDelivery;
+                            updateBtn.style.backgroundColor = '#ff9800'; // Naranja para acción importante
+                            updateBtn.disabled = false;
+                        } else {
+                            updateBtn.textContent = `Marcar como entregado (${totalItems})`;
+                            updateBtn.onclick = () => markAsDelivered(totalItems);
+                            updateBtn.style.backgroundColor = '#5cc528'; // Verde para acción normal
+                            updateBtn.disabled = false;
+                        }
+                    }
+                    else if (order.status === 'delivered') {
+                        updateBtn.textContent = 'Entregado al cliente';
+                        updateBtn.onclick = null;
+                        updateBtn.style.backgroundColor = '#cccccc';
+                        updateBtn.disabled = true;
+                    }
+                    else {
+                        updateBtn.textContent = 'No hay acciones disponibles';
+                        updateBtn.onclick = null;
+                        updateBtn.style.backgroundColor = '#cccccc';
+                        updateBtn.disabled = true;
+                    }
+                }
+
+
+                else {
                     updateBtn.style.display = 'none';
                 }
 
+                // Mostrar modal
                 document.getElementById('orderModal').style.display = 'flex';
             });
         }
+
+
+
+        // Añadir nuevas funciones para manejar estados de almacén
+        function markAsReceivedInWarehouse(itemCount) {
+            if (!selectedOrderId) return;
+
+            const itemText = itemCount === 1 ? '(1) artículo' : `(${itemCount}) artículos`;
+
+            if (confirm(`¿Confirmas que has recibido ${itemText} en el almacén USA?`)) {
+                db.collection('orders').doc(selectedOrderId).update({
+                    status: 'Received_Warehouse_usa',
+                    warehouseReceivedDate: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                })
+                    .then(() => {
+                        viewOrderDetails(selectedOrderId); // Recargar para actualizar el estado
+                    })
+                    .catch(error => {
+                        console.error('Error al actualizar estado:', error);
+                        alert('Error al marcar como recibido: ' + error.message);
+                    });
+            }
+        }
+
+        function markAsWarehouseExit(itemCount) {
+            if (!selectedOrderId) return;
+
+            const itemText = itemCount === 1 ? '(1) artículo' : `(${itemCount}) artículos`;
+
+            if (confirm(`¿Confirmas que ${itemText} han salido del almacén USA?`)) {
+                db.collection('orders').doc(selectedOrderId).update({
+                    status: 'Warehouse_Exit_usa',
+                    warehouseExitDate: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                })
+                    .then(() => {
+                        viewOrderDetails(selectedOrderId); // Recargar para actualizar el estado
+                    })
+                    .catch(error => {
+                        console.error('Error al actualizar estado:', error);
+                        alert('Error al marcar como salida: ' + error.message);
+                    });
+            }
+        }
+
+
+        function markAsReceivedInWarehouseRD(itemCount) {
+            if (!selectedOrderId) return;
+
+            const itemText = itemCount === 1 ? '(1) artículo' : `(${itemCount}) artículos`;
+
+            if (confirm(`¿Confirmas que has recibido ${itemText} en el almacén RD?`)) {
+                db.collection('orders').doc(selectedOrderId).update({
+                    status: 'Received_Warehouse_rd',
+                    warehouseRDReceivedDate: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                })
+                    .then(() => {
+                        viewOrderDetails(selectedOrderId); // Recargar para actualizar el estado
+                    })
+                    .catch(error => {
+                        console.error('Error al actualizar estado:', error);
+                        alert('Error al marcar como recibido en RD: ' + error.message);
+                    });
+            }
+        }
+
+        function markAsWarehouseExitRD(itemCount) {
+            if (!selectedOrderId) return;
+
+            const itemText = itemCount === 1 ? '(1) artículo' : `(${itemCount}) artículos`;
+
+            if (confirm(`¿Confirmas que ${itemText} han salido del almacén RD?`)) {
+                db.collection('orders').doc(selectedOrderId).update({
+                    status: 'Warehouse_Exit_rd',
+                    warehouseRDExitDate: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                })
+                    .then(() => {
+                        viewOrderDetails(selectedOrderId); // Recargar para actualizar el estado
+                    })
+                    .catch(error => {
+                        console.error('Error al actualizar estado:', error);
+                        alert('Error al marcar como salida de RD: ' + error.message);
+                    });
+            }
+        }
+
+
+        function markAsReceivedByDriverRD(itemCount) {
+            if (!selectedOrderId) return;
+
+            const itemText = itemCount === 1 ? '(1) artículo' : `(${itemCount}) artículos`;
+
+            if (confirm(`¿Confirmas que has recibido ${itemText} para entrega al cliente?`)) {
+                db.collection('orders').doc(selectedOrderId).update({
+                    status: 'Warehouse_Exit_rd',
+                    receivedByDriverDate: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                })
+                    .then(() => {
+                        viewOrderDetails(selectedOrderId);
+                    })
+                    .catch(error => {
+                        console.error('Error al actualizar estado:', error);
+                        alert('Error al marcar como recibido: ' + error.message);
+                    });
+            }
+        }
+
+
+
+        // Actualizar la función getStatusBadge() para incluir los nuevos estados
+        function getStatusBadge(status) {
+            // Si el usuario es warehouse_usa, mostrar textos específicos
+            if (currentDriver && currentDriver.role === 'warehouse_usa') {
+                const warehouseStatusMap = {
+                    'driverPickup': ['status-assigned', 'A recibir'],
+                    'Received_Warehouse_usa': ['status-completed', 'En almacén'],
+                    'Warehouse_Exit_usa': ['status-completed', 'Salida de Almacén']
+                };
+
+                if (warehouseStatusMap[status]) {
+                    const [badgeClass, badgeText] = warehouseStatusMap[status];
+                    return `<span class="status-badge ${badgeClass}">${badgeText}</span>`;
+                }
+            }
+
+            // Si el usuario es warehouse_rd, mostrar textos específicos
+            if (currentDriver && currentDriver.role === 'warehouse_rd') {
+                const warehouseRDStatusMap = {
+                    'Warehouse_Exit_usa': ['status-assigned', 'En tránsito a RD'],
+                    'Received_Warehouse_rd': ['status-completed', 'En almacén RD'],
+                    'assignedDriver_rd': ['status-processing', 'Asignada a chofer RD'],
+                    'Warehouse_Exit_rd': ['status-completed', 'Salida de almacén RD'],
+                    'delivered': ['status-completed', 'Entregado al cliente']
+                };
+
+                if (warehouseRDStatusMap[status]) {
+                    const [badgeClass, badgeText] = warehouseRDStatusMap[status];
+                    return `<span class="status-badge ${badgeClass}">${badgeText}</span>`;
+                }
+            }
+
+            // Para otros roles o estados no cubiertos arriba
+            const statusMap = {
+                'assignedDriver': ['status-assigned', 'A recoger'],
+                'driverPickup': ['status-processing', 'Recogido'],
+                'Received_Warehouse_usa': ['status-completed', 'En almacén USA'],
+                'Warehouse_Exit_usa': ['status-completed', 'Salida almacén'],
+                'order-pending': ['status-pending', 'Pendiente']
+            };
+
+            const [badgeClass, badgeText] = statusMap[status] || ['status-pending', status];
+            return `<span class="status-badge ${badgeClass}">${badgeText}</span>`;
+        }
+
+
+        // Helper function for full date with time
+        function formatFullDateWithTime(date) {
+            if (!date) return 'N/A';
+
+            const months = ['Ene', 'Feb', 'Mar', 'Abr', 'mMay', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            const day = date.getDate();
+            const month = months[date.getMonth()];
+            const year = date.getFullYear();
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+
+            return `${day}/${month}/${year} - ${hours}:${minutes}`;
+        }
+
+        function getPaymentStatusBadge(status) {
+            const statusMap = {
+                'paid': ['payment-status paid', 'Pagado'],
+                'pending': ['payment-status pending', 'Pendiente'],
+                'failed': ['payment-status failed', 'Fallido']
+            };
+
+            const [badgeClass, badgeText] = statusMap[status] || ['payment-status pending', status];
+            return `<span class="${badgeClass}">${badgeText}</span>`;
+        }
+
+        function getPaymentMethodText(method) {
+            const methods = {
+                'online': 'En línea',
+                'pickup': 'Al recoger',
+                'delivery': 'Al recibir (RD)'
+            };
+            return methods[method] || method;
+        }
+
 
         // Confirm Payment
         function confirmPayment() {
@@ -599,11 +1132,54 @@ function initDataTable() {
             }
         }
 
-        // Mark as Picked Up
-        function markAsPickedUp() {
+        function confirmPaymentDelivery() {
             if (!selectedOrderId) return;
 
-            if (confirm('¿Confirmas que has recogido este paquete?')) {
+            if (confirm('¿Confirmas que has recibido el pago del cliente en RD?')) {
+                db.collection('orders').doc(selectedOrderId).update({
+                    paymentStatus: 'paid',
+                    paymentConfirmedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    paymentConfirmedBy: currentDriver.id
+                })
+                    .then(() => {
+                        viewOrderDetails(selectedOrderId);
+                    })
+                    .catch(error => {
+                        console.error('Error al confirmar el pago:', error);
+                        alert('Error al confirmar el pago: ' + error.message);
+                    });
+            }
+        }
+
+
+        function markAsDelivered(itemCount) {
+            if (!selectedOrderId) return;
+
+            const itemText = itemCount === 1 ? '(1) artículo' : `(${itemCount}) artículos`;
+
+            if (confirm(`¿Confirmas que has entregado ${itemText} al cliente final en RD?`)) {
+                db.collection('orders').doc(selectedOrderId).update({
+                    status: 'delivered',
+                    deliveredDate: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                })
+                    .then(() => {
+                        viewOrderDetails(selectedOrderId);
+                    })
+                    .catch(error => {
+                        console.error('Error al actualizar estado:', error);
+                        alert('Error al marcar como entregado: ' + error.message);
+                    });
+            }
+        }
+
+        // Mark as Picked Up
+        function markAsPickedUp(itemCount) {
+            if (!selectedOrderId) return;
+
+            const itemText = itemCount === 1 ? '(1) artículo' : `(${itemCount}) artículos`;
+
+            if (confirm(`¿Confirmas que has recogido ${itemText} de esta orden?`)) {
                 db.collection('orders').doc(selectedOrderId).update({
                     status: 'driverPickup',
                     pickupDate: firebase.firestore.FieldValue.serverTimestamp(),
@@ -619,16 +1195,7 @@ function initDataTable() {
             }
         }
 
-        // Helper Functions
-        function getStatusBadge(status) {
-            const statusMap = {
-                'assignedDriver': ['status-assigned', 'A recoger'],
-                'driverPickup': ['status-completed', 'Recogido']
-            };
 
-            const [badgeClass, badgeText] = statusMap[status] || ['status-assigned', status];
-            return `<span class="status-badge ${badgeClass}">${badgeText}</span>`;
-        }
 
         function getStatusText(status) {
             const statusMap = {
@@ -689,82 +1256,126 @@ function initDataTable() {
         }
 
         function initQuaggaScanner() {
-            scannerActive = true;
-
-            Quagga.init({
-                inputStream: {
-                    name: "Live",
-                    type: "LiveStream",
-                    target: document.querySelector('#scanner-container'), // <-- antes era #scanner-video
-                    constraints: {
-                        facingMode: "environment"      // trasera en móviles
-                    }
-                },
-                decoder: {
-                    readers: [
-                        "code_128_reader", "ean_reader", "ean_8_reader",
-                        "code_39_reader", "code_39_vin_reader",
-                        "codabar_reader", "upc_reader", "upc_e_reader"
-                    ]
-                },
-            }, function (err) {
-                if (err) {
-                    console.error(err);
-                    document.getElementById('scanner-result').textContent = 'Error al iniciar el escáner: ' + err.message;
-                    document.getElementById('scanner-result').className = 'error';
-                    return;
-                }
-                Quagga.start();
-            });
-
-            Quagga.onDetected(function (result) {
-                if (!scannerActive) return;
-
-                const code = result.codeResult.code;
-                document.getElementById('scanner-result').textContent = `Código detectado: ${code}`;
-                document.getElementById('scanner-result').className = 'success';
-
-                // Verificar si el código corresponde a una orden
-                checkOrderByBarcode(code);
-            });
+    scannerActive = true;
+    
+    // Inicializar Quagga para códigos de barras
+    Quagga.init({
+        inputStream: {
+            name: "Live",
+            type: "LiveStream",
+            target: document.querySelector('#scanner-container'),
+            constraints: {
+                facingMode: "environment"
+            }
+        },
+        decoder: {
+            readers: [
+                "code_128_reader", "ean_reader", "ean_8_reader",
+                "code_39_reader", "code_39_vin_reader",
+                "codabar_reader", "upc_reader", "upc_e_reader"
+            ]
+        },
+    }, function(err) {
+        if (err) {
+            console.error(err);
+            document.getElementById('scanner-result').textContent = 'Error al iniciar el escáner: ' + err.message;
+            document.getElementById('scanner-result').className = 'error';
+            return;
         }
+        Quagga.start();
+    });
 
-        function stopBarcodeScanner() {
-            scannerActive = false;
-            document.getElementById('scannerModal').style.display = 'none';
+    // Configurar el escáner de QR
+    const video = document.createElement("video");
+    const canvasElement = document.getElementById("scanner-canvas");
+    const canvas = canvasElement.getContext("2d");
+    
+    // Asegúrate de tener este elemento en tu HTML (añádelo en el modal del escáner)
+    // <canvas id="scanner-canvas" style="display: none;"></canvas>
 
-            if (Quagga) {
-                Quagga.stop();
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function(stream) {
+        video.srcObject = stream;
+        video.setAttribute("playsinline", true); // required for iOS
+        video.play();
+        requestAnimationFrame(tick);
+    });
+
+    function tick() {
+        if (!scannerActive) return;
+        
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+            canvasElement.hidden = false;
+            canvasElement.height = video.videoHeight;
+            canvasElement.width = video.videoWidth;
+            canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+            
+            const imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+            const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                inversionAttempts: "dontInvert",
+            });
+            
+            if (code) {
+                document.getElementById('scanner-result').textContent = `Código QR detectado: ${code.data}`;
+                document.getElementById('scanner-result').className = 'success';
+                checkOrderByBarcode(code.data);
             }
         }
+        requestAnimationFrame(tick);
+    }
 
-// Modifica la función checkOrderByBarcode
-function checkOrderByBarcode(barcode) {
-    // Asumimos que el código de barras es el ID de la orden
-    const table = $('#myOrdersTable').DataTable();
-    const orders = table.rows().data().toArray();
+    Quagga.onDetected(function(result) {
+        if (!scannerActive) return;
+
+        const code = result.codeResult.code;
+        document.getElementById('scanner-result').textContent = `Código de barras detectado: ${code}`;
+        document.getElementById('scanner-result').className = 'success';
+        checkOrderByBarcode(code);
+    });
+}
+
+function stopBarcodeScanner() {
+    scannerActive = false;
+    document.getElementById('scannerModal').style.display = 'none';
+
+    // Detener Quagga
+    if (Quagga) {
+        Quagga.stop();
+    }
     
-    // Buscar si el código coincide con algún ID de orden
-    const foundOrder = orders.find(order => order[0] === barcode);
-    
-    if (foundOrder) {
-        // Reproducir sonido de éxito
-        const successSound = document.getElementById('scanSuccessSound');
-        successSound.currentTime = 0; // Reiniciar el sonido si ya estaba reproduciéndose
-        successSound.play().catch(e => console.log("No se pudo reproducir sonido:", e));
-        
-        // Cerrar el escáner y mostrar la orden
-        stopBarcodeScanner();
-        viewOrderDetails(barcode);
-    } else {
-        document.getElementById('scanner-result').textContent = 'Código no encontrado';
-        document.getElementById('scanner-result').className = 'error';
+    // Detener el stream de video
+    const video = document.querySelector('video');
+    if (video && video.srcObject) {
+        video.srcObject.getTracks().forEach(track => track.stop());
+    }
+}
+
+        // Modifica la función checkOrderByBarcode
+        function checkOrderByBarcode(barcode) {
+            // Asumimos que el código de barras es el ID de la orden
+            const table = $('#myOrdersTable').DataTable();
+            const orders = table.rows().data().toArray();
+
+            // Buscar si el código coincide con algún ID de orden
+            const foundOrder = orders.find(order => order[0] === barcode);
+
+            if (foundOrder) {
+                // Reproducir sonido de éxito
+                const successSound = document.getElementById('scanSuccessSound');
+                successSound.currentTime = 0; // Reiniciar el sonido si ya estaba reproduciéndose
+                successSound.play().catch(e => console.log("No se pudo reproducir sonido:", e));
+
+                // Cerrar el escáner y mostrar la orden
+                stopBarcodeScanner();
+                viewOrderDetails(barcode);
+            } else {
+                document.getElementById('scanner-result').textContent = 'Código no encontrado';
+                document.getElementById('scanner-result').className = 'error';
 
                 // Opcional: mantener el escáner activo para seguir escaneando
-                // setTimeout(() => {
-                //     document.getElementById('scanner-result').textContent = 'Escaneando...';
-                //     document.getElementById('scanner-result').className = '';
-                // }, 2000);
+                /*setTimeout(() => {
+                   document.getElementById('scanner-result').textContent = 'Escaneando...';
+                   document.getElementById('scanner-result').className = '';
+                }, 2000); */
             }
         }
 
