@@ -1786,7 +1786,7 @@ function adjustWhatsAppButton() {
     const distanceToCopyright = copyrightRect.top - viewportHeight;
     
     // Si el copyright está visible o cerca (100px antes de que aparezca)
-    if (distanceToCopyright < 100) {
+    if (distanceToCopyright < -30) {
         whatsappBtn.classList.add('near-copyright');
     } else {
         whatsappBtn.classList.remove('near-copyright');
