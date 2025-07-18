@@ -36,6 +36,16 @@
      box-shadow: inset 0px 0px 0px 1px rgb(205 205 205);
  }
 
+   th:hover {
+    border-radius: 7px;
+ }
+
+  th:hover {
+    background: red;
+    transition: all 0.3s;
+    cursor: pointer;
+ }
+
  .admin-container {
      display: flex;
      min-height: 100vh;
@@ -45,9 +55,8 @@
  input {
      padding: 0.4rem 0.5rem;
      border-radius: 7px;
-     min-width: 300px;
+     width: 100%;
  }
-
 
  /* Sidebar */
  .sidebar {
@@ -73,14 +82,13 @@
      padding: 1rem 0;
  }
 
-.menu-item {
-    padding: 0.7rem 0.7rem;
-    cursor: pointer;
-    transition: all 0.3s;
-    display: flex
-;
-    align-items: center;
-}
+ .menu-item {
+     padding: 0.7rem 0.7rem;
+     cursor: pointer;
+     transition: all 0.3s;
+     display: flex;
+     align-items: center;
+ }
 
  .menu-item:hover {
      background-color: rgba(255, 255, 255, 0.1);
@@ -96,10 +104,10 @@
      text-align: center;
  }
 
-#flex1 {
-    flex: 1;
-    font-size: 0.9rem;
-}
+ #flex1 {
+     flex: 1;
+     font-size: 0.9rem;
+ }
 
  .menu-badge {
      background-color: var(--accent);
@@ -114,6 +122,7 @@
      flex: 1;
      padding: 1.5rem;
  }
+ 
 
  .header {
      display: flex;
@@ -144,11 +153,11 @@
      text-align: right;
  }
 
-.user-details span {
-    line-height: 1.3;
-    color: #465d75;
-    font-weight: 500;
-}
+ .user-details span {
+     line-height: 1.3;
+     color: #465d75;
+     font-weight: 500;
+ }
 
  #adminRole {
      color: #605c6b;
@@ -212,10 +221,10 @@
      box-shadow: 0px 0px 0px 1px rgb(157 209 243);
  }
 
-.card-3 {
-    background: #f39c1214;
-    box-shadow: 0px 0px 0px 1px rgb(255 198 106);
-}
+ .card-3 {
+     background: #f39c1214;
+     box-shadow: 0px 0px 0px 1px rgb(255 198 106);
+ }
 
  .card-4 {
      background: #5cc52817;
@@ -331,6 +340,44 @@
      background-color: #c0392b;
  }
 
+ #saveQuoteChanges {
+     background-color: #288dc5;
+     color: white;
+     border: none;
+     transition: all 0.3s;
+ }
+
+ #saveQuoteChanges:hover {
+     background-color: #1574a7;
+ }
+
+ .close-modal {
+     background-color: #c90909;
+     color: #ffffff;
+     position: absolute;
+     right: 10px;
+     padding: 0.3rem 1rem;
+     font-size: 1.0rem;
+     border: none;
+     border-radius: 5px;
+     cursor: pointer;
+     transition: all 0.3s;
+ }
+
+ .close-modal:hover {
+     background-color: #8d0505;
+ }
+
+ #modalQuoteId,
+ #modalOrderId {
+     border-radius: 7px;
+     padding: 0rem 0.3rem;
+     display: inline-flex;
+     justify-content: center;
+     color: #299bef;
+     font-weight: bold;
+ }
+
  /* Status Badges */
  .status-badge {
      padding: 0.2rem 0.4rem;
@@ -372,6 +419,8 @@
      color: #383d41;
  }
 
+
+
  /* Modal */
  .modal {
      display: none;
@@ -390,44 +439,59 @@
      background-color: white;
      width: 90%;
      max-height: 90vh;
-     overflow-y: auto;
      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
      animation: modalFadeIn 0.3s;
      position: absolute;
-     max-width: 930px;
-     border-radius: 14px;
+     max-width: 1150px;
+     border-radius: 20px;
      display: flex;
      flex-direction: column;
-     /*transition: all 0.3s ease-out;*/
+     /* transition: all 0.3s ease-out; */
      animation: modalFadeIn 0.3s;
  }
 
+
+
  .modal-header {
-     width: 100%;
-     background: rgb(231 231 231);
-     min-height: 40px;
-     border-bottom: 1px solid rgb(221 221 221);
-     display: inline-flex;
+     padding: 0.7rem 1.5rem;
+     border-bottom: 1px solid #9aa4ad;
+     display: flex;
+     justify-content: space-between;
      align-items: center;
-     justify-content: center;
+     background: #b6bfc7;
      border-radius: 10px 10px 0px 0px;
+     min-height: 40px;
  }
 
- .modal h3 {
+ .modal-header h3 {
      color: var(--primary);
-     font-size: 24px;
-     font-weight: 500;
      text-align: center;
-     padding: 0px 55px;
+     width: 100%;
+     padding: 0px 60px;
+     font-size: 1.5rem;
  }
+
+
 
  .modal-body {
-     background: rgba(255, 255, 255, 0);
      overflow: auto;
      flex: 1;
-     padding: 20px;
+     padding: 1.5rem;
+     background: #d5d9dd;
+     display: inline-flex;
+     gap: 1rem;
+     flex-direction: column;
  }
 
+ .modal-footer {
+     padding: 0.7rem 1.5rem;
+     border-top: 1px solid #eee;
+     display: inline-flex;
+     justify-content: center;
+     gap: 2rem;
+     background: #2c3e50;
+     border-radius: 0px 0px 14px 14px;
+ }
 
  @keyframes modalFadeIn {
      from {
@@ -441,29 +505,35 @@
      }
  }
 
- .modal-header {
-     padding: 1rem 1.5rem;
-     border-bottom: 1px solid #eee;
-     display: flex;
-     justify-content: space-between;
-     align-items: center;
+ #modalOrderTotal {
+     color: #299bef;
+     font-weight: bold;
  }
 
- .modal-header h3 {
-     color: var(--primary);
+
+ /* Estilos para los días restantes */
+
+ .detail-value[data-urgency="normal"] {
+     color: #ed7000;
+     font-weight: bold;
  }
 
- .close-modal {
-     background: none;
-     border: none;
-     font-size: 1.5rem;
-     cursor: pointer;
-     color: #666;
+ .detail-value[data-urgency="tomorrow"] {
+     color: #ed7000;
+     font-weight: bold;
  }
 
- .modal-body {
-     padding: 1.5rem;
+ .detail-value[data-urgency="today"] {
+     color: #299bef;
+     font-weight: bold;
  }
+
+ .detail-value[data-urgency="past"] {
+     color: #8f8f8f;
+     font-weight: bold;
+ }
+
+
 
  .order-details {
      display: grid;
@@ -474,34 +544,53 @@
  }
 
  .detail-section {
-     margin-bottom: 1.5rem;
-     background: #2c3e501a;
+     background: #ffffff;
      border-radius: 10px;
      padding: 1rem;
  }
 
-
  .detail-section h4 {
-     margin-bottom: 0.8rem;
+     margin-bottom: 0.2rem;
      color: var(--primary);
      border-bottom: 1px solid #eee;
      padding-bottom: 0.5rem;
+     text-align: center;
+     display: inline-flex;
+     width: 100%;
+     justify-content: center;
+ }
+
+ #divHorizontal {
+     width: 100%;
+     display: inline-flex;
+     gap: 1rem;
+     flex-direction: row;
+ }
+
+ #tel-ws-box {
+     display: inline-flex;
+     justify-content: flex-start;
+     align-items: center;
+     gap: 0.5rem;
  }
 
  .detail-row {
      display: flex;
      margin-bottom: 0.5rem;
      flex-direction: column;
+     flex: 1;
  }
 
  .detail-label {
      font-weight: 500;
      min-width: 120px;
-     color: #666;
+     color: #2c3e50;
+     font-weight: bold;
  }
 
  .detail-value {
      flex: 1;
+     width: 100%;
  }
 
  .items-list {
@@ -542,13 +631,6 @@
      color: #666;
  }
 
- .modal-footer {
-     padding: 1rem 1.5rem;
-     border-top: 1px solid #eee;
-     display: flex;
-     justify-content: flex-end;
-     gap: 0.8rem;
- }
 
  .status-select {
      padding: 0.5rem;
@@ -610,14 +692,20 @@
 
  .required-field:invalid,
  .invalid-field {
-     border-color: #e74c3c;
-     box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+     background: #f700001c;
+     box-shadow: 0px 0px 0px 1px rgb(219 14 14);
  }
 
  .required-field:valid,
  .valid-field {
-     border-color: #2ecc71;
-     box-shadow: 0 0 0 0.2rem rgba(46, 204, 113, 0.25);
+     background: #00f7151c;
+     box-shadow: 0px 0px 0px 1px rgb(14 219 28);
+ }
+
+ #modalPickupDate,
+ #modalPickupTime {
+     background: #00f7151c;
+     box-shadow: 0px 0px 0px 1px rgb(14 219 28);
  }
 
  /* Estilo para el botón de guardar cambios */
@@ -631,6 +719,16 @@
  }
 
 
+ textarea {
+     min-width: 300px;
+     min-height: 60px;
+     background: #26a3ff29;
+     box-shadow: 0px 0px 0px 1px rgb(0 152 237);
+     border-radius: 7px;
+     padding: 0.3rem;
+     max-width: 100%;
+     max-height: 400px;
+ }
 
 
 
@@ -664,4 +762,358 @@
      background-color: #f6f6f6;
      cursor: pointer;
  }
- 
+
+
+
+
+
+
+
+
+
+
+
+ /* Estilo para el contenedor de artículos */
+ .items-list {
+     display: grid;
+     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+     /* Columnas dinámicas */
+     gap: 1rem;
+     margin-top: 1rem;
+     width: 100%;
+ }
+
+ /* Estilo para cada artículo */
+ .item-row {
+     display: flex;
+     flex-direction: column;
+     padding: 1rem;
+     border: none;
+     border-radius: 20px;
+     background-color: #e5f2ff;
+     width: 100%;
+     box-sizing: border-box;
+     box-shadow: inset 0px 0px 0px 1px rgb(191 191 191);
+ }
+
+ /* Imagen adaptativa */
+ .item-image {
+     width: 80%;
+     height: auto;
+     max-height: 120px;
+     object-fit: contain;
+     margin: 0 auto 0.5rem auto;
+     border-radius: 4px;
+     background-color: #ffffff00;
+     padding: 0.3rem;
+ }
+
+ /* Contenedor de información */
+ .item-info {
+     width: 100%;
+     flex: 1;
+     display: flex;
+     flex-direction: column;
+ }
+
+ /* Nombre del artículo */
+ .item-name {
+     font-weight: 500;
+     margin-bottom: 0.5rem;
+     text-align: center;
+     font-size: 90%;
+     width: 100%;
+     color: #299bef;
+     font-weight: bold;
+ }
+
+ /* Metadatos */
+ .item-meta {
+     font-size: 85%;
+     color: #292929;
+     width: 100%;
+ }
+
+ .item-meta div {
+     margin-bottom: 0.3rem;
+     width: 100%;
+ }
+
+ /* Input de precio */
+ .item-price-input {
+     width: 100%;
+     flex: 1;
+     padding: 0.3rem;
+     border-radius: 4px;
+     margin: 0 auto;
+     font-size: 1rem;
+     height: 2rem;
+     min-width: auto;
+     border-radius: 7px;
+     font-weight: bold;
+     background: #31ff0021;
+     box-shadow: 0px 0px 0px 1px rgb(0 171 12);
+ }
+
+ /* Ajustes responsivos adicionales */
+ @media (max-width: 768px) {
+     .items-list {
+         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+         /* Columnas más estrechas */
+     }
+
+     .item-image {
+         width: 70%;
+         /* Imagen más pequeña en móviles */
+     }
+ }
+
+ @media (max-width: 480px) {
+     .items-list {
+         grid-template-columns: 1fr;
+         /* Una sola columna */
+     }
+
+     .item-row {
+         padding: 0.8rem;
+     }
+
+     .item-image {
+         width: 60%;
+         /* Imagen aún más pequeña */
+     }
+ }
+
+
+
+ /* Estilos para el input de teléfono en el modal */
+ /* Estilos para el input de teléfono en el modal */
+ .intl-tel-input {
+     width: 100%;
+     margin-bottom: 15px;
+ }
+
+ .intl-tel-input .selected-flag {
+     background: #f8f9fa;
+     border-radius: 5px 0 0 5px;
+     padding: 0 8px;
+ }
+
+ .intl-tel-input input {
+     padding-left: 60px !important;
+     height: 45px;
+     border: 1px solid #ced4da;
+     border-radius: 0 5px 5px 0;
+     width: 100%;
+ }
+
+ .intl-tel-input .country-list {
+     border-radius: 5px;
+     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+ }
+
+ .iti {
+     position: relative;
+     display: inline-block;
+     width: 100%;
+ }
+
+ .iti--separate-dial-code .iti__selected-flag {
+     border-radius: 6px 0px 0px 6px;
+     background-color: #00000020 !important;
+ }
+
+ #modalAdditionalNotes {
+     min-height: 60px;
+     background: #26a3ff29;
+     box-shadow: 0px 0px 0px 1px rgb(0 152 237);
+     border-radius: 7px;
+     padding: 0.3rem;
+ }
+
+ #tel-ws-box-receiver {
+     display: inline-flex;
+     gap: 1rem;
+     align-items: center;
+     justify-content: space-between;
+ }
+
+
+ #modalReceiverPhone {
+     flex: 0;
+     flex-basis: content;
+ }
+
+ .input-valid {
+     border: 2px solid var(--success);
+     /* Verde */
+     background-color: #e9f9ee;
+ }
+
+ .input-invalid {
+     border: 2px solid var(--accent);
+     /* Rojo */
+     background-color: #fdecea;
+ }
+
+ .input-error {
+     border: 2px solid var(--accent);
+     background-color: #fdecea;
+ }
+
+ .input-success {
+     border: 2px solid var(--success);
+     background-color: #e9f9ee;
+ }
+
+
+ /* Agrega esto al final de style-admin.css */
+ .item-price-input:invalid,
+ .item-price-input.empty-or-zero {
+     background: #f700001c !important;
+     box-shadow: 0px 0px 0px 1px rgb(219 14 14) !important;
+ }
+
+ .item-price-input:valid:not(.empty-or-zero) {
+     background: #00f7151c !important;
+     box-shadow: 0px 0px 0px 1px rgb(14 219 28) !important;
+ }
+
+
+
+
+ /* Estilos específicos para el modal de órdenes */
+
+
+
+
+
+
+
+ #orderModal .status-select {
+     width: 100%;
+     padding: 0.5rem;
+     border: 1px solid #ddd;
+     border-radius: 5px;
+     background: white;
+ }
+
+
+ #orderModal img[src*="Bandera"] {
+     vertical-align: middle;
+     margin-left: 5px;
+ }
+
+ /* Ajustes responsivos */
+ @media (max-width: 768px) {
+     #orderModal .order-details {
+         flex-direction: column;
+     }
+
+     #orderModal .detail-section {
+         width: 100% !important;
+         margin-bottom: 1rem;
+     }
+ }
+
+
+ .whatsapp-btn {
+     background-color: #25D366;
+     color: white;
+     padding: 0.5rem 0.7rem;
+     border-radius: 7px;
+     display: inline-flex;
+     align-items: center;
+     gap: 0.3rem;
+     font-size: 0.9rem;
+ }
+
+ .whatsapp-btn:hover {
+     background-color: #18ad50;
+     color: white;
+ }
+
+ .whatsapp-btn i {
+     font-size: 1.2rem;
+ }
+
+
+ .copy-btn {
+     background: none;
+     border: none;
+     color: #299bef;
+     cursor: pointer;
+     padding: 4px;
+     font-size: 1rem;
+     transition: all 0.3s;
+ }
+
+ .copy-btn:hover {
+     color: #1a7bc8;
+     transform: scale(1.1);
+ }
+
+ .copy-feedback {
+     transition: opacity 0.3s;
+ }
+
+
+
+/* Loading spinner styles */
+.loading-overlay {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 1000;
+}
+
+.loading-spinner {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #5cc528;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Hide table initially */
+.table-container {
+    position: relative;
+    min-height: 200px;
+}
+
+.dataTable {
+    display: none; /* Initially hidden */
+}
+
+.dataTable.ready {
+    display: table; /* Show when ready */
+}
+
+
+
+/* Estilo para filas con chofer asignado */
+#assignDriverTable tr.driver-assigned td {
+    background-color: #e6f2ff !important; /* Azul claro */
+}
+
+/* Estilo para el hover en las filas */
+#assignDriverTable tbody tr:hover {
+    cursor: pointer;
+    background-color: #f5f5f5 !important;
+}
+
+#assignDriverTable tbody tr.driver-assigned:hover td {
+    background-color: #d9e6ff !important; /* Azul un poco más oscuro al hacer hover */
+}

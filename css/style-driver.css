@@ -32,6 +32,19 @@ tr {
     cursor: pointer;
 }
 
+tr td:nth-child(7) {
+    min-width: 122px;
+}
+
+tr td:nth-child(8) {
+    min-width: 75px;
+}
+
+tr td:nth-child(9) {
+    min-width: 90px;
+}
+
+
 /* Sidebar */
 .sidebar {
     width: 250px;
@@ -242,18 +255,17 @@ tr {
     flex-direction: column;
     background-color: #ffffff;
     border-radius: 10px;
-    text-align: center;
     animation: modalFadeIn 0.3s;
     max-height: 90%;
     width: 100%;
-    max-width: 1080px;
+    max-width: 1150px;
 }
 
 .modal-header {
     width: 100%;
-    background: rgb(231 231 231);
+    background: rgb(182 191 199);
     min-height: 40px;
-    border-bottom: 1px solid rgb(221 221 221);
+    border-bottom: 1px solid rgb(154 164 173);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -267,7 +279,7 @@ tr {
 }
 
 .modal-body {
-    background: rgba(255, 255, 255, 0);
+    background: rgb(213 217 221);
     overflow: auto;
     flex: 1;
     padding: 20px;
@@ -297,67 +309,146 @@ span .order-details {
 }
 
 .detail-section h4 {
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.2rem;
     color: var(--primary);
     border-bottom: 1px solid #eee;
     padding-bottom: 0.5rem;
+    text-align: center;
+    display: inline-flex;
+    width: 100%;
+    justify-content: center;
+}
+
+#modalOrderId {
+    border-radius: 7px;
+    padding: 0rem 0.3rem;
+    display: inline-flex;
+    justify-content: center;
+    color: #299bef;
+    font-weight: bold;
+}
+
+#modalPickupDateTime {
+    border-radius: 7px;
+    padding: 0rem 0.3rem;
+    display: inline-flex;
+    justify-content: center;
+    color: #299bef;
+    font-weight: 500;
+}
+
+#modalItemsCount {
+    border-radius: 7px;
+    padding: 0rem 0.3rem;
+    display: inline-flex;
+    color: #299bef;
+    font-weight: 500;
 }
 
 .detail-row {
     display: flex;
     margin-bottom: 0.5rem;
+    flex-direction: column;
 }
 
 .detail-label {
-    font-weight: 500;
-    min-width: 120px;
-    color: #666;
+    color: #2c3e50;
+    font-weight: bold;
 }
 
 .detail-value {
     flex: 1;
 }
 
+#modalOrderTotal {
+    color: #299bef;
+font-weight: 500;
+}
+
+textarea {
+    min-width: 300px;
+    min-height: 60px;
+    background: #26a3ff29;
+    box-shadow: 0px 0px 0px 1px rgb(0 152 237);
+    border-radius: 7px;
+    padding: 0.3rem;
+    max-width: 100%;
+    max-height: 400px;
+}
+
+#modalAdditionalNotes {
+    min-height: 60px;
+    background: #26a3ff29;
+    box-shadow: 0px 0px 0px 1px rgb(0 152 237);
+    border-radius: 7px;
+    padding: 0.3rem;
+}
+
 .items-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
     margin-top: 1rem;
+    width: 100%;
 }
 
 .item-row {
     display: flex;
-    padding: 0.8rem 0;
-    border-bottom: 1px solid #eee;
-}
-
-.item-row:last-child {
-    border-bottom: none;
+    flex-direction: column;
+    padding: 1rem;
+    border: none;
+    border-radius: 20px;
+    background-color: #e5f2ff;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: inset 0px 0px 0px 1px rgb(191 191 191);
 }
 
 .item-image {
-    width: 60px;
-    height: 60px;
+    width: 80%;
+    height: auto;
+    max-height: 120px;
     object-fit: contain;
-    margin-right: 1rem;
+    margin: 0 auto 0.5rem auto;
     border-radius: 4px;
-    background-color: #f9f9f9;
+    background-color: #ffffff00;
     padding: 0.3rem;
 }
 
 .item-info {
+    width: 100%;
     flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .item-name {
     font-weight: 500;
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    font-size: 90%;
+    width: 100%;
+    color: #299bef;
+    font-weight: bold;
 }
 
 .item-meta {
-    font-size: 0.9rem;
-    color: #666;
+    font-size: 85%;
+    color: #292929;
+    width: 100%;
 }
 
+.item-meta div {
+    margin-bottom: 0.3rem;
+    width: 100%;
+}
 
-
+#divHorizontal {
+    width: 100%;
+    display: inline-flex;
+    gap: 1rem;
+    flex-direction: row;
+}
 
 table.dataTable tbody th,
 table.dataTable tbody td {
@@ -412,26 +503,56 @@ table.dataTable thead td {
 }
 
 
+#modalSenderAddress {
+    background: #0087ff1f;
+    box-shadow: 0px 0px 0px 1px rgb(0 140 255);
+    border-radius: 10px;
+    padding: 0.5em;
+    font-weight: 500;
+}
 
-
-.close-btn {
-    position: absolute;
-    right: 0px;
-    background: red;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
+.close-modal {
+    background-color: #c90909;
     color: #ffffff;
-    padding: 0.1rem 0.8rem;
+    position: absolute;
+    right: 10px;
+    padding: 0.3rem 1rem;
+    font-size: 1.0rem;
+    border: none;
     border-radius: 5px;
-    font-family: math;
-    margin: 1px 5px;
+    cursor: pointer;
     transition: all 0.3s;
 }
 
-.close-btn:hover {
-    background: rgb(167, 1, 1);
+.close-modal:hover {
+    background-color: #8d0505;
 }
+
+
+
+
+.detail-value[data-urgency="normal"] {
+    color: #ed7000;
+    font-weight: bold;
+}
+
+.detail-value[data-urgency="tomorrow"] {
+    color: #ed7000;
+    font-weight: bold;
+}
+
+.detail-value[data-urgency="today"] {
+    color: #299bef;
+    font-weight: bold;
+}
+
+.detail-value[data-urgency="past"] {
+    color: #8f8f8f;
+    font-weight: bold;
+}
+
+
+
 
 /* Estilos para el resultado del escáner */
 #scanner-result.success {
@@ -516,7 +637,9 @@ table.dataTable thead td {
 
 
 @media screen and (max-width: 640px) {
-    .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter {
+
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
         float: left;
         text-align: center;
     }
@@ -599,13 +722,13 @@ table.dataTable thead td {
     }
 
     .table-header {
-    flex-direction: column;
-}
+        flex-direction: column;
+    }
 
-.table-actions {
-    justify-content: space-between;
-    width: 100%;
-}
+    .table-actions {
+        justify-content: space-between;
+        width: 100%;
+    }
 
     .table-header h2 {
         color: var(--primary);
@@ -624,6 +747,7 @@ table.dataTable thead td {
 
 
 @media (max-width: 768px) {
+
     /* Estilos para la tabla en móviles */
     .data-table-container {
         overflow-x: auto;
@@ -646,35 +770,38 @@ table.dataTable thead td {
         border-radius: 5px;
         padding: 0;
         background: white;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
 
- 
+
 
     table.dataTable tbody td:last-child {
         border-bottom: none;
     }
 
     /* Asegúrate de que los elementos dentro de las celdas se alineen bien */
-    table.dataTable tbody td > span {
+    table.dataTable tbody td>span {
         display: inline-block;
         width: 100%;
         text-align: right;
     }
 
     /* Ajustes para los badges y estados */
-    .status-badge, .payment-status, .payment-pickup, 
-    .payment-online, .payment-delivery {
+    .status-badge,
+    .payment-status,
+    .payment-pickup,
+    .payment-online,
+    .payment-delivery {
         float: right;
     }
 }
 
 
 @media (max-width: 768px) {
+
     /* Asegúrate de que las celdas muestren el data-label */
     table.dataTable tbody td {
-        display: flex
-;
+        display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 0.1rem 0.5rem;
@@ -694,14 +821,16 @@ table.dataTable thead td {
         position: absolute;
     }
 
-    table.dataTable tbody td > span {
+    table.dataTable tbody td>span {
         flex: 2;
         text-align: right;
     }
 
     /* Ajustes específicos para los badges */
-    .status-badge, .payment-status, 
-    .payment-pickup, .payment-online, 
+    .status-badge,
+    .payment-status,
+    .payment-pickup,
+    .payment-online,
     .payment-delivery {
         display: inline-block;
         float: none;
@@ -710,19 +839,19 @@ table.dataTable thead td {
 
 
 @media (max-width: 768px) {
-    table.dataTable tbody td > span > span {
+    table.dataTable tbody td>span>span {
         display: inline !important;
     }
 }
 
 @media (max-width: 768px) {
-    table.dataTable tbody td > div {
+    table.dataTable tbody td>div {
         display: flex;
         justify-content: space-between;
         width: 100%;
     }
 
-    table.dataTable tbody td > div::before {
+    table.dataTable tbody td>div::before {
         content: attr(data-label);
         font-weight: 500;
         color: #292929;
@@ -761,9 +890,32 @@ table.dataTable thead td {
         margin-bottom: 0.5rem;
         border-radius: 7px !important;
     }
-    
+
     .dataTables_filter {
         width: 100%;
         margin-top: 0.5rem;
     }
+}
+
+
+
+/* Estilos para los nuevos estados */
+.status-badge.status-processing {
+    background-color: #2196F3;
+    color: white;
+}
+
+.status-badge.status-completed {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.status-badge.status-assigned {
+    background-color: #FF9800;
+    color: white;
+}
+
+.status-badge.status-pending {
+    background-color: #9E9E9E;
+    color: white;
 }

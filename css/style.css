@@ -927,6 +927,7 @@
       border-radius: 15px;
       text-align: center;
       border: 1px solid rgba(255, 255, 255, 0.3);
+      min-width: 245px;
   }
 
   .location img {
@@ -1317,7 +1318,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.3s ease;
+      transition: 0.3s ease;
       text-decoration: none;
   }
 
@@ -1328,6 +1329,11 @@
 
   .whatsapp-float i {
       font-size: 36px;
+  }
+
+  .whatsapp-float.near-copyright {
+      bottom: 80px;
+      /* Ajusta este valor según necesites */
   }
 
   /* Pulse animation */
@@ -1364,6 +1370,14 @@
       .whatsapp-float i {
           font-size: 30px;
       }
+
+  }
+
+    @media (max-width: 440px) {
+
+            .whatsapp-float.near-copyright {
+        bottom: 100px; /* Ajusta este valor según necesites */
+    }
   }
 
   .selected-item .dimension-inputs {
@@ -1850,6 +1864,7 @@
 
       .location {
           padding: 0.5rem;
+          min-width: 140px;
       }
 
       .location img {
