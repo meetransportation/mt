@@ -71,6 +71,18 @@ function changeLanguage(lang) {
         }
     });
 
+    // Actualizar servicios
+    const servicesContainer = document.getElementById('servicesContainer');
+    const cachedServices = localStorage.getItem('cachedServices');
+    if (cachedServices) {
+        try {
+            const services = JSON.parse(cachedServices);
+            renderServices(services, servicesContainer);
+        } catch (e) {
+            console.error('Error parsing cached services:', e);
+        }
+    }
+
     // Save language preference
     localStorage.setItem('preferredLanguage', lang);
 }
@@ -306,46 +318,49 @@ function renderServices(services, container) {
             serviceCard.classList.add('offer-card');
         }
 
-        // Construir el precio según el tipo
-        const priceContent = isPromo
-            ? `<div class="service-price">${service.price}</div>` // Texto directo para promos
-            : `<div class="service-price">US$${service.price}</div>`; // Formato USD para regulares
+        // Usar el idioma actual
+        const serviceName = service[`name_${currentLanguage}`] || service.name;
+        const slot1 = service[`slot1_${currentLanguage}`] || service.slot1;
+        const slot2 = service[`slot2_${currentLanguage}`] || service.slot2;
+        const slot3 = service[`slot3_${currentLanguage}`] || service.slot3;
+        const slot4 = service[`slot4_${currentLanguage}`] || service.slot4;
 
-        // Div para icono, título y precio (header solo)
+        // Resto del código sigue igual pero usando las variables traducidas
+        const priceContent = isPromo
+            ? `<div class="service-price">${service.price}</div>`
+            : `<div class="service-price">US$${service.price}</div>`;
+
         const headerContent = `
             <div class="service-header">
-                ${!isPromo && service.icon ? `<div class="service-icon"><img src="${service.icon}" alt="${service.name}"></div>` : ''}
-                <div class="service-title">${service.name}</div>
+                ${!isPromo && service.icon ? `<div class="service-icon"><img src="${service.icon}" alt="${serviceName}"></div>` : ''}
+                <div class="service-title">${serviceName}</div>
                 ${priceContent}
             </div>
         `;
 
-        // Contenedor para detalles y botones juntos
         const detailsAndButtons = `
             <div class="service-details-buttons-container">
                 <div class="service-details-container">
                     <ul class="service-details">
-                        ${service.slot1 ? `<li><strong>${service.slot1.split(':')[0]}:</strong> ${service.slot1.split(':').slice(1).join(':')}</li>` : ''}
-                        ${service.slot2 ? `<li><strong>${service.slot2.split(':')[0]}:</strong> ${service.slot2.split(':').slice(1).join(':')}</li>` : ''}
-                        ${service.slot3 ? `<li><strong>${service.slot3.split(':')[0]}:</strong> ${service.slot3.split(':').slice(1).join(':')}</li>` : ''}
-                        ${service.slot4 ? `<li><strong>${service.slot4.split(':')[0]}:</strong> ${service.slot4.split(':').slice(1).join(':')}</li>` : ''}
+                        ${slot1 ? `<li><strong>${slot1.split(':')[0]}:</strong> ${slot1.split(':').slice(1).join(':')}</li>` : ''}
+                        ${slot2 ? `<li><strong>${slot2.split(':')[0]}:</strong> ${slot2.split(':').slice(1).join(':')}</li>` : ''}
+                        ${slot3 ? `<li><strong>${slot3.split(':')[0]}:</strong> ${slot3.split(':').slice(1).join(':')}</li>` : ''}
+                        ${slot4 ? `<li><strong>${slot4.split(':')[0]}:</strong> ${slot4.split(':').slice(1).join(':')}</li>` : ''}
                     </ul>
                 </div>
                 ${!isPromo ? `
                 <div class="service-buttons">
-                    <button class="btn-ordenar" data-service-id="${service.id}">Ordenar</button>
-                    <button class="btn-add-to-cart" data-service-id="${service.id}">Añadir al carrito</button>
+                    <button class="btn-ordenar" data-service-id="${service.id}">${currentLanguage === 'es' ? 'Ordenar' : 'Order'}</button>
+                    <button class="btn-add-to-cart" data-service-id="${service.id}">${currentLanguage === 'es' ? 'Añadir al carrito' : 'Add to cart'}</button>
                 </div>
                 ` : ''}
             </div>
         `;
 
-        // Combinar todo el contenido
         serviceCard.innerHTML = headerContent + detailsAndButtons;
         container.appendChild(serviceCard);
     });
 
-    // Configurar event listeners para los botones
     setupServiceButtons();
 }
 
@@ -863,44 +878,92 @@ async function handleQuoteSubmission(e) {
 
     try {
         const formData = await collectFormData();
-        
-        if (!validateFormData(formData)) {
-            throw new Error('Please fill all required fields');
+        const quoteId = await generateId('mt');
+        let itemCounter = 1;
+        let itemsWithSubIds = [];
+
+        if (formData.packageType === 'Artículo Común' && formData.commonItems) {
+            itemsWithSubIds = formData.commonItems.flatMap(item => {
+                const items = [];
+                const quantity = item.quantity || 1;
+                
+                for (let i = 0; i < quantity; i++) {
+                    const itemData = {
+                        id: item.id,
+                        subId: `${quoteId}-${itemCounter++}`,
+                        name: item.name,
+                        dimensions: item.dimensions, // Mantenemos el formato de cadena existente
+                        weight: item.weight,
+                        price: item.price,
+                        commercialValue: item.price || 0, // Usamos el precio como valor comercial
+                        iconUrl: item.iconUrl || "https://firebasestorage.googleapis.com/v0/b/meetransportation.firebasestorage.app/o/icons%2Fcaja_icon_1.png?alt=media&token=203a7bd1-d2ea-4cc2-bc86-c2772382b363"
+                    };
+                    
+                    Object.keys(itemData).forEach(key => {
+                        if (itemData[key] === undefined) {
+                            delete itemData[key];
+                        }
+                    });
+                    
+                    items.push(itemData);
+                }
+                return items;
+            });
+        } else if (formData.packageType === 'Personalizado' && formData.customItem) {
+            // Crear array de items para artículos personalizados
+            const dimensionsStr = `"${formData.customItem.length}" x "${formData.customItem.width}" x "${formData.customItem.height}"`;
+            
+            itemsWithSubIds = [{
+                subId: `${quoteId}-${itemCounter++}`,
+                name: formData.customItem.item || "Artículo personalizado",
+                dimensions: dimensionsStr,
+                weight: formData.customItem.weight,
+                price: 0, // Para artículos personalizados, el precio se calcula después
+                commercialValue: formData.customItem.commercialValue || 0,
+                iconUrl: "https://firebasestorage.googleapis.com/v0/b/meetransportation.firebasestorage.app/o/icons%2Fcaja_icon_2.png?alt=media&token=4f2e5a1a-adaa-4156-86b8-f26eafa2ad48"
+            }];
         }
 
-        const orderId = await generateId('mt');
-        const orderData = {
-            ...formData,
-            orderId: orderId,
+        // Preparar datos de la cotización
+        const quoteData = {
+            quoteId: quoteId,
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            packageType: formData.packageType,
+            origin: formData.origin,
+            destination: formData.destination,
+            message: formData.message || null,
+            items: itemsWithSubIds,
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             status: 'quotes-pending',
-            estimatedPrice: calculateEstimatedPrice(formData.packageType, formData.commonItems || formData.customItem)
+            estimatedPrice: calculateEstimatedPrice(formData.packageType, itemsWithSubIds.length > 0 ? itemsWithSubIds : formData.customItem)
         };
 
-        // Añadir userId solo si hay un usuario autenticado
+        // Agregar userId si está autenticado
         if (currentUser) {
-            orderData.userId = currentUser.uid;
+            quoteData.userId = currentUser.uid;
         }
+
+        // Limpiar campos undefined
+        Object.keys(quoteData).forEach(key => {
+            if (quoteData[key] === undefined) {
+                delete quoteData[key];
+            }
+        });
 
         // Guardar en quotes
-        await db.collection('quotes').doc(orderId).set(orderData);
+        await db.collection('quotes').doc(quoteId).set(quoteData);
 
-        // Si hay usuario autenticado, guardar también en userOrders
+        // Si hay usuario autenticado, guardar también en userQuotes
         if (currentUser) {
-            await db.collection('users').doc(currentUser.uid).collection('userOrders').doc(orderId).set({
-                ...orderData,
-                userId: currentUser.uid
-            });
+            await db.collection('users').doc(currentUser.uid).collection('userQuotes').doc(quoteId).set(quoteData);
         }
 
-        // Resetear el formulario
         quoteForm.reset();
         customPackageDiv.classList.remove('show');
-        
-        // Resetear la selección de artículos comunes
         resetCommonItemsSelection();
         
-        // Si hay usuario logueado, rellenar automáticamente los campos
         if (currentUser) {
             fillQuoteFormWithUserData(
                 await getUserData(currentUser.uid), 
@@ -1086,8 +1149,6 @@ async function collectFormData() {
             const commonItemsValue = document.getElementById('commonItemType').value;
             if (commonItemsValue) {
                 const items = JSON.parse(commonItemsValue);
-
-                // Obtener los artículos comunes de Firestore para incluir las URLs de las imágenes
                 const snapshot = await db.collection('CommonItems').get();
                 const commonItemsData = {};
                 snapshot.forEach(doc => {
@@ -1095,16 +1156,20 @@ async function collectFormData() {
                 });
 
                 formData.commonItems = items.map(item => ({
-                    ...item,
+                    id: item.id,
+                    name: item.name,
+                    dimensions: item.dimensions,
+                    dimensionsArray: item.dimensionsArray,
                     weight: parseFloat(item.weight) || 0,
-                    iconUrl: commonItemsData[item.id]?.icon || '' // Usar la URL de Firebase Storage
+                    price: item.price,
+                    iconUrl: commonItemsData[item.id]?.icon || '',
+                    quantity: item.quantity || 1  // Mantenemos quantity para el frontend
                 }));
             }
         } catch (e) {
             console.error('Error parsing common items:', e);
         }
     }
-    // Resto de la función permanece igual...
     else if (packageType === 'Personalizado') {
         formData.customItem = {
             item: document.getElementById('item').value.trim(),
@@ -1707,3 +1772,28 @@ document.getElementById('comprar-arroz-tanque-content').addEventListener('click'
         showModal(document.getElementById('orderItemsModal'));
     }
 });
+
+
+// Ajustar el botón de WhatsApp cerca del copyright
+function adjustWhatsAppButton() {
+    const whatsappBtn = document.querySelector('.whatsapp-float');
+    const copyright = document.querySelector('.copyright');
+    
+    if (!copyright || !whatsappBtn) return;
+    
+    const copyrightRect = copyright.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const distanceToCopyright = copyrightRect.top - viewportHeight;
+    
+    // Si el copyright está visible o cerca (100px antes de que aparezca)
+    if (distanceToCopyright < 100) {
+        whatsappBtn.classList.add('near-copyright');
+    } else {
+        whatsappBtn.classList.remove('near-copyright');
+    }
+}
+
+// Ejecutar al cargar y al hacer scroll/resize
+window.addEventListener('load', adjustWhatsAppButton);
+window.addEventListener('scroll', adjustWhatsAppButton);
+window.addEventListener('resize', adjustWhatsAppButton);
