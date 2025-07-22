@@ -13,6 +13,7 @@ const firebaseConfig = {
 const app = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+const storage = firebase.storage();
 
 // Proveedor Google
 const googleProvider = new firebase.auth.GoogleAuthProvider();
@@ -89,9 +90,30 @@ const customPackageDiv = document.getElementById('customPackage');
 const commonItemDiv = document.getElementById('commonItemDiv');
 
 // Funciones del carrito
+// Para el contador
 function updateCartCount() {
     const count = cart.reduce((total, item) => total + (item.quantity || 1), 0);
     document.getElementById('cartCount').textContent = count;
+    // Si tienes un segundo contador con ID diferente
+    const cartCount2 = document.getElementById('cartCount2');
+    if (cartCount2) cartCount2.textContent = count;
+}
+
+// Para los botones
+document.getElementById('cartBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    renderCartItems();
+    showModal(document.getElementById('cartModal'));
+});
+
+// Si tienes un segundo botón con ID diferente
+const cartBtn2 = document.getElementById('cartBtn2');
+if (cartBtn2) {
+    cartBtn2.addEventListener('click', function(e) {
+        e.preventDefault();
+        renderCartItems();
+        showModal(document.getElementById('cartModal'));
+    });
 }
 
 function renderCartItems() {
@@ -120,17 +142,23 @@ function renderCartItems() {
         itemElement.style.padding = '10px';
         itemElement.style.borderBottom = '1px solid #eee';
 
+        // Mostrar la imagen si existe, o una imagen por defecto si no
+        const itemImage = item.icon || item.iconUrl || './img/placeholder-item.png';
+
         itemElement.innerHTML = `
-            <div style="flex: 1;">
-                <div style="font-weight: bold;">${item.name}</div>
-                <div style="font-size: 0.9em; color: #666;">${item.price}</div>
+            <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+                <img src="${itemImage}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: contain; border-radius: 5px;">
+                <div style="flex: 1;">
+                    <div style="font-weight: bold;">${item.name}</div>
+                    <div style="font-size: 0.9em; color: #666;">USD$${item.price}</div>
+                </div>
             </div>
             <div style="display: flex; align-items: center;">
-                <button class="change-quantity" data-index="${index}" data-change="-1" style="background: none; border: 1px solid #ddd; width: 25px; height: 25px; cursor: pointer;">-</button>
-                <span style="margin: 0 10px;">${quantity}</span>
-                <button class="change-quantity" data-index="${index}" data-change="1" style="background: none; border: 1px solid #ddd; width: 25px; height: 25px; cursor: pointer;">+</button>
+                <button class="change-quantity" data-index="${index}" data-change="-1">-</button>
+               <span style="margin: 0 10px;background: #0000001c;padding: 0rem 1rem;border-radius: 6px;">${quantity}</span>
+                <button class="change-quantity" data-index="${index}" data-change="1">+</button>
                 <button class="remove-item" data-index="${index}" style="background: none; border: none; color: var(--accent); margin-left: 15px; cursor: pointer;">
-                    <i class="fas fa-trash"></i>
+                    <i class="fas fa-trash" style="font-size: 1.2rem;"></i>
                 </button>
             </div>
         `;
@@ -165,7 +193,7 @@ function addToCart(service) {
     // Mostrar notificación
     const notification = document.createElement('div');
     notification.style.position = 'fixed';
-    notification.style.bottom = '20px';
+    notification.style.top = '60px';
     notification.style.right = '20px';
     notification.style.backgroundColor = 'var(--success)';
     notification.style.color = 'white';
@@ -283,38 +311,41 @@ function renderServices(services, container) {
             ? `<div class="service-price">${service.price}</div>` // Texto directo para promos
             : `<div class="service-price">US$${service.price}</div>`; // Formato USD para regulares
 
-        let cardContent = `
-            <div class="service-title">${service.name}</div>
-            ${priceContent}
-            <ul class="service-details">
-                ${service.slot1 ? `<li><strong>${service.slot1.split(':')[0]}:</strong> ${service.slot1.split(':').slice(1).join(':')}</li>` : ''}
-                ${service.slot2 ? `<li><strong>${service.slot2.split(':')[0]}:</strong> ${service.slot2.split(':').slice(1).join(':')}</li>` : ''}
-                ${service.slot3 ? `<li><strong>${service.slot3.split(':')[0]}:</strong> ${service.slot3.split(':').slice(1).join(':')}</li>` : ''}
-                ${service.slot4 ? `<li><strong>${service.slot4.split(':')[0]}:</strong> ${service.slot4.split(':').slice(1).join(':')}</li>` : ''}
-            </ul>
+        // Div para icono, título y precio (header solo)
+        const headerContent = `
+            <div class="service-header">
+                ${!isPromo && service.icon ? `<div class="service-icon"><img src="${service.icon}" alt="${service.name}"></div>` : ''}
+                <div class="service-title">${service.name}</div>
+                ${priceContent}
+            </div>
         `;
 
-        if (!isPromo && service.icon) {
-            cardContent = `
-                <div class="service-icon"><img src="${service.icon}" alt="${service.name}"></div>
-                ${cardContent}
-            `;
-        }
-
-        if (!isPromo) {
-            cardContent += `
-                <div style="display: flex; justify-content: center; gap: 10px; width: 100%; margin-top: 10px;">
-                    <button class="btn-ordenar" data-service-id="${service.id}">Ordenar</button>
-                    <button class="btn-add-to-cart" data-service-id="${service.id}" style="background: var(--primary); color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">Añadir al carrito</button>
+        // Contenedor para detalles y botones juntos
+        const detailsAndButtons = `
+            <div class="service-details-buttons-container">
+                <div class="service-details-container">
+                    <ul class="service-details">
+                        ${service.slot1 ? `<li><strong>${service.slot1.split(':')[0]}:</strong> ${service.slot1.split(':').slice(1).join(':')}</li>` : ''}
+                        ${service.slot2 ? `<li><strong>${service.slot2.split(':')[0]}:</strong> ${service.slot2.split(':').slice(1).join(':')}</li>` : ''}
+                        ${service.slot3 ? `<li><strong>${service.slot3.split(':')[0]}:</strong> ${service.slot3.split(':').slice(1).join(':')}</li>` : ''}
+                        ${service.slot4 ? `<li><strong>${service.slot4.split(':')[0]}:</strong> ${service.slot4.split(':').slice(1).join(':')}</li>` : ''}
+                    </ul>
                 </div>
-            `;
-        }
+                ${!isPromo ? `
+                <div class="service-buttons">
+                    <button class="btn-ordenar" data-service-id="${service.id}">Ordenar</button>
+                    <button class="btn-add-to-cart" data-service-id="${service.id}">Añadir al carrito</button>
+                </div>
+                ` : ''}
+            </div>
+        `;
 
-        serviceCard.innerHTML = cardContent;
+        // Combinar todo el contenido
+        serviceCard.innerHTML = headerContent + detailsAndButtons;
         container.appendChild(serviceCard);
     });
 
-    // Configurar event listeners para los botones (igual que en tu código original)
+    // Configurar event listeners para los botones
     setupServiceButtons();
 }
 
@@ -381,6 +412,7 @@ function setupServiceButtons() {
 }
 
 // Función para cargar los artículos comunes
+// Función para cargar los artículos comunes desde Firebase con caché
 async function loadCommonItems() {
     const container = document.getElementById('commonItemsContainer');
     container.innerHTML = '<p>Cargando artículos...</p>';
@@ -388,6 +420,35 @@ async function loadCommonItems() {
     const selectedItemsContainer = document.createElement('div');
     selectedItemsContainer.className = 'selected-items-container';
     container.parentNode.insertBefore(selectedItemsContainer, container.nextSibling);
+
+    // Verificar si hay datos en el localStorage
+    const cachedItems = localStorage.getItem('cachedCommonItems');
+    const lastUpdated = localStorage.getItem('commonItemsLastUpdated');
+    const now = new Date().getTime();
+    const oneHour = 60 * 60 * 1000; // 1 hora en milisegundos
+
+    // Mostrar datos cacheados si son recientes (menos de 1 hora)
+    if (cachedItems && lastUpdated && (now - parseInt(lastUpdated)) < oneHour) {
+        try {
+            const items = JSON.parse(cachedItems);
+            renderCommonItems(items, container, selectedItemsContainer);
+        } catch (e) {
+            console.error('Error parsing cached common items:', e);
+            // Si hay error al parsear, cargar desde Firebase
+            loadCommonItemsFromFirebase(container, selectedItemsContainer);
+        }
+    } else {
+        // No hay caché o está desactualizado, cargar desde Firebase
+        loadCommonItemsFromFirebase(container, selectedItemsContainer);
+    }
+
+    // Configurar listener en tiempo real para actualizaciones
+    setupCommonItemsRealtimeListener(container, selectedItemsContainer);
+}
+
+// Función para cargar artículos comunes desde Firebase
+async function loadCommonItemsFromFirebase(container, selectedItemsContainer) {
+    container.innerHTML = '<p>Cargando artículos...</p>';
 
     try {
         const snapshot = await db.collection('CommonItems').get();
@@ -397,104 +458,137 @@ async function loadCommonItems() {
             return;
         }
 
-        container.innerHTML = '';
+        const items = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
 
-        snapshot.forEach(doc => {
-            const item = doc.data();
-            const btn = document.createElement('button');
-            btn.className = 'common-item-btn';
-            btn.type = 'button';
-            btn.dataset.id = doc.id;
+        // Guardar en caché
+        localStorage.setItem('cachedCommonItems', JSON.stringify(items));
+        localStorage.setItem('commonItemsLastUpdated', new Date().getTime().toString());
 
-            // Formatear dimensiones si es un array
-            let dimensionsText = item.dimensions;
-            if (Array.isArray(item.dimensions)) {
-                dimensionsText = item.dimensions.join('" x ') + '"';
-            }
+        // Renderizar artículos
+        renderCommonItems(items, container, selectedItemsContainer);
 
-            // Mostrar peso si existe
-            const weightText = item.weight ? `${item.weight} lbs` : 'N/A';
-
-            btn.innerHTML = `
-                <img src="${item.icon}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: contain;">
-                <span class="item-name">${item.name}</span>
-                <span class="item-dimensions">${dimensionsText}</span>
-                <span class="item-weight">${weightText}</span>
-            `;
-
-            btn.addEventListener('click', () => {
-                const existingItem = selectedItemsContainer.querySelector(`[data-id="${doc.id}"]`);
-
-                if (existingItem) {
-                    // Si ya existe, lo removemos
-                    existingItem.remove();
-                    btn.classList.remove('selected');
-                    updateSelectedItemsField(selectedItemsContainer);
-                    return;
-                }
-
-                // Agregamos la clase selected al botón
-                btn.classList.add('selected');
-
-                const selectedItem = document.createElement('div');
-                selectedItem.className = 'selected-item';
-                selectedItem.dataset.id = doc.id;
-
-                // Obtener dimensiones predeterminadas
-                const defaultDims = Array.isArray(item.dimensions) ? item.dimensions : [0, 0, 0];
-                const defaultWeight = item.weight || 0;
-
-                selectedItem.innerHTML = `
-                    <img src="${item.icon}" alt="${item.name}">
-                    <div class="item-info">
-                        <span id="item-info-name">${item.name}</span>
-                        <div class="dimension-inputs">
-                            <div>
-                                <label>Largo (pulg):</label>
-                                <input type="number" class="dimension-input" data-dim="length" value="${defaultDims[0]}" min="1">
-                            </div>
-                            <div>
-                                <label>Ancho (pulg):</label>
-                                <input type="number" class="dimension-input" data-dim="width" value="${defaultDims[1]}" min="1">
-                            </div>
-                            <div>
-                                <label>Alto (pulg):</label>
-                                <input type="number" class="dimension-input" data-dim="height" value="${defaultDims[2]}" min="1">
-                            </div>
-                            <div>
-                                <label style="color: #ff6000;">Peso (lbs):</label>
-                                <input type="number" class="weight-input" value="${defaultWeight}" min="1">
-                            </div>
-                            <div>
-                                <label style="color: #0089cd;">Cantidad:</label>
-                                <input type="number" class="item-quantity" value="1" min="1" data-price="${item.price || 0}">
-                            </div>
-                            <div>
-                                <span class="remove-item" onclick="removeSelectedItem('${doc.id}')">×</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                // Agregar event listeners para los inputs
-                selectedItem.querySelectorAll('.dimension-input, .weight-input').forEach(input => {
-                    input.addEventListener('change', () => updateSelectedItemsField(selectedItemsContainer));
-                });
-
-                selectedItem.querySelector('.item-quantity').addEventListener('change', () => {
-                    updateSelectedItemsField(selectedItemsContainer);
-                });
-
-                selectedItemsContainer.appendChild(selectedItem);
-                updateSelectedItemsField(selectedItemsContainer);
-            });
-
-            container.appendChild(btn);
-        });
     } catch (error) {
         console.error('Error loading common items:', error);
         container.innerHTML = '<p>Error al cargar los artículos</p>';
     }
+}
+
+// Función para configurar el listener en tiempo real de artículos comunes
+function setupCommonItemsRealtimeListener(container, selectedItemsContainer) {
+    db.collection('CommonItems')
+        .onSnapshot(snapshot => {
+            const items = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+            // Actualizar caché
+            localStorage.setItem('cachedCommonItems', JSON.stringify(items));
+            localStorage.setItem('commonItemsLastUpdated', new Date().getTime().toString());
+
+            // Si la página está visible, actualizar la UI
+            if (!document.hidden) {
+                renderCommonItems(items, container, selectedItemsContainer);
+            }
+        }, error => {
+            console.error('Error en listener de artículos comunes:', error);
+        });
+}
+
+// Función para renderizar los artículos comunes (extraída de la lógica original)
+function renderCommonItems(items, container, selectedItemsContainer) {
+    container.innerHTML = '';
+
+    items.forEach(item => {
+        const btn = document.createElement('button');
+        btn.className = 'common-item-btn';
+        btn.type = 'button';
+        btn.dataset.id = item.id;
+
+        // Formatear dimensiones si es un array
+        let dimensionsText = item.dimensions;
+        if (Array.isArray(item.dimensions)) {
+            dimensionsText = item.dimensions.join('" x ') + '"';
+        }
+
+        // Mostrar peso si existe
+        const weightText = item.weight ? `${item.weight} lbs` : 'N/A';
+
+        btn.innerHTML = `
+            <img src="${item.icon || 'https://via.placeholder.com/50'}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: contain;">
+            <span class="item-name">${item.name}</span>
+            <span class="item-dimensions">${dimensionsText}</span>
+            <span class="item-weight">${weightText}</span>
+        `;
+
+        btn.addEventListener('click', () => {
+            const existingItem = selectedItemsContainer.querySelector(`[data-id="${item.id}"]`);
+
+            if (existingItem) {
+                existingItem.remove();
+                btn.classList.remove('selected');
+                updateSelectedItemsField(selectedItemsContainer);
+                return;
+            }
+
+            btn.classList.add('selected');
+
+            const selectedItem = document.createElement('div');
+            selectedItem.className = 'selected-item';
+            selectedItem.dataset.id = item.id;
+
+            const defaultDims = Array.isArray(item.dimensions) ? item.dimensions : [0, 0, 0];
+            const defaultWeight = item.weight || 0;
+
+            selectedItem.innerHTML = `
+                <img src="${item.icon || 'https://via.placeholder.com/50'}" alt="${item.name}">
+                <div class="item-info">
+                    <span id="item-info-name">${item.name}</span>
+                    <div class="dimension-inputs">
+                        <div>
+                            <label>Largo (pulg):</label>
+                            <input type="number" class="dimension-input" data-dim="length" value="${defaultDims[0]}" min="1">
+                        </div>
+                        <div>
+                            <label>Ancho (pulg):</label>
+                            <input type="number" class="dimension-input" data-dim="width" value="${defaultDims[1]}" min="1">
+                        </div>
+                        <div>
+                            <label>Alto (pulg):</label>
+                            <input type="number" class="dimension-input" data-dim="height" value="${defaultDims[2]}" min="1">
+                        </div>
+                        <div>
+                            <label style="color: #ff6000;">Peso (lbs):</label>
+                            <input type="number" class="weight-input" value="${defaultWeight}" min="1">
+                        </div>
+                        <div>
+                            <label style="color: #0089cd;">Cantidad:</label>
+                            <input type="number" class="item-quantity" value="1" min="1" data-price="${item.price || 0}">
+                        </div>
+                        <div>
+                            <span class="remove-item" onclick="removeSelectedItem('${item.id}')">×</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            selectedItem.querySelectorAll('.dimension-input, .weight-input').forEach(input => {
+                input.addEventListener('change', () => updateSelectedItemsField(selectedItemsContainer));
+            });
+
+            selectedItem.querySelector('.item-quantity').addEventListener('change', () => {
+                updateSelectedItemsField(selectedItemsContainer);
+            });
+
+            selectedItemsContainer.appendChild(selectedItem);
+            updateSelectedItemsField(selectedItemsContainer);
+        });
+
+        container.appendChild(btn);
+    });
 }
 
 // Función para eliminar un artículo seleccionado
@@ -562,6 +656,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+    
 
     // Address country change listeners
     document.getElementById('country')?.addEventListener('change', function() {
@@ -686,6 +781,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    
+
     // Inicializar el contador del carrito
     updateCartCount();
 
@@ -756,10 +853,9 @@ async function signInWithGoogle() {
     }
 }
 
-// Handle quote form submission
+
 async function handleQuoteSubmission(e) {
     e.preventDefault();
-
     const submitBtn = e.target.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
     submitBtn.textContent = 'Sending...';
@@ -767,39 +863,99 @@ async function handleQuoteSubmission(e) {
 
     try {
         const formData = await collectFormData();
-        
-        if (!validateFormData(formData)) {
-            throw new Error('Please fill all required fields');
+        const quoteId = await generateId('mt');
+        let itemCounter = 1;
+        let itemsWithSubIds = [];
+
+        if (formData.packageType === 'Artículo Común' && formData.commonItems) {
+            itemsWithSubIds = formData.commonItems.flatMap(item => {
+                const items = [];
+                const quantity = item.quantity || 1;
+                
+                for (let i = 0; i < quantity; i++) {
+                    const itemData = {
+                        id: item.id,
+                        subId: `${quoteId}-${itemCounter++}`,
+                        name: item.name,
+                        dimensions: item.dimensions, // Mantenemos el formato de cadena existente
+                        weight: item.weight,
+                        price: item.price,
+                        commercialValue: item.price || 0, // Usamos el precio como valor comercial
+                        iconUrl: item.iconUrl || "https://firebasestorage.googleapis.com/v0/b/meetransportation.firebasestorage.app/o/icons%2Fcaja_icon_1.png?alt=media&token=203a7bd1-d2ea-4cc2-bc86-c2772382b363"
+                    };
+                    
+                    Object.keys(itemData).forEach(key => {
+                        if (itemData[key] === undefined) {
+                            delete itemData[key];
+                        }
+                    });
+                    
+                    items.push(itemData);
+                }
+                return items;
+            });
+        } else if (formData.packageType === 'Personalizado' && formData.customItem) {
+            // Crear array de items para artículos personalizados
+            const dimensionsStr = `"${formData.customItem.length}" x "${formData.customItem.width}" x "${formData.customItem.height}"`;
+            
+            itemsWithSubIds = [{
+                subId: `${quoteId}-${itemCounter++}`,
+                name: formData.customItem.item || "Artículo personalizado",
+                dimensions: dimensionsStr,
+                weight: formData.customItem.weight,
+                price: 0, // Para artículos personalizados, el precio se calcula después
+                commercialValue: formData.customItem.commercialValue || 0,
+                iconUrl: "https://firebasestorage.googleapis.com/v0/b/meetransportation.firebasestorage.app/o/icons%2Fcaja_icon_2.png?alt=media&token=4f2e5a1a-adaa-4156-86b8-f26eafa2ad48"
+            }];
         }
 
-        // Generar el ID único usando la nueva función
-        const orderId = await generateId('mt');
-        
-        // Crear objeto de orden con status "quotes-pending"
-        const orderData = {
-            ...formData,
-            orderId: orderId,
+        // Preparar datos de la cotización
+        const quoteData = {
+            quoteId: quoteId,
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            packageType: formData.packageType,
+            origin: formData.origin,
+            destination: formData.destination,
+            message: formData.message || null,
+            items: itemsWithSubIds,
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             status: 'quotes-pending',
-            estimatedPrice: calculateEstimatedPrice(formData.packageType, formData.commonItems || formData.customItem)
+            estimatedPrice: calculateEstimatedPrice(formData.packageType, itemsWithSubIds.length > 0 ? itemsWithSubIds : formData.customItem)
         };
 
-        // Si el usuario está autenticado, agregar su ID
+        // Agregar userId si está autenticado
         if (currentUser) {
-            orderData.userId = currentUser.uid;
+            quoteData.userId = currentUser.uid;
         }
 
-        // Guardar en la colección principal de quotes
-        await db.collection('quotes').doc(orderId).set(orderData);
+        // Limpiar campos undefined
+        Object.keys(quoteData).forEach(key => {
+            if (quoteData[key] === undefined) {
+                delete quoteData[key];
+            }
+        });
 
-        // Si el usuario está autenticado, guardar también en su subcolección
+        // Guardar en quotes
+        await db.collection('quotes').doc(quoteId).set(quoteData);
+
+        // Si hay usuario autenticado, guardar también en userQuotes
         if (currentUser) {
-            await db.collection('users').doc(currentUser.uid).collection('orders').doc(orderId).set(orderData);
-            await updateUserProfile(formData);
+            await db.collection('users').doc(currentUser.uid).collection('userQuotes').doc(quoteId).set(quoteData);
         }
 
         quoteForm.reset();
         customPackageDiv.classList.remove('show');
+        resetCommonItemsSelection();
+        
+        if (currentUser) {
+            fillQuoteFormWithUserData(
+                await getUserData(currentUser.uid), 
+                currentUser
+            );
+        }
+
         showModal(successModal);
 
     } catch (error) {
@@ -810,6 +966,25 @@ async function handleQuoteSubmission(e) {
         submitBtn.disabled = false;
     }
 }
+
+
+// Nueva función para resetear la selección de artículos comunes
+function resetCommonItemsSelection() {
+    const container = document.querySelector('.selected-items-container');
+    if (container) {
+        container.innerHTML = '';
+    }
+    
+    document.getElementById('commonItemType').value = '';
+    
+    // Remover la clase 'selected' de todos los botones
+    document.querySelectorAll('.common-item-btn.selected').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+}
+
+
+
 
 // Función para generar el ID único (ahora compartido entre quotes y orders)
 async function generateId(prefix = 'mt') {
@@ -941,30 +1116,24 @@ function generateNextId(datePart, lastLetter, lastNumber) {
 // Collect form data
 async function collectFormData() {
     const packageType = document.querySelector('input[name="package"]:checked').value;
-
-    // Obtener el número de teléfono limpio (con código de país pero sin formato)
     const phoneInput = document.getElementById('phone');
     const cleanPhone = window.getCleanPhoneNumber(phoneInput);
 
-    // Basic data
     const formData = {
         name: document.getElementById('name').value.trim(),
         email: document.getElementById('email').value.trim(),
-        phone: cleanPhone,  // <-- Usamos el número limpio aquí
+        phone: cleanPhone,
         packageType: packageType,
         origin: document.getElementById('origin').value.trim(),
         destination: document.getElementById('destination').value.trim(),
         message: document.getElementById('message').value.trim()
     };
 
-    // If it's a common item
     if (packageType === 'Artículo Común') {
         try {
             const commonItemsValue = document.getElementById('commonItemType').value;
             if (commonItemsValue) {
                 const items = JSON.parse(commonItemsValue);
-
-                // Obtener los artículos comunes de Firestore para incluir los iconos
                 const snapshot = await db.collection('CommonItems').get();
                 const commonItemsData = {};
                 snapshot.forEach(doc => {
@@ -972,16 +1141,20 @@ async function collectFormData() {
                 });
 
                 formData.commonItems = items.map(item => ({
-                    ...item,
+                    id: item.id,
+                    name: item.name,
+                    dimensions: item.dimensions,
+                    dimensionsArray: item.dimensionsArray,
                     weight: parseFloat(item.weight) || 0,
-                    icon: commonItemsData[item.id]?.icon || '' // Incluir el icono en base64
+                    price: item.price,
+                    iconUrl: commonItemsData[item.id]?.icon || '',
+                    quantity: item.quantity || 1  // Mantenemos quantity para el frontend
                 }));
             }
         } catch (e) {
             console.error('Error parsing common items:', e);
         }
     }
-    // If it's a custom package
     else if (packageType === 'Personalizado') {
         formData.customItem = {
             item: document.getElementById('item').value.trim(),
@@ -1225,20 +1398,6 @@ async function logout() {
     }
 }
 
-// Update user profile
-async function updateUserProfile(formData) {
-    if (!currentUser) return;
-
-    try {
-        await db.collection('users').doc(currentUser.uid).update({
-            'profile.name': formData.name,
-            'profile.phone': formData.phone,
-            lastActivity: firebase.firestore.FieldValue.serverTimestamp()
-        });
-    } catch (error) {
-        console.error('Error updating profile:', error);
-    }
-}
 
 // En la función updateUIForLoggedInUser, añade el event listener para el modal de perfil
 function updateUIForLoggedInUser(user) {
@@ -1246,36 +1405,65 @@ function updateUIForLoggedInUser(user) {
     userProfile.style.display = 'inline-block';
     logoutBtn.style.display = 'inline-block';
 
-    // Get user data
+    // Cambiar el texto a "Mi perfil" en lugar del nombre del usuario
+    userProfile.textContent = 'Mi perfil';
+    userProfile.innerHTML = 'Mi perfil'; // Esto asegura que no haya HTML adicional
+
+    // Get user data (aunque ya no usaremos el nombre para mostrarlo)
     db.collection('users').doc(user.uid).get().then(doc => {
         if (doc.exists) {
             const userData = doc.data();
-            const fullName = userData.profile?.name || user.email;
-            const firstName = fullName.split(' ')[0];
-
-            // If user has Google photo, show it
-            if (user.photoURL) {
-                userProfile.innerHTML = `<img src="${user.photoURL}" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 5px; vertical-align: middle;"> ${firstName}`;
-            } else {
-                userProfile.textContent = firstName;
-            }
-
-            // Set click event for profile modal
-            userProfile.addEventListener('click', () => {
-                showProfileModal(user.uid);
-            });
-        } else {
-            // If no data in Firestore but user has Google photo
-            if (user.photoURL) {
-                userProfile.innerHTML = `<img src="${user.photoURL}" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 5px; vertical-align: middle;"> ${user.email.split('@')[0]}`;
-            } else {
-                userProfile.textContent = user.email.split('@')[0];
-            }
+            
+            // Auto-fill quote form with user data
+            fillQuoteFormWithUserData(userData, user);
         }
     }).catch(error => {
         console.error("Error getting user data:", error);
-        userProfile.textContent = user.email.split('@')[0];
+        fillQuoteFormWithUserData({}, user);
     });
+}
+
+
+// Modificar la función fillQuoteFormWithUserData para aceptar userData como parámetro
+function fillQuoteFormWithUserData(userData, user) {
+    // Fill name if available
+    if (userData?.profile?.name) {
+        document.getElementById('name').value = userData.profile.name;
+    } else if (user.displayName) {
+        document.getElementById('name').value = user.displayName;
+    }
+    
+    // Fill email
+    document.getElementById('email').value = user.email || '';
+    
+    // Fill phone if available
+    const phoneInput = document.getElementById('phone');
+    if (userData?.profile?.phone) {
+        try {
+            const phoneIti = window.intlTelInputGlobals.getInstance(phoneInput);
+            phoneIti.setNumber(userData.profile.phone);
+        } catch (e) {
+            console.error('Error setting phone number:', e);
+            phoneInput.value = userData.profile.phone;
+        }
+    }
+    
+    // Set a flag to know this is a logged-in user's quote
+    document.getElementById('quoteForm').dataset.userId = user.uid;
+}
+
+// Nueva función para obtener datos del usuario
+async function getUserData(userId) {
+    try {
+        const userDoc = await db.collection('users').doc(userId).get();
+        if (userDoc.exists) {
+            return userDoc.data();
+        }
+        return {};
+    } catch (error) {
+        console.error("Error getting user data:", error);
+        return {};
+    }
 }
 
 // Nueva función para mostrar el modal de perfil con datos editables
@@ -1324,6 +1512,7 @@ async function showProfileModal(userId) {
                 document.getElementById('profileZipCode').value = address.zipCode || '';
             }
             
+            
             // Configurar event listeners para los botones
             document.getElementById('saveProfileBtn').addEventListener('click', () => saveProfileChanges(userId));
             document.getElementById('deleteAccountBtn').addEventListener('click', () => confirmDeleteAccount(userId));
@@ -1335,6 +1524,8 @@ async function showProfileModal(userId) {
         console.error('Error loading profile:', error);
     }
 }
+
+
 
 // Función para guardar los cambios del perfil
 async function saveProfileChanges(userId) {
@@ -1557,3 +1748,12 @@ function getAuthErrorMessage(errorCode) {
             return 'Correo o contraseña incorrecta';
     }
 }
+
+
+// Event listeners para los botones de ordenar arroz/aceite y cajas/tanques
+document.getElementById('comprar-arroz-tanque-content').addEventListener('click', function(e) {
+    if (e.target.id === 'comprar-arroz-tanque-btn' || e.target.closest('#comprar-arroz-tanque-btn')) {
+        e.preventDefault();
+        showModal(document.getElementById('orderItemsModal'));
+    }
+});

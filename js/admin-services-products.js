@@ -3,32 +3,36 @@
 /**
  * Carga la tabla de servicios con datos de Firestore
  */
+// Función para cargar servicios
 function loadServicesTable() {
-    const table = $('#servicesTable').DataTable();
-    table.clear().draw();
-    
-    db.collection('services')
-        .orderBy('position', 'asc')
-        .get()
-        .then(snapshot => {
-            snapshot.forEach(doc => {
-                const service = doc.data();
-                
-                table.row.add([
-                    doc.id,
-                    service.name,
-                    service.price,
-                    service.type === 'promo' ? 'Promoción' : 'Regular',
-                    service.position,
-                    service.status === 'active' ? 'Activo' : 'Inactivo',
-                    `<button class="btn btn-outline edit-service" data-id="${doc.id}">Editar</button>
-                     <button class="btn btn-danger delete-service" data-id="${doc.id}">Eliminar</button>`
-                ]).draw(false);
+    return new Promise((resolve, reject) => {
+        handleTableLoading('servicesTable', () => {
+            return new Promise((innerResolve, innerReject) => {
+                db.collection('services')
+                    .orderBy('position', 'asc')
+                    .get()
+                    .then(snapshot => {
+                        const table = $('#servicesTable').DataTable();
+                        snapshot.forEach(doc => {
+                            const service = doc.data();
+                            table.row.add([
+                                doc.id,
+                                service.name,
+                                service.price,
+                                service.type === 'promo' ? 'Promoción' : 'Regular',
+                                service.position,
+                                service.status === 'active' ? 'Activo' : 'Inactivo',
+                                `<button class="btn btn-outline edit-service" data-id="${doc.id}">Editar</button>
+                                 <button class="btn btn-danger delete-service" data-id="${doc.id}">Eliminar</button>`
+                            ]).draw(false);
+                        });
+                        addServiceEventListeners();
+                        innerResolve();
+                    })
+                    .catch(innerReject);
             });
-            
-            // Agregar manejadores de eventos a los botones
-            addServiceEventListeners();
         });
+    });
 }
 
 /**
@@ -134,30 +138,33 @@ function saveService() {
  * Carga la tabla de productos con datos de Firestore
  */
 function loadProductsTable() {
-    const table = $('#productsTable').DataTable();
-    table.clear().draw();
-    
-    db.collection('CommonItems')
-        .get()
-        .then(snapshot => {
-            snapshot.forEach(doc => {
-                const product = doc.data();
-                
-                table.row.add([
-                    doc.id,
-                    product.icon ? `<img src="${product.icon}" width="50" height="50">` : 'N/A',
-                    product.name,
-                    Array.isArray(product.dimensions) ? product.dimensions.join('" x ') + '"' : product.dimensions,
-                    product.weight ? `${product.weight} lbs` : 'N/A',
-                    product.price ? `$${product.price}` : 'N/A',
-                    `<button class="btn btn-outline edit-product" data-id="${doc.id}">Editar</button>
-                     <button class="btn btn-danger delete-product" data-id="${doc.id}">Eliminar</button>`
-                ]).draw(false);
+    return new Promise((resolve, reject) => {
+        handleTableLoading('productsTable', () => {
+            return new Promise((innerResolve, innerReject) => {
+                db.collection('CommonItems')
+                    .get()
+                    .then(snapshot => {
+                        const table = $('#productsTable').DataTable();
+                        snapshot.forEach(doc => {
+                            const product = doc.data();
+                            table.row.add([
+                                doc.id,
+                                product.icon ? `<img src="${product.icon}" width="50" height="50">` : 'N/A',
+                                product.name,
+                                Array.isArray(product.dimensions) ? product.dimensions.join('" x ') + '"' : product.dimensions,
+                                product.weight ? `${product.weight} lbs` : 'N/A',
+                                product.price ? `$${product.price}` : 'N/A',
+                                `<button class="btn btn-outline edit-product" data-id="${doc.id}">Editar</button>
+                                 <button class="btn btn-danger delete-product" data-id="${doc.id}">Eliminar</button>`
+                            ]).draw(false);
+                        });
+                        addProductEventListeners();
+                        innerResolve();
+                    })
+                    .catch(innerReject);
             });
-            
-            // Agregar manejadores de eventos a los botones
-            addProductEventListeners();
         });
+    });
 }
 
 /**

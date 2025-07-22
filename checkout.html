@@ -1,28 +1,26 @@
 <!DOCTYPE html>
+
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout - Meetransportation</title>
-    <link rel="icon" href="./img/icon_favicon_meetax_1_2048x2048.png" type="image/png" sizes="any">
-    <!-- Firebase SDK -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app-compat.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-firestore-compat.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-auth-compat.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-functions-compat.min.js"></script>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Google Fonts -->
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
-    <!-- Stripe JS -->
-    <script src="https://js.stripe.com/v3/"></script>
-    <!-- International Telephone Input -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
-
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Checkout - Meetransportation</title>
+<link href="./img/icon_favicon_meetax_1_2048x2048.png" rel="icon" sizes="any" type="image/png"/>
+<!-- Firebase SDK -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-firestore-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-auth-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-functions-compat.min.js"></script>
+<!-- Font Awesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Stripe JS -->
+<script src="https://js.stripe.com/v3/"></script>
+<!-- International Telephone Input -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+<style>
         :root {
             --primary: #2c3e50;
             --secondary: #5cc528;
@@ -482,235 +480,227 @@ select.form-control.input-has-content {
     background-color: rgba(92, 197, 40, 0.1) !important;
     border-color: var(--secondary) !important;
 }
-    </style>
+    
+.free-items {
+    margin-top: 1rem;
+    padding-top: .5rem;
+    border-top: 2px dashed #ddd;
+    font-size: .95rem;
+}
+
+.free-items h4 {
+    font-weight: 600;
+    margin-bottom: .5rem;
+}
+
+.free-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: .25rem 0;
+}
+</style>
 </head>
-
 <body>
-    <div class="container">
-        <div class="checkout-container">
-            <!-- Formulario -->
-            <div class="form-section">
-                <div class="Modal-Title">
-                    <h3>Finalizar Pedido</h3>
-                </div>
-
-                <form id="orderForm">
-                    <h2 style="display: inline-flex;align-items: center;width: 100%;">Información del Remitente <img
-                            src="./img/Bandera_USA_1.png" style="height: 24px;margin: 0px 5px;"></h2>
-
-                    <div class="form-group">
-                        <label for="senderName">Nombre Completo:</label>
-                        <input type="text" id="senderName" class="form-control" placeholder="Nombre y Apellido"
-                            required>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="senderEmail">Correo Electrónico:</label>
-                            <input type="email" id="senderEmail" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="senderPhone">Número de Teléfono:</label>
-                            <input type="tel" id="senderPhone" class="form-control" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label style="color: #5cc528;">Dirección Completa (USA):</label>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="senderStreet">Dirección:</label>
-                                <input type="text" id="senderStreet" class="form-control" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="senderApt">Apt/Suite (opcional):</label>
-                                <input type="text" id="senderApt" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="senderCity">Ciudad:</label>
-                                <input type="text" id="senderCity" class="form-control" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="senderState">Estado:</label>
-                                <select id="senderState" class="form-control" required>
-                                    <option value="" disabled selected>Seleccione un estado</option>
-                                    <!-- Los estados se cargarán dinámicamente -->
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="senderZipCode">Código Postal:</label>
-                                <input type="text" id="senderZipCode" class="form-control" required>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="pickupDate">Fecha de Recogida:</label>
-                                <input type="date" id="pickupDate" class="form-control" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="pickupTime">Hora de Recogida:</label>
-                                <select id="pickupTime" class="form-control" required>
-                                    <option value="" disabled selected>Seleccione una hora</option>
-                                    <!-- Las opciones se llenarán dinámicamente -->
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <h2 style="display: inline-flex;align-items: center;width: 100%;">Información del Destinatario <img
-                            src="./img/Bandera_RD_1.png" style="height: 24px;margin: 0px 5px;"></h2>
-
-                    <div class="form-group">
-                        <label for="receiverName">Nombre Completo:</label>
-                        <input type="text" id="receiverName" class="form-control" placeholder="Nombre y Apellido"
-                            required>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="receiverPhone">Teléfono del Destinatario:</label>
-                            <input type="tel" id="receiverPhone" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="receiverCedula">Cédula del Destinatario:</label>
-                            <input type="text" id="receiverCedula" class="form-control" placeholder="000-0000000-0"
-                                required>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="receiverProvince">Provincia:</label>
-                        <select id="receiverProvince" class="form-control" required>
-                            <option value="" disabled selected>Seleccione una provincia</option>
-                            <option value="Distrito Nacional">Distrito Nacional</option>
-                            <option value="Santo Domingo">Santo Domingo</option>
-                            <option value="Santiago">Santiago</option>
-                            <option disabled>──────────</option>
-                            <option value="Azua">Azua</option>
-                            <option value="Bahoruco">Bahoruco</option>
-                            <option value="Barahona">Barahona</option>
-                            <option value="Dajabón">Dajabón</option>
-                            <option value="Duarte">Duarte</option>
-                            <option value="El Seibo">El Seibo</option>
-                            <option value="Elías Piña">Elías Piña</option>
-                            <option value="Espaillat">Espaillat</option>
-                            <option value="Hato Mayor">Hato Mayor</option>
-                            <option value="Hermanas Mirabal">Hermanas Mirabal</option>
-                            <option value="Independencia">Independencia</option>
-                            <option value="La Altagracia">La Altagracia</option>
-                            <option value="La Romana">La Romana</option>
-                            <option value="La Vega">La Vega</option>
-                            <option value="María Trinidad Sánchez">María Trinidad Sánchez</option>
-                            <option value="Monseñor Nouel">Monseñor Nouel</option>
-                            <option value="Monte Cristi">Monte Cristi</option>
-                            <option value="Monte Plata">Monte Plata</option>
-                            <option value="Pedernales">Pedernales</option>
-                            <option value="Peravia">Peravia</option>
-                            <option value="Puerto Plata">Puerto Plata</option>
-                            <option value="Samaná">Samaná</option>
-                            <option value="San Cristóbal">San Cristóbal</option>
-                            <option value="San José de Ocoa">San José de Ocoa</option>
-                            <option value="San Juan">San Juan</option>
-                            <option value="San Pedro de Macorís">San Pedro de Macorís</option>
-                            <option value="Sánchez Ramírez">Sánchez Ramírez</option>
-                            <option value="Santiago Rodríguez">Santiago Rodríguez</option>
-                            <option value="Valverde">Valverde</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="receiverAddress">Dirección Completa (RD):</label>
-                        <input type="text" id="receiverAddress" class="form-control" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="additionalNotes">Notas adicionales (opcional):</label>
-                        <textarea id="additionalNotes" class="form-control" rows="3"></textarea>
-                    </div>
-
-                    <!-- Elementos de Stripe para el formulario de tarjeta -->
-                    <div id="stripeCardElement">
-                        <div class="form-group">
-                            <label for="card-element">Información de la Tarjeta:</label>
-                            <div id="card-element" class="form-control"></div>
-                            <div id="card-errors" role="alert"></div>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn" id="submitOrderBtn">Confirmar Pedido</button>
-                </form>
-
-                <div id="successMessage" class="success-message" style="display: none;">
-                    <div class="success-icon">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <h2>¡Pedido Confirmado!</h2>
-                    <p id="orderConfirmationText">Hemos recibido tu pedido correctamente. Nos pondremos en contacto
+<div class="container">
+<div class="checkout-container">
+<!-- Formulario -->
+<div class="form-section">
+<div class="Modal-Title">
+<h3>Finalizar Pedido</h3>
+</div>
+<form id="orderForm">
+<h2 style="display: inline-flex;align-items: center;width: 100%;">Información del Remitente <img src="./img/Bandera_USA_1.png" style="height: 24px;margin: 0px 5px;"/></h2>
+<div class="form-group">
+<label for="senderName">Nombre Completo:</label>
+<input class="form-control" id="senderName" placeholder="Nombre y Apellido" required="" type="text"/>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label for="senderEmail">Correo Electrónico:</label>
+<input class="form-control" id="senderEmail" required="" type="email"/>
+</div>
+<div class="form-group">
+<label for="senderPhone">Número de Teléfono:</label>
+<input class="form-control" id="senderPhone" required="" type="tel"/>
+</div>
+</div>
+<div class="form-group">
+<label style="color: #5cc528;">Dirección Completa (USA):</label>
+<div class="form-row">
+<div class="form-group">
+<label for="senderStreet">Dirección:</label>
+<input class="form-control" id="senderStreet" required="" type="text"/>
+</div>
+<div class="form-group">
+<label for="senderApt">Apt/Suite (opcional):</label>
+<input class="form-control" id="senderApt" type="text"/>
+</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label for="senderCity">Ciudad:</label>
+<input class="form-control" id="senderCity" required="" type="text"/>
+</div>
+<div class="form-group">
+<label for="senderState">Estado:</label>
+<select class="form-control" id="senderState" required="">
+<option disabled="" selected="" value="">Seleccione un estado</option>
+<!-- Los estados se cargarán dinámicamente -->
+</select>
+</div>
+<div class="form-group">
+<label for="senderZipCode">Código Postal:</label>
+<input class="form-control" id="senderZipCode" required="" type="text"/>
+</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label for="pickupDate">Fecha de Recogida:</label>
+<input class="form-control" id="pickupDate" required="" type="date"/>
+</div>
+<div class="form-group">
+<label for="pickupTime">Hora de Recogida:</label>
+<select class="form-control" id="pickupTime" required="">
+<option disabled="" selected="" value="">Seleccione una hora</option>
+<!-- Las opciones se llenarán dinámicamente -->
+</select>
+</div>
+</div>
+</div>
+<h2 style="display: inline-flex;align-items: center;width: 100%;">Información del Destinatario <img src="./img/Bandera_RD_1.png" style="height: 24px;margin: 0px 5px;"/></h2>
+<div class="form-group">
+<label for="receiverName">Nombre Completo:</label>
+<input class="form-control" id="receiverName" placeholder="Nombre y Apellido" required="" type="text"/>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label for="receiverPhone">Teléfono del Destinatario:</label>
+<input class="form-control" id="receiverPhone" required="" type="tel"/>
+</div>
+<div class="form-group">
+<label for="receiverCedula">Cédula del Destinatario:</label>
+<input class="form-control" id="receiverCedula" placeholder="000-0000000-0" required="" type="text"/>
+</div>
+</div>
+<div class="form-group">
+<label for="receiverProvince">Provincia:</label>
+<select class="form-control" id="receiverProvince" required="">
+<option disabled="" selected="" value="">Seleccione una provincia</option>
+<option value="Distrito Nacional">Distrito Nacional</option>
+<option value="Santo Domingo">Santo Domingo</option>
+<option value="Santiago">Santiago</option>
+<option disabled="">──────────</option>
+<option value="Azua">Azua</option>
+<option value="Bahoruco">Bahoruco</option>
+<option value="Barahona">Barahona</option>
+<option value="Dajabón">Dajabón</option>
+<option value="Duarte">Duarte</option>
+<option value="El Seibo">El Seibo</option>
+<option value="Elías Piña">Elías Piña</option>
+<option value="Espaillat">Espaillat</option>
+<option value="Hato Mayor">Hato Mayor</option>
+<option value="Hermanas Mirabal">Hermanas Mirabal</option>
+<option value="Independencia">Independencia</option>
+<option value="La Altagracia">La Altagracia</option>
+<option value="La Romana">La Romana</option>
+<option value="La Vega">La Vega</option>
+<option value="María Trinidad Sánchez">María Trinidad Sánchez</option>
+<option value="Monseñor Nouel">Monseñor Nouel</option>
+<option value="Monte Cristi">Monte Cristi</option>
+<option value="Monte Plata">Monte Plata</option>
+<option value="Pedernales">Pedernales</option>
+<option value="Peravia">Peravia</option>
+<option value="Puerto Plata">Puerto Plata</option>
+<option value="Samaná">Samaná</option>
+<option value="San Cristóbal">San Cristóbal</option>
+<option value="San José de Ocoa">San José de Ocoa</option>
+<option value="San Juan">San Juan</option>
+<option value="San Pedro de Macorís">San Pedro de Macorís</option>
+<option value="Sánchez Ramírez">Sánchez Ramírez</option>
+<option value="Santiago Rodríguez">Santiago Rodríguez</option>
+<option value="Valverde">Valverde</option>
+</select>
+</div>
+<div class="form-group">
+<label for="receiverAddress">Dirección Completa (RD):</label>
+<input class="form-control" id="receiverAddress" required="" type="text"/>
+</div>
+<div class="form-group">
+<label for="additionalNotes">Notas adicionales (opcional):</label>
+<textarea class="form-control" id="additionalNotes" rows="3"></textarea>
+</div>
+<!-- Elementos de Stripe para el formulario de tarjeta -->
+<div id="stripeCardElement">
+<div class="form-group">
+<label for="card-element">Información de la Tarjeta:</label>
+<div class="form-control" id="card-element"></div>
+<div id="card-errors" role="alert"></div>
+</div>
+</div>
+<button class="btn" id="submitOrderBtn" type="submit">Confirmar Pedido</button>
+</form>
+<div class="success-message" id="successMessage" style="display: none;">
+<div class="success-icon">
+<i class="fas fa-check-circle"></i>
+</div>
+<h2>¡Pedido Confirmado!</h2>
+<p id="orderConfirmationText">Hemos recibido tu pedido correctamente. Nos pondremos en contacto
                         contigo para brindarte los detalles de seguimiento.</p>
-                    <p style="font-weight: 600; margin: 1rem 0;"><span style="color: var(--primary);">Número de
+<p style="font-weight: 600; margin: 1rem 0;"><span style="color: var(--primary);">Número de
                             Orden:</span> <span id="orderIdDisplay" style="color: var(--secondary);"></span></p>
-                    <a href="index.html" class="btn" style="margin-top: 1rem;">Volver al Inicio</a>
-                </div>
-            </div>
-
-            <!-- Resumen del Pedido -->
-            <div class="order-summary">
-                <div class="Modal-Title">
-                    <h3>Resumen del Pedido</h3>
-                </div>
-
-                <div class="Modal-Body">
-                    <div id="orderItemContainer"></div>
-                    <div class="order-total">
-                        <span>Total:</span>
-                        <span id="orderTotal"></span>
-                    </div>
-
-                    <div class="payment-options">
-                        <h2>Método de Pago</h2>
-
-                        <div class="payment-option" onclick="selectPayment('online')">
-                            <input type="radio" id="onlinePayment" name="payment" value="online" checked>
-                            <div class="payment-icon">
-                                <i class="fas fa-credit-card"></i>
-                            </div>
-                            <div class="payment-label">
-                                <label for="onlinePayment">Pagar en línea</label>
-                                <p style="font-size: 0.9rem; color: #666;">Tarjeta de crédito/débito</p>
-                            </div>
-                        </div>
-
-                        <div class="payment-option" onclick="selectPayment('pickup')">
-                            <input type="radio" id="pickupPayment" name="payment" value="pickup">
-                            <div class="payment-icon">
-                                <i class="fas fa-box-open"></i>
-                            </div>
-                            <div class="payment-label">
-                                <label for="pickupPayment">Pagar al recoger</label>
-                                <p style="font-size: 0.9rem; color: #666;">Paga cuando se vaya a recoger tu envío</p>
-                            </div>
-                        </div>
-
-                        <div class="payment-option" onclick="selectPayment('delivery')">
-                            <input type="radio" id="deliveryPayment" name="payment" value="delivery">
-                            <div class="payment-icon">
-                                <i class="fas fa-truck"></i>
-                            </div>
-                            <div class="payment-label">
-                                <label for="deliveryPayment">Pagar al recibir (RD)</label>
-                                <p style="font-size: 0.9rem; color: #666;">Paga en efectivo cuando recibas tu envío</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
+<a class="btn" href="index.html" style="margin-top: 1rem;">Volver al Inicio</a>
+</div>
+</div>
+<!-- Resumen del Pedido -->
+<div class="order-summary">
+<div class="Modal-Title">
+<h3>Resumen del Pedido</h3>
+</div>
+<div class="Modal-Body">
+<div id="orderItemContainer"></div><div class="free-items" id="freeItemsContainer"></div>
+<div class="order-total">
+<span>Total:</span>
+<span id="orderTotal"></span>
+</div>
+<div class="payment-options">
+<h2>Método de Pago</h2>
+<div class="payment-option" onclick="selectPayment('online')">
+<input checked="" id="onlinePayment" name="payment" type="radio" value="online"/>
+<div class="payment-icon">
+<i class="fas fa-credit-card"></i>
+</div>
+<div class="payment-label">
+<label for="onlinePayment">Pagar en línea</label>
+<p style="font-size: 0.9rem; color: #666;">Tarjeta de crédito/débito</p>
+</div>
+</div>
+<div class="payment-option" onclick="selectPayment('pickup')">
+<input id="pickupPayment" name="payment" type="radio" value="pickup"/>
+<div class="payment-icon">
+<i class="fas fa-box-open"></i>
+</div>
+<div class="payment-label">
+<label for="pickupPayment">Pagar al recoger</label>
+<p style="font-size: 0.9rem; color: #666;">Paga cuando se vaya a recoger tu envío</p>
+</div>
+</div>
+<div class="payment-option" onclick="selectPayment('delivery')">
+<input id="deliveryPayment" name="payment" type="radio" value="delivery"/>
+<div class="payment-icon">
+<i class="fas fa-truck"></i>
+</div>
+<div class="payment-label">
+<label for="deliveryPayment">Pagar al recibir (RD)</label>
+<p style="font-size: 0.9rem; color: #666;">Paga en efectivo cuando recibas tu envío</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
         // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDUPUM36QOLPGb-FmPx6-qMZoS2pCZdurI",
@@ -891,31 +881,34 @@ function checkInputContent() {
         });
 
 function generateTimeOptions() {
-  const pickupTimeSelect = document.getElementById('pickupTime');
-  pickupTimeSelect.innerHTML =
-    '<option value="" disabled selected>Seleccione una hora</option>';
+    const pickupTimeSelect = document.getElementById('pickupTime');
+    pickupTimeSelect.innerHTML = '<option value="" disabled selected>Seleccione una hora</option>';
 
-  const today = new Date();
-  const currentHour = today.getHours();
+    const timeSlots = [
+        { start: '07:00', end: '10:00', display: '7:00 a 10:00' },
+        { start: '10:00', end: '13:00', display: '10:00 a 13:00' },
+        { start: '13:00', end: '16:00', display: '13:00 a 16:00' },
+        { start: '16:00', end: '19:00', display: '16:00 a 19:00' },
+        { start: '19:00', end: '21:00', display: '19:00 a 21:00' }
+    ];
 
-  // «YYYY‑MM‑DD» seleccionado en el input
-  const selectedDateValue = document.getElementById('pickupDate').value;
-  // «YYYY‑MM‑DD» de la fecha actual en tu zona horaria
-  const todayValue = today.toISOString().split('T')[0];
+    const today = new Date();
+    const currentHour = today.getHours();
+    const selectedDateValue = document.getElementById('pickupDate').value;
+    const todayValue = today.toISOString().split('T')[0];
+    const isToday = selectedDateValue === todayValue;
 
-  const isToday = selectedDateValue === todayValue;
-
-  for (let hour = 8; hour <= 21; hour++) {
-    // Si no se ha escogido fecha, o la fecha no es hoy,
-    // o la hora está en el futuro (si es hoy) → mostrarla
-    if (!selectedDateValue || !isToday || hour > currentHour) {
-      const formatted = `${hour.toString().padStart(2, '0')}:00`;
-      const option = document.createElement('option');
-      option.value = formatted;
-      option.textContent = formatted;
-      pickupTimeSelect.appendChild(option);
-    }
-  }
+    timeSlots.forEach(slot => {
+        const slotStartHour = parseInt(slot.start.split(':')[0]);
+        
+        // Mostrar todos los slots si no es hoy, o si es hoy y el slot está en el futuro
+        if (!selectedDateValue || !isToday || slotStartHour > currentHour) {
+            const option = document.createElement('option');
+            option.value = `${slot.start} a ${slot.end}`; // Guardamos el formato completo
+            option.textContent = slot.display;
+            pickupTimeSelect.appendChild(option);
+        }
+    });
 }
 
 
@@ -1262,15 +1255,25 @@ async function processOnlinePayment() {
 }
 
 async function saveOrderToFirebase(orderId, orderData) {
-    // Guardar en la colección principal
+    // Limpiar datos antes de enviar
+    orderData.services = orderData.services.map(service => {
+        return {
+            id: service.id,
+            subId: service.subId,
+            name: service.name,
+            price: service.price,
+            numericPrice: service.numericPrice,
+            type: service.type,
+            icon: service.icon || null
+        };
+    });
+
     await db.collection('orders').doc(orderId).set(orderData);
 
-    // Guardar en userOrders si hay usuario autenticado
     if (auth.currentUser) {
         await saveUserOrder(auth.currentUser.uid, orderId, orderData);
     }
 
-    // Limpiar carrito y redirigir
     localStorage.setItem('lastOrderId', orderId);
     localStorage.removeItem('cart');
     
@@ -1280,6 +1283,7 @@ async function saveOrderToFirebase(orderId, orderData) {
         window.location.href = 'order-complete.html';
     }
 }
+
 
         function validateForm() {
             let isValid = true;
@@ -1309,24 +1313,92 @@ async function saveOrderToFirebase(orderId, orderData) {
         }
 
         // Función para preparar datos del pedido
-      async function prepareOrderData(orderId) {
+
+// ---- Variables para artículos gratis ----
+let freeItems = [];
+let selectedFreeItems = [];
+// -----------------------------------------
+
+async function loadFreeItems() {
+    try {
+        const snapshot = await db.collection('otherItems').get();
+        freeItems = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderFreeItems();
+    } catch (error) {
+        console.error('Error al cargar artículos gratis:', error);
+    }
+}
+
+function renderFreeItems() {
+    const container = document.getElementById('freeItemsContainer');
+    if (!container) return;
+
+    container.innerHTML = `
+        <h4>Agregar envío gratis de artículo:</h4>
+        ${freeItems.map(item => `
+            <div class="free-item-row">
+                <span>${item.name}</span>
+                <input type="checkbox" data-id="${item.id}">
+            </div>
+        `).join('')}
+    `;
+
+    container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', e => {
+            const id = e.target.dataset.id;
+            if (e.target.checked) {
+                selectedFreeItems.push(id);
+            } else {
+                selectedFreeItems = selectedFreeItems.filter(x => x !== id);
+            }
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    loadFreeItems(); // cargar artículos gratis
+});
+
+async function prepareOrderData(orderId) {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
     let services = [];
     let totalPrice = 0;
+    let itemCounter = 1;
+    // ---- Agregar artículos gratis seleccionados ----
+    selectedFreeItems.forEach(id => {
+        const item = freeItems.find(x => x.id === id);
+        if (item) {
+            services.push({
+                id: item.id,
+                subId: `${orderId}-${itemCounter++}`,
+                name: item.name,
+                price: 'Gratis',
+                numericPrice: 0,
+                type: item.type,
+                icon: item.icon || null
+            });
+        }
+    });
+    // -----------------------------------------------
 
-    services = cart.map(item => {
+
+    cart.forEach(item => {
         const priceValue = parseFloat(item.price.replace(/[^\d.]/g, '')) || 0;
-        totalPrice += priceValue * (item.quantity || 1);
-
-        return {
-            id: item.id,
-            name: item.name,
-            price: item.price,
-            numericPrice: priceValue,
-            type: item.type,
-            icon: item.icon || null,
-            quantity: item.quantity || 1
-        };
+        const quantity = item.quantity || 1;
+        
+        for (let i = 0; i < quantity; i++) {
+            totalPrice += priceValue;
+            
+            services.push({
+                id: item.id, // ID original del producto/servicio
+                subId: `${orderId}-${itemCounter++}`, // ID único compuesto
+                name: item.name,
+                price: item.price,
+                numericPrice: priceValue,
+                type: item.type,
+                icon: item.icon || null
+            });
+        }
     });
 
     const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
@@ -1339,7 +1411,7 @@ async function saveOrderToFirebase(orderId, orderData) {
         sender: await getSenderData(),
         receiver: await getReceiverData(),
         paymentMethod: paymentMethod,
-        paymentStatus: paymentStatus, // Nuevo campo
+        paymentStatus: paymentStatus,
         additionalNotes: document.getElementById('additionalNotes').value.trim(),
         status: 'order-pending',
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
@@ -1491,5 +1563,4 @@ async function saveOrderToFirebase(orderId, orderData) {
         }
     </script>
 </body>
-
 </html>

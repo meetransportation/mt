@@ -5,12 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Administrativo - Meetransportation</title>
-    <link rel="stylesheet" href="./css/style-admin.css">
+
     <!-- Firebase SDK -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app-compat.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-firestore-compat.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-auth-compat.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-storage-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-storage-compat.min.js"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Google Fonts -->
@@ -19,6 +19,11 @@
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="./css/style-admin.css">
+
+    <!-- Internacional Telephone Input -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
 </head>
 
 <body>
@@ -43,6 +48,16 @@
                     <span id="flex1">Cotizaciones</span>
                     <span class="menu-badge" id="pendingQuotesBadge">0</span>
                 </div>
+
+                <div class="menu-item" data-tab="assign-driver">
+                    <i class="fas fa-user-tie"></i>
+                    <span>Asignar a recolector</span>
+                </div>
+
+                <div class="menu-item" data-tab="assign-driver-rd">
+    <i class="fas fa-truck"></i>
+    <span>Asignar a repartidor</span>
+</div>
 
                 <div class="menu-item" data-tab="in-transit">
                     <i class="fas fa-shipping-fast"></i>
@@ -87,8 +102,10 @@
             <div class="header">
                 <h1>Panel Administrativo</h1>
                 <div class="user-info">
-                    <img src="https://via.placeholder.com/40" alt="Admin" id="adminPhoto">
-                    <span id="adminName">Administrador</span>
+                    <div class="user-details">
+                        <span id="adminEmail"></span>
+                        <span id="adminRole" class="user-role"></span>
+                    </div>
                     <button class="logout-btn" id="logoutBtn">
                         <i class="fas fa-sign-out-alt"></i> Salir
                     </button>
@@ -98,7 +115,8 @@
             <!-- Dashboard Tab -->
             <div class="tab-content" id="dashboardTab">
                 <div class="stats-cards">
-                    <div class="stat-card card-1">
+                    <!-- Dentro del div class="stats-cards" -->
+                    <div class="stat-card card-1" data-tab="orders">
                         <div class="stat-icon">
                             <i class="fas fa-shopping-cart"></i>
                         </div>
@@ -107,7 +125,7 @@
                             <p>Órdenes Totales</p>
                         </div>
                     </div>
-                    <div class="stat-card card-2">
+                    <div class="stat-card card-2" data-tab="quotes">
                         <div class="stat-icon">
                             <i class="fas fa-file-invoice-dollar"></i>
                         </div>
@@ -116,7 +134,7 @@
                             <p>Cotizaciones</p>
                         </div>
                     </div>
-                    <div class="stat-card card-3">
+                    <div class="stat-card card-3" data-tab="orders">
                         <div class="stat-icon">
                             <i class="fas fa-spinner"></i>
                         </div>
@@ -125,7 +143,7 @@
                             <p>Pendientes</p>
                         </div>
                     </div>
-                    <div class="stat-card card-4">
+                    <div class="stat-card card-4" data-tab="in-transit">
                         <div class="stat-icon">
                             <i class="fas fa-truck"></i>
                         </div>
@@ -139,28 +157,27 @@
                 <div class="data-table-container">
                     <div class="table-header">
                         <h2>Órdenes Recientes</h2>
-                        <!--  <div class="table-actions">
-                            <button class="btn btn-outline" id="refreshOrders">
-                                <i class="fas fa-sync-alt"></i> Actualizar
-                            </button>
-                        </div> -->
                     </div>
-                    <table id="recentOrdersTable" class="display" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Cliente</th>
-                                <th>Servicio</th>
-                                <th>Fecha</th>
-                                <th>Total</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Datos se cargarán dinámicamente -->
-                        </tbody>
-                    </table>
+                    <div class="table-container">
+                        <div class="loading-overlay">
+                            <div class="loading-spinner"></div>
+                        </div>
+                        <table id="recentOrdersTable" class="display" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cliente</th>
+                                    <th>Servicio</th>
+                                    <th>Fecha</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Datos se cargarán dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -169,32 +186,28 @@
                 <div class="data-table-container">
                     <div class="table-header">
                         <h2>Todas las Órdenes</h2>
-                       <!-- <div class="table-actions">
-                            <button class="btn btn-primary" id="exportOrders">
-                                <i class="fas fa-file-export"></i> Exportar
-                            </button>
-                            <button class="btn btn-outline" id="filterOrders">
-                                <i class="fas fa-filter"></i> Filtrar
-                            </button>
-                        </div> -->
                     </div>
-                    <table id="ordersTable" class="display" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Cliente</th>
-                                <th>Servicio</th>
-                                <th>Fecha</th>
-                                <th>Total</th>
-                                <th>Método Pago</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Datos se cargarán dinámicamente -->
-                        </tbody>
-                    </table>
+                    <div class="table-container">
+                        <div class="loading-overlay">
+                            <div class="loading-spinner"></div>
+                        </div>
+                        <table id="ordersTable" class="display" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cliente</th>
+                                    <th>Servicio</th>
+                                    <th>Fecha</th>
+                                    <th>Total</th>
+                                    <th>Método Pago</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Datos se cargarán dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -203,7 +216,7 @@
                 <div class="data-table-container">
                     <div class="table-header">
                         <h2>Cotizaciones</h2>
-                       <!-- <div class="table-actions">
+                        <!-- <div class="table-actions">
                             <button class="btn btn-primary" id="exportQuotes">
                                 <i class="fas fa-file-export"></i> Exportar
                             </button>
@@ -216,13 +229,41 @@
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Nombre</th>
+                                <th>Cliente</th>
                                 <th>Email</th>
                                 <th>Teléfono</th>
                                 <th>Tipo</th>
                                 <th>Destino</th>
                                 <th>Fecha</th>
                                 <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Datos se cargarán dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+                        <!-- Assign Driver Tab -->
+            <div class="tab-content" id="assign-driverTab" style="display: none;">
+                <div class="data-table-container">
+                    <div class="table-header">
+                        <h2>Órdenes Pendientes para Asignar</h2>
+                        <div class="table-actions">
+                            <button class="btn btn-outline" id="refreshAssignDriver">
+                                <i class="fas fa-sync-alt"></i> Actualizar
+                            </button>
+                        </div>
+                    </div>
+                    <table id="assignDriverTable" class="display" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Dirección Remitente (USA)</th>
+                                <th>Fecha/Hora Recolección</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -232,6 +273,35 @@
                     </table>
                 </div>
             </div>
+
+            
+            <!-- En la sección de contenido principal, después del div con id="assign-driverTab" -->
+<div class="tab-content" id="assign-driver-rdTab" style="display: none;">
+    <div class="data-table-container">
+        <div class="table-header">
+            <h2>Órdenes Listas para Reparto (RD)</h2>
+            <div class="table-actions">
+                <button class="btn btn-outline" id="refreshAssignDriverRD">
+                    <i class="fas fa-sync-alt"></i> Actualizar
+                </button>
+            </div>
+        </div>
+        <table id="assignDriverRDTable" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Dirección Destino (RD)</th>
+                    <th>Teléfono Destino</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Datos se cargarán dinámicamente -->
+            </tbody>
+        </table>
+    </div>
+</div>
 
 
             <!-- Envíos en Tránsito Tab -->
@@ -255,7 +325,6 @@
                                 <th>Fecha</th>
                                 <th>Total</th>
                                 <th>Estado Actual</th>
-                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -271,7 +340,7 @@
                 <div class="data-table-container">
                     <div class="table-header">
                         <h2>Órdenes Completadas</h2>
-                       <!--  <div class="table-actions">
+                        <!--  <div class="table-actions">
                             <button class="btn btn-outline" id="refreshCompleted">
                                 <i class="fas fa-sync-alt"></i> Actualizar
                             </button>
@@ -366,7 +435,7 @@
                 <div class="data-table-container">
                     <div class="table-header">
                         <h2>Clientes</h2>
-                      <!--  <div class="table-actions">
+                        <!--  <div class="table-actions">
                             <button class="btn btn-primary" id="exportCustomers">
                                 <i class="fas fa-file-export"></i> Exportar
                             </button>
@@ -426,8 +495,6 @@
                     </table>
                 </div>
             </div>
-
-
 
 
             <!-- Settings Tab -->
@@ -498,141 +565,178 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Detalles de la Orden</h3>
-                <!-- <button class="close-modal">&times;</button> -->
+                <button class="close-modal">X</button>
             </div>
             <div class="modal-body">
-                <div class="order-details">
-                    <div>
-                        <div class="detail-section">
-                            <h4>Información de la Orden</h4>
-                            <div class="detail-row">
-                                <label class="detail-label">ID:</label>
-                                <div class="detail-value" id="modalOrderId"></div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Fecha:</label>
-                                <div class="detail-value" id="modalOrderDate"></div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Estado:</label>
-                                <div class="detail-value">
-                                    <select id="modalOrderStatus" class="status-select">
-                                        <option value="order-pending">0-Pendiente</option>
-                                        <option value="processing">1-Procesando</option>
-                                        <option value="shipped">2-Enviado</option>
-                                        <option value="completed">3-Completado</option>
-                                        <option value="cancelled">4-Cancelado</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Método de Pago:</label>
-                                <div class="detail-value" id="modalPaymentMethod"></div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Total:</label>
-                                <div class="detail-value" id="modalOrderTotal"></div>
-                            </div>
-
-
-                            <!-- Dentro del modal-body en la sección "Información de la Orden" -->
-<div class="detail-row">
-    <label class="detail-label">Fecha de Recogida:</label>
-    <div class="detail-value">
-        <input type="date" id="modalPickupDate" class="form-control" required>
-    </div>
-</div>
-<div class="detail-row">
-    <label class="detail-label">Hora de Recogida:</label>
-    <div class="detail-value">
-        <select id="modalPickupTime" class="form-control" required>
-            <option value="">Seleccione una hora</option>
-            <!-- Las horas se llenarán dinámicamente -->
-        </select>
-    </div>
-</div>
-
-
+                <div class="order-details" id="divHorizontal">
+                    <div class="detail-section">
+                        <h4>Información Básica</h4>
+                        <div class="detail-row">
+                            <label class="detail-label">ID de la orden:</label>
+                            <div class="detail-value" id="modalOrderId"></div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Fecha de solicitud:</label>
+                            <div class="detail-value" id="modalOrderDate"></div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Estado:</label>
+                            <div class="detail-value" id="modalOrderStatusDisplay"></div>
                         </div>
 
-                        <div class="detail-section">
-                            <h4>Información del Remitente</h4>
-                            <div class="detail-row">
-                                <label class="detail-label">Nombre:</label>
-                                <div class="detail-value" id="modalSenderName"></div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Email:</label>
-                                <div class="detail-value" id="modalSenderEmail"></div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Teléfono:</label>
-                                <div class="detail-value" id="modalSenderPhone"></div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Dirección:</label>
-                                <div class="detail-value" id="modalSenderAddress"></div>
+
+                    </div>
+
+                    <div class="detail-section">
+                        <h4>Detalles del Envío</h4>
+                        <div class="detail-row">
+                            <label class="detail-label">Tipo:</label>
+                            <div class="detail-value" id="modalServiceType"></div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Servicio:</label>
+                            <div class="detail-value" id="modalServiceName"></div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Cantidad de articulos:</label>
+                            <div class="detail-value" id="modalServicePrice"></div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4>Detalles del pago</h4>
+                        <div class="detail-row">
+                            <label class="detail-label">Método de Pago:</label>
+                            <div class="detail-value" id="modalPaymentMethod"></div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Estado del Pago:</label>
+                            <div class="detail-value" id="modalPaymentStatus"></div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Total:</label>
+                            <div class="detail-value" id="modalOrderTotal"></div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section" style="flex: 1;">
+                        <h4>Notas Internas</h4>
+                        <div class="detail-row">
+                            <label class="detail-label">Para uso del personal:</label>
+                            <div class="detail-value" style="flex: 1;">
+                                <textarea style="width: 100%;height: 100px;max-width: 100%;" id="modalInternalNotes"
+                                    class="form-control" rows="4"
+                                    placeholder="Notas internas para esta orden..."></textarea>
                             </div>
                         </div>
                     </div>
 
-                    <div>
-                        <div class="detail-section">
-                            <h4>Información del Destinatario</h4>
-                            <div class="detail-row">
-                                <label class="detail-label">Nombre:</label>
-                                <div class="detail-value" id="modalReceiverName"></div>
+
+                </div>
+
+                <div id="divHorizontal">
+                    <div class="detail-section" style="width: 60%;">
+                        <h4>Información del Remitente (USA)<img src="./img/Bandera_USA_1.png"
+                                style="height: 24px;margin: 0px 5px;"></h4>
+                        <div class="detail-row">
+                            <label class="detail-label">Nombre:</label>
+                            <div class="detail-value" id="modalSenderName"></div>
+                        </div>
+
+
+                        <div class="detail-row">
+                            <label class="detail-label">Email:</label>
+                            <div class="detail-value" style="display: flex; align-items: center; gap: 8px;">
+                                <span id="modalSenderEmail"></span>
+                                <button class="btn copy-btn" id="copyOrderEmailBtn" title="Copiar correo">
+                                    <i class="far fa-copy"></i>
+                                </button>
+                                <span class="copy-feedback"
+                                    style="display: none;color: #4b9def;font-size: 1rem;">¡Copiado!</span>
                             </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Teléfono:</label>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Teléfono:</label>
+                            <div id="tel-ws-box-order">
+                                <div class="detail-value" id="modalSenderPhone" style="flex: 0;min-width: 160px;"></div>
+                                <button class="btn whatsapp-btn" id="whatsappOrderBtn">
+                                    <i class="fab fa-whatsapp"></i> Contactar
+                                </button>
+                            </div>
+                        </div>
+
+
+                        <div class="detail-row">
+                            <label class="detail-label">Dirección:</label>
+                            <div class="detail-value" id="modalSenderAddress"></div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Fecha Recogida:</label>
+                            <div class="detail-value">
+                                <input type="date" id="modalPickupDate" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Hora Recogida:</label>
+                            <div class="detail-value">
+                                <select id="modalPickupTime" class="form-control" required>
+                                    <option value="">Seleccione una hora</option>
+                                    <option value="07:00 a 10:00">7:00 a 10:00</option>
+                                    <option value="10:00 a 13:00">10:00 a 13:00</option>
+                                    <option value="13:00 a 16:00">13:00 a 16:00</option>
+                                    <option value="16:00 a 19:00">16:00 a 19:00</option>
+                                    <option value="19:00 a 21:00">19:00 a 21:00</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="detail-row" style="display: inline-flex;flex-direction: row;gap: 0.5rem;">
+                            <label class="detail-label">Días restantes para recogida:</label>
+                            <div class="detail-value" id="modalDaysUntilPickup"></div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section" style="width: 40%;">
+                        <h4>Información del Destinatario (RD)<img src="./img/Bandera_RD_1.png"
+                                style="height: 24px;margin: 0px 5px;"></h4>
+                        <div class="detail-row">
+                            <label class="detail-label">Nombre:</label>
+                            <div class="detail-value" id="modalReceiverName"></div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Teléfono:</label>
+                            <div id="tel-ws-box-receiver">
                                 <div class="detail-value" id="modalReceiverPhone"></div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Cédula:</label>
-                                <div class="detail-value" id="modalReceiverCedula"></div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Dirección:</label>
-                                <div class="detail-value" id="modalReceiverAddress"></div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Provincia:</label>
-                                <div class="detail-value" id="modalReceiverProvince"></div>
+                                <!-- <button class="btn whatsapp-btn" id="whatsappReceiverBtn">
+                                    <i class="fab fa-whatsapp"></i> Contactar
+                                </button> -->
                             </div>
                         </div>
-
-                        <div class="detail-section">
-                            <h4>Servicio</h4>
-                            <div class="detail-row">
-                                <label class="detail-label">Tipo:</label>
-                                <div class="detail-value" id="modalServiceType"></div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Nombre:</label>
-                                <div class="detail-value" id="modalServiceName"></div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Precio:</label>
-                                <div class="detail-value" id="modalServicePrice"></div>
-                            </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Cédula:</label>
+                            <div class="detail-value" id="modalReceiverCedula"></div>
                         </div>
-
-                        <div class="detail-section">
-                            <h4>Notas Adicionales</h4>
-                            <div class="detail-value" id="modalAdditionalNotes"></div>
+                        <div class="detail-row">
+                            <label class="detail-label">Dirección:</label>
+                            <div class="detail-value" id="modalReceiverAddress"></div>
                         </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Provincia:</label>
+                            <div class="detail-value" id="modalReceiverProvince"></div>
+                        </div>
+                        <h4 style="padding-bottom: 0rem;">Notas Adicionales</h4>
+                        <div class="detail-value" id="modalAdditionalNotes"></div>
                     </div>
                 </div>
 
                 <div class="detail-section">
-                    <h4>Artículos</h4>
+                    <h4>Artículos:</h4>
                     <div class="items-list" id="modalItemsList">
                         <!-- Items will be loaded here -->
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" id="cancelOrderChanges">Cancelar</button>
                 <button class="btn btn-primary" id="saveOrderChanges">Guardar Cambios</button>
             </div>
         </div>
@@ -643,124 +747,250 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Detalles de la Cotización</h3>
+                <button class="close-modal">X</button>
             </div>
             <div class="modal-body">
-                <div class="order-details">
-                    <div>
-                        <div class="detail-section">
-                            <h4>Información Básica</h4>
+                <div class="order-details" id="divHorizontal">
+
+                    <div class="detail-section">
+                        <h4>Información Básica</h4>
+                        <div class="detail-row">
+                            <label class="detail-label">ID de la cotización:</label>
+                            <div class="detail-value" id="modalQuoteId"></div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Fecha de solicitud:</label>
+                            <div class="detail-value" id="modalQuoteDate"></div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Estado:</label>
+                            <div class="detail-value">
+                                <span class="status-badge status-pending">Cotización Pendiente</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4>Detalles del Envío</h4>
+                        <div class="detail-row">
+                            <label class="detail-label">Tipo:</label>
+                            <div class="detail-value" id="modalQuoteType"></div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Origen:</label>
+                            <div class="detail-value" id="modalQuoteOrigin"></div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Destino:</label>
+                            <div class="detail-value" id="modalQuoteDestination"></div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section" style="flex: 1;">
+                        <h4>Notas Internas</h4>
+                        <div class="detail-row" style="height: 80%;">
+                            <label class="detail-label">Para uso del personal:</label>
+                            <div class="detail-value" style="flex: 1;">
+                                <textarea style="width: 100%;height: 100%;max-width: 637px;" id="quoteInternalNotes"
+                                    class="form-control" rows="4"
+                                    placeholder="Escribe aquí notas internas para esta cotización..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div id="divHorizontal">
+                    <div class="detail-section" style="width: 60%;min-width: 424px;">
+                        <h4>Información del Cliente (Remitente USA)<img src="./img/Bandera_USA_1.png"
+                                style="height: 24px;margin: 0px 5px;"></h4>
+                        <div class="detail-row">
+                            <label class="detail-label">Nombre:</label>
+                            <div class="detail-value" id="modalQuoteName"></div>
+                        </div>
+
+                        <div class="detail-row">
+                            <label class="detail-label">Email:</label>
+                            <div class="detail-value" style="display: flex; align-items: center; gap: 8px;">
+                                <span id="modalQuoteEmail"></span>
+                                <button class="btn copy-btn" id="copyEmailBtn" title="Copiar correo">
+                                    <i class="far fa-copy"></i>
+                                </button>
+                                <span class="copy-feedback"
+                                    style="display: none;color: #4b9def;font-size: 1rem;">¡Copiado!</span>
+                            </div>
+                        </div>
+
+                        <div class="detail-row">
+                            <label class="detail-label">Teléfono:</label>
+
+                            <div id="tel-ws-box">
+                                <div class="detail-value" id="modalQuotePhone" style="flex: 0;min-width: 160px;"></div>
+                                <button class="btn whatsapp-btn" id="whatsappBtn">
+                                    <i class="fab fa-whatsapp"></i> Contactar
+                                </button>
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- Dentro del modal-body en la sección "Información del Cliente" -->
+
+                        <div style="display: inline-flex;gap: 1rem;width: 100%;">
                             <div class="detail-row">
-                                <label class="detail-label">ID:</label>
-                                <div class="detail-value" id="modalQuoteId"></div>
+                                <label class="detail-label">Dirección:</label>
+                                <div class="detail-value">
+                                    <input type="text" id="quoteSenderStreet" class="form-control required-field"
+                                        required>
+                                </div>
                             </div>
                             <div class="detail-row">
-                                <label class="detail-label">Fecha:</label>
-                                <div class="detail-value" id="modalQuoteDate"></div>
+                                <label class="detail-label">Apt/Suite (Opcional):</label>
+                                <div class="detail-value">
+                                    <input type="text" id="quoteSenderApt" class="form-control"
+                                        style="background: #26a3ff29; box-shadow: 0px 0px 0px 1px rgb(0 152 237);">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: inline-flex;gap: 1rem;width: 100%;">
+                            <div class="detail-row">
+                                <label class="detail-label">Ciudad:</label>
+                                <div class="detail-value">
+                                    <input type="text" id="quoteSenderCity" class="form-control required-field"
+                                        required>
+                                </div>
                             </div>
                             <div class="detail-row">
                                 <label class="detail-label">Estado:</label>
                                 <div class="detail-value">
-                                    <span class="status-badge status-pending">Cotización Pendiente</span>
+                                    <input type="text" id="quoteSenderState" class="form-control required-field"
+                                        required>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="detail-section">
-                            <h4>Información del Cliente</h4>
                             <div class="detail-row">
-                                <label class="detail-label">Nombre:</label>
-                                <div class="detail-value" id="modalQuoteName"></div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Email:</label>
-                                <div class="detail-value" id="modalQuoteEmail"></div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Teléfono:</label>
-                                <div class="detail-value" id="modalQuotePhone"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="detail-section">
-                            <h4>Detalles del Envío</h4>
-                            <div class="detail-row">
-                                <label class="detail-label">Tipo:</label>
-                                <div class="detail-value" id="modalQuoteType"></div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Origen:</label>
-                                <div class="detail-value" id="modalQuoteOrigin"></div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Destino:</label>
-                                <div class="detail-value" id="modalQuoteDestination"></div>
-                            </div>
-                        </div>
-
-                        <div class="detail-section">
-                            <h4>Precio Estimado</h4>
-                            <div class="detail-row">
-                                <label class="detail-label">Total (USD):</label>
+                                <label class="detail-label">Código Postal:</label>
                                 <div class="detail-value">
-                                    <input type="number" id="quotePriceInput" class="form-control" min="0" step="0.01"
+                                    <input type="text" id="quoteSenderZipCode" class="form-control required-field"
                                         required>
                                 </div>
                             </div>
                         </div>
+
+                        <div style="display: inline-flex;gap: 1rem;width: 100%;">
+                            <div class="detail-row">
+                                <label class="detail-label">Fecha Recogida:</label>
+                                <div class="detail-value">
+                                    <input type="date" id="quotePickupDate" class="form-control required-field"
+                                        required>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <label class="detail-label">Hora Recogida:</label>
+                                <div class="detail-value">
+                                    <select id="quotePickupTime" class="form-control required-field" required>
+                                        <option value="">Seleccione hora</option>
+                                        <option value="07:00 a 10:00">7:00 a 10:00</option>
+                                        <option value="10:00 a 13:00">10:00 a 13:00</option>
+                                        <option value="13:00 a 16:00">13:00 a 16:00</option>
+                                        <option value="16:00 a 19:00">16:00 a 19:00</option>
+                                        <option value="19:00 a 21:00">19:00 a 21:00</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="detail-row">
+                            <label class="detail-label">Método de Pago:</label>
+                            <div class="detail-value">
+                                <select id="quotePaymentMethod" class="form-control required-field" required>
+                                    <option value="">Seleccione método</option>
+                                    <option value="pickup">Pagar al recoger</option>
+                                    <option value="online">Pago en línea</option>
+                                    <option value="delivery">Pagar al recibir (RD)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="detail-section" style="width: 40%;">
+                        <h4>Información del Destinatario (RD)<img src="./img/Bandera_RD_1.png"
+                                style="height: 24px;margin: 0px 5px;"></h4>
+                        <div class="detail-row">
+                            <label class="detail-label">Nombre Completo:</label>
+                            <div class="detail-value">
+                                <input type="text" id="quoteReceiverName" class="form-control required-field" required>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Teléfono:</label>
+                            <div class="detail-value">
+                                <input type="tel" id="quoteReceiverPhone" class="form-control required-field"
+                                    style="padding-left: 60px;" required>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Cédula:</label>
+                            <div class="detail-value">
+                                <input type="text" id="quoteReceiverCedula" class="form-control required-field"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Dirección Completa (RD):</label>
+                            <div class="detail-value">
+                                <input type="text" id="quoteReceiverAddress" class="form-control required-field"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Provincia:</label>
+                            <div class="detail-value">
+                                <input type="text" id="quoteReceiverProvince" class="form-control required-field"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Notas Adicionales:</label>
+                            <div class="detail-value">
+                                <textarea id="quoteAdditionalNotes" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="detail-section">
-                    <h4>Información del Destinatario</h4>
-                    <div class="detail-row">
-                        <label class="detail-label">Nombre Completo:</label>
-                        <div class="detail-value">
-                            <input type="text" id="quoteReceiverName" class="form-control required-field" required>
+                    <h4>Precio Total y Artículos:</h4>
+                    <div class="price-items-container">
+                        <div class="price-section">
+                            <div class="detail-row" style="flex-direction: row;gap: 0.7rem;">
+                                <label class="detail-label">Precio Total (USD):</label>
+                                <div class="detail-value">
+                                    <input type="number" id="quotePriceInput" class="form-control" min="0" step="0.01"
+                                        readonly
+                                        style="font-weight: bold;font-size: 1rem;min-width: auto;max-width: 150px;">
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="detail-row">
-                        <label class="detail-label">Teléfono:</label>
-                        <div class="detail-value">
-                            <input type="tel" id="quoteReceiverPhone" class="form-control required-field" required>
-                        </div>
-                    </div>
-                    <div class="detail-row">
-                        <label class="detail-label">Cédula:</label>
-                        <div class="detail-value">
-                            <input type="text" id="quoteReceiverCedula" class="form-control required-field" required>
-                        </div>
-                    </div>
-                    <div class="detail-row">
-                        <label class="detail-label">Dirección Completa (RD):</label>
-                        <div class="detail-value">
-                            <input type="text" id="quoteReceiverAddress" class="form-control required-field" required>
-                        </div>
-                    </div>
-                    <div class="detail-row">
-                        <label class="detail-label">Provincia:</label>
-                        <div class="detail-value">
-                            <input type="text" id="quoteReceiverProvince" class="form-control required-field" required>
-                        </div>
-                    </div>
-                    <div class="detail-row">
-                        <label class="detail-label">Notas Adicionales:</label>
-                        <div class="detail-value">
-                            <textarea id="quoteAdditionalNotes" class="form-control" rows="3"></textarea>
+
+                        <div class="items-section">
+                            <h4>Artículos:</h4>
+                            <div class="items-list" id="modalQuoteItemsList">
+                                <!-- Items will be loaded here with price inputs -->
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="detail-section">
-                    <h4>Artículos</h4>
-                    <div class="items-list" id="modalQuoteItemsList">
-                        <!-- Items will be loaded here -->
-                    </div>
-                </div>
+
+
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" id="cancelQuoteChanges">Cancelar</button>
                 <button class="btn btn-primary" id="saveQuoteChanges">Guardar Cambios</button>
                 <button class="btn btn-success" id="convertToOrderBtn">Convertir a Orden</button>
             </div>
@@ -922,27 +1152,33 @@
     </div>
 
 
+
     <!-- Employee Modal -->
     <div class="modal" id="employeeModal">
         <div class="modal-content">
+
+
             <div class="modal-header">
                 <h3 id="employeeModalTitle">Agregar Nuevo Empleado</h3>
                 <!-- <button class="close-modal">&times;</button> -->
             </div>
+
+
             <div class="modal-body">
                 <form id="employeeForm">
                     <div class="detail-section">
                         <h4>Información Personal</h4>
                         <div class="detail-row">
-                            <label class="detail-label">Nombre Completo:</label>
-                            <div class="detail-value">
-                                <input type="text" id="employeeName" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="detail-row">
                             <label class="detail-label">Email:</label>
                             <div class="detail-value">
                                 <input type="email" id="employeeEmail" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="detail-row">
+                            <label class="detail-label">Nombre Completo:</label>
+                            <div class="detail-value">
+                                <input type="text" id="employeeName" class="form-control" required>
                             </div>
                         </div>
                         <div class="detail-row">
@@ -984,7 +1220,6 @@
     </div>
 
 
-
     <!-- jQuery and DataTables -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
@@ -995,8 +1230,10 @@
 
 
     <script src="./js/admin-main.js"></script>
-
+    <script src="./js/admin-clientes-empleados-config.js"></script>
     <script src="./js/admin-services-products.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"></script>
+
 
 </body>
 
