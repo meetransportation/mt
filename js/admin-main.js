@@ -29,35 +29,110 @@ let currentQuoteFilter = 'pending';
 // DOM Content Loaded
 document.addEventListener('DOMContentLoaded', function () {
     initAuth();
-    initUI();
-    initDataTables();
-    initModals();
 });
 
 // Initialize Authentication
 function initAuth() {
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            db.collection('users').doc(user.uid).get().then(doc => {
-                if (doc.exists) {
-                    const userData = doc.data();
-                    // Redirect drivers to driver.html
-                    if (userData.role === 'driver' && userData.status === 'active') {
-                        window.location.href = 'driver.html';
-                        return;
-                    }
+    // Mostrar indicador de carga global
+    const globalLoader = document.createElement('div');
+    globalLoader.className = 'global-loader';
+    globalLoader.innerHTML = `
+        <p>Mee<span style="color:#5cc528;">Transportation</span></p>
+        <div class="loader-spinner"></div>
+    `;
+    document.body.appendChild(globalLoader);
 
+    auth.onAuthStateChanged(user => {
+        // Ocultar indicador de carga cuando se complete
+        if (document.body.contains(globalLoader)) {
+            document.body.removeChild(globalLoader);
+        }
+        if (user) {
+            // User is signed in, verify if they are an employee
+            db.collection('users').doc(user.uid).get().then(doc => {
+                if (doc.exists && doc.data().isEmployee === true) {
+                    // User is an employee, show admin panel
                     currentAdmin = user;
+                    document.getElementById('loginContainer').style.display = 'none';
+                    document.querySelector('.admin-container').style.display = 'flex';
                     loadAdminProfile(user);
+
+                    // Solo inicializar UI y datos después de autenticación verificada
+                    initUI();
+                    initDataTables();
+                    initModals();
                     initDashboard();
                 } else {
-                    window.location.href = 'index.html';
+                    // User is not an employee, sign them out
+                    auth.signOut().then(() => {
+                        document.getElementById('loginContainer').style.display = 'flex';
+                        document.querySelector('.admin-container').style.display = 'none';
+                        showToast('Acceso restringido a empleados', 'error');
+                    });
                 }
             });
         } else {
-            window.location.href = 'index.html';
+            // No user is signed in, show login form
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.querySelector('.admin-container').style.display = 'none';
         }
     });
+
+    // Setup login form (código existente permanece igual)
+   document.getElementById('loginForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const loginBtn = document.getElementById('loginBtn');
+    const errorElement = document.getElementById('loginError');
+
+    loginBtn.disabled = true;
+    loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
+
+    auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            return db.collection('users').doc(userCredential.user.uid).get();
+        })
+        .then((doc) => {
+            if (doc.exists && doc.data().isEmployee === true) {
+                currentAdmin = auth.currentUser;
+                document.getElementById('loginContainer').style.display = 'none';
+                document.querySelector('.admin-container').style.display = 'flex';
+                loadAdminProfile(currentAdmin);
+                
+                initUI();
+                initDataTables();
+                initModals();
+                initDashboard();
+
+                // Restablecer el botón después de un inicio de sesión exitoso
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Iniciar Sesión';
+            } else {
+                auth.signOut();
+                throw new Error('Solo los empleados pueden acceder a esta sección');
+            }
+        })
+        .catch((error) => {
+            console.error("Login error:", error);
+            
+            // Mensaje personalizado para credenciales incorrectas
+            let errorMessage = error.message;
+            if (error.code === 'auth/invalid-login-credentials') {
+                errorMessage = 'Credenciales incorrectas';
+            } else if (error.code === 'auth/invalid-email') {
+                errorMessage = 'Correo electrónico inválido';
+            } else if (error.code === 'auth/missing-password') {
+                errorMessage = 'Ingrese una contraseña';
+            }
+            
+            errorElement.textContent = errorMessage;
+            
+            // Restablecer el botón después de un error
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Iniciar Sesión';
+        });
+});
 }
 
 // Añade esta función al inicio del archivo (puede ir junto con las otras funciones de formato)
@@ -154,7 +229,7 @@ function initModals() {
     document.getElementById('refreshAssignDriverRD')?.addEventListener('click', loadAssignDriverRDTable);
 
 
-          // Filtros de cotizaciones
+    // Filtros de cotizaciones
     document.getElementById('filterPendingQuotes')?.addEventListener('click', () => {
         if (currentQuoteFilter !== 'pending') {
             loadQuotesTable('pending', true);
@@ -234,19 +309,20 @@ function initDashboard() {
 
 // Modificación en la función loadStats()
 function loadStats() {
+    if (!currentAdmin) return;
     // Escuchar cambios en las órdenes
     const ordersUnsubscribe = db.collection('orders').onSnapshot(snapshot => {
         let pendingAndAssignedCount = 0;
         let pendingOrdersCount = 0; // Nuevo contador solo para order-pending
-        
+
         snapshot.forEach(doc => {
             const status = doc.data().status;
-            
+
             // Contar órdenes pendientes y asignadas para el card 1
             if (status === 'order-pending' || status === 'assignedDriver') {
                 pendingAndAssignedCount++;
             }
-            
+
             // Contar solo órdenes pendientes para el card 3
             if (status === 'order-pending') {
                 pendingOrdersCount++;
@@ -266,20 +342,20 @@ function loadStats() {
 
         snapshot.forEach(doc => {
             const status = doc.data().status;
-            
+
             // Estados para "Asignar recolector (USA)"
             if (status === 'order-pending') {
                 pendingOrders++;
             } else if (status === 'assignedDriver') {
                 assignedDriverOrders++;
-            } 
+            }
             // Estados para "Asignar repartidor (RD)"
             else if (status === 'Received_Warehouse_rd') {
                 receivedWarehouseRD++;
             } else if (status === 'assignedDriver_rd') {
                 assignedDriverRD++;
                 inTransitOrders++; // También cuenta como en tránsito
-            } 
+            }
             // Estados para "Envíos en tránsito"
             else if ([
                 'driverPickup',
@@ -288,7 +364,7 @@ function loadStats() {
                 'Warehouse_Exit_rd'
             ].includes(status)) {
                 inTransitOrders++;
-            } 
+            }
             // Estados completados
             else if (status === 'delivered') {
                 deliveredOrders++;
@@ -307,13 +383,13 @@ function loadStats() {
     // Escuchar cambios en las cotizaciones
     const quotesUnsubscribe = db.collection('quotes').onSnapshot(snapshot => {
         let pendingQuotesCount = 0;
-        
+
         snapshot.forEach(doc => {
             if (doc.data().status === 'quotes-pending') {
                 pendingQuotesCount++;
             }
         });
-        
+
         // Actualizar solo el contador de cotizaciones pendientes
         document.getElementById('totalQuotes').textContent = pendingQuotesCount;
         document.getElementById('pendingQuotesBadge').textContent = pendingQuotesCount;
@@ -363,20 +439,30 @@ function showTab(tabName) {
 
     tabElement.style.display = 'block';
 
+    // Asegurar que DataTables esté inicializado antes de cargar datos
+    const initTable = () => {
+        if (!$.fn.DataTable.isDataTable(`#${tabName.replace('-', '')}Table`)) {
+            initDataTables();
+        }
+    };
+
     // Load data for the tab
     const tabLoaders = {
-        'dashboard': () => { loadStats(); loadRecentOrders(); },
-        'orders': loadOrdersTable,
-        'quotes': () => loadQuotesTable('pending'), // Solo carga pendientes por defecto
-        'customers': () => loadCustomersTable().catch(console.error), // Asegurar carga de clientes
-        'employees': loadEmployeesTable,
-        'in-transit': loadInTransitTable,
-        'completed-orders': loadCompletedOrdersTable,
-        'services': loadServicesTable,
-        'products': loadProductsTable,
-        'assign-driver-rd': loadAssignDriverRDTable,
-        'assign-driver': loadAssignDriverTable
-
+        'dashboard': () => { initTable(); loadStats(); loadRecentOrders(); },
+        'orders': () => { initTable(); loadOrdersTable(); },
+        'quotes': () => { 
+            initTable(); 
+            // Esperar un breve momento para asegurar que DataTables esté listo
+            setTimeout(() => loadQuotesTable('pending'), 50);
+        },
+        'customers': () => { initTable(); loadCustomersTable().catch(console.error); },
+        'employees': () => { initTable(); loadEmployeesTable(); },
+        'in-transit': () => { initTable(); loadInTransitTable(); },
+        'completed-orders': () => { initTable(); loadCompletedOrdersTable(); },
+        'services': () => { initTable(); loadServicesTable(); },
+        'products': () => { initTable(); loadProductsTable(); },
+        'assign-driver-rd': () => { initTable(); loadAssignDriverRDTable(); },
+        'assign-driver': () => { initTable(); loadAssignDriverTable(); }
     };
 
     if (tabLoaders[tabName]) {
@@ -413,6 +499,7 @@ function handleTableLoading(tableId, callback) {
 
 // Nueva versión de loadRecentOrders con actualización en tiempo real
 function loadRecentOrders() {
+    if (!currentAdmin) return Promise.reject('No autenticado');
     return new Promise((resolve, reject) => {
         handleTableLoading('recentOrdersTable', () => {
             return new Promise((innerResolve, innerReject) => {
@@ -446,6 +533,7 @@ function loadRecentOrders() {
 
 // Nueva versión de loadOrdersTable con actualización en tiempo real
 function loadOrdersTable() {
+    if (!currentAdmin) return Promise.reject('No autenticado');
     return new Promise((resolve, reject) => {
         handleTableLoading('ordersTable', () => {
             return new Promise((innerResolve, innerReject) => {
@@ -483,16 +571,11 @@ function loadOrdersTable() {
 // Dashboard functions
 function loadQuotesTable(filter = 'pending', forceReload = false) {
     return new Promise((resolve, reject) => {
-        // Si ya hay un listener y no se fuerza recarga, solo cambia el filtro
-        if (quotesUnsubscribe && !forceReload && currentQuoteFilter === filter) {
-            resolve();
-            return;
+        // Inicializar DataTables si no está inicializado
+        if (!$.fn.DataTable.isDataTable('#quotesTable')) {
+            initDataTables('quotesTable');
         }
 
-        // Cancela el listener anterior si existe
-        if (quotesUnsubscribe) {
-            quotesUnsubscribe();
-        }
 
         handleTableLoading('quotesTable', () => {
             return new Promise((innerResolve, innerReject) => {
@@ -551,7 +634,7 @@ function loadQuotesTable(filter = 'pending', forceReload = false) {
 function updateQuoteFilterButtons() {
     const pendingBtn = document.getElementById('filterPendingQuotes');
     const convertedBtn = document.getElementById('filterConvertedQuotes');
-    
+
     if (pendingBtn && convertedBtn) {
         pendingBtn.classList.toggle('active', currentQuoteFilter === 'pending');
         convertedBtn.classList.toggle('active', currentQuoteFilter === 'converted');
@@ -690,6 +773,7 @@ function loadCompletedOrdersTable() {
 
 // Nueva versión de loadQuotesTable con actualización en tiempo real
 function viewOrderDetails(orderId) {
+    if (!currentAdmin) return;
     selectedOrderId = orderId;
 
     db.collection('orders').doc(orderId).get().then(doc => {
@@ -1894,7 +1978,7 @@ function showToast(message, type = 'info') {
 }
 
 // Initialize DataTables
-function initDataTables() {
+function initDataTables(tableId = null) {
     const commonOptions = {
         language: {
             search: "",
@@ -1903,17 +1987,14 @@ function initDataTables() {
             url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
         },
         paging: false,
-        order: [], // Esto se configurará individualmente para cada tabla
-        dom: '<"top"<"search-container"f><"export-container"B>>rt<"bottom"i>', // Nueva estructura DOM
+        order: [],
+        dom: '<"top"<"search-container"f><"export-container"B>>rt<"bottom"i>',
         buttons: ['excel', 'print'],
-        initComplete: function() {
-            // Mueve el input de búsqueda a la izquierda
+        initComplete: function () {
             $('.search-container').css({
                 'float': 'left',
                 'margin-right': 'auto'
             });
-            
-            // Mueve los botones a la derecha
             $('.export-container').css({
                 'float': 'right',
                 'margin-left': 'auto'
@@ -1921,87 +2002,97 @@ function initDataTables() {
         }
     };
 
-    // Orders table - ordenar por fecha descendente (columna 3)
-    $('#ordersTable').DataTable({
-        ...commonOptions,
-        order: [[3, 'desc']] // Columna 3 (Fecha) en orden descendente
-    });
+    // Si se especifica una tabla, inicializar solo esa
+    if (tableId) {
+        if (!$.fn.DataTable.isDataTable(`#${tableId}`)) {
+            return $(`#${tableId}`).DataTable(commonOptions);
+        }
+        return $(`#${tableId}`).DataTable();
+    }
 
-    // Quotes table - ordenar por fecha descendente (columna 6)
-    $('#quotesTable').DataTable({
-        ...commonOptions,
-        order: [[6, 'desc']] // Columna 6 (Fecha) en orden descendente
-    });
-
-    // Customers table
-    $('#customersTable').DataTable(commonOptions);
-
-    // Employees table
-    $('#employeesTable').DataTable(commonOptions);
-
-    // In Transit table - ordenar por fecha descendente (columna 3)
-    $('#inTransitTable').DataTable({
-        ...commonOptions,
-        order: [[3, 'desc']] // Columna 3 (Fecha) en orden descendente
-    });
-
-    // Completed Orders table - ordenar por fecha descendente (columna 3)
-    $('#completedOrdersTable').DataTable({
-        ...commonOptions,
-        order: [[3, 'desc']] // Columna 3 (Fecha) en orden descendente
-    });
-
-    // Services table
-    $('#servicesTable').DataTable(commonOptions);
-
-    // Products table
-    $('#productsTable').DataTable(commonOptions);
-
-    // Recent Orders table (dashboard) - ordenar por fecha descendente (columna 3)
-    $('#recentOrdersTable').DataTable({
-        ...commonOptions,
-        order: [[3, 'desc']] // Columna 3 (Fecha) en orden descendente
-    });
-
-    // Assign Driver RD table
-    $('#assignDriverRDTable').DataTable({
-        ...commonOptions,
-        order: [[3, 'desc']] // Ordenar por fecha descendente
-    });
-
-    // Assign Driver table
-    $('#assignDriverTable').DataTable({
-        ...commonOptions,
-        order: [[3, 'desc']], // Ordenar por fecha descendente
-        rowGroup: {
-            dataSrc: 4, // Agrupar por la columna de chofer (índice 5)
-            startRender: function (rows, group) {
-                return $('<tr/>')
-                    .append('<td colspan="5">' + group + ' (' + rows.count() + ' órdenes)</td>');
-            }
-        },
-        drawCallback: function (settings) {
-            const api = this.api();
-            api.rows().every(function () {
-                const row = this.node();
-                const driverName = this.data()[5];
-
-                if (driverName === 'No asignado') {
-                    $(row).addClass('no-driver');
-                } else {
-                    $(row).removeClass('no-driver');
+    // Inicializar todas las tablas si no se especifica una
+    const tables = {
+        'ordersTable': { ...commonOptions, order: [[3, 'desc']] },
+        'quotesTable': { ...commonOptions, order: [[6, 'desc']] },
+        'customersTable': commonOptions,
+        'employeesTable': commonOptions,
+        'inTransitTable': { ...commonOptions, order: [[3, 'desc']] },
+        'completedOrdersTable': { ...commonOptions, order: [[3, 'desc']] },
+        'servicesTable': commonOptions,
+        'productsTable': commonOptions,
+        'recentOrdersTable': { ...commonOptions, order: [[3, 'desc']] },
+        'assignDriverRDTable': { ...commonOptions, order: [[3, 'desc']] },
+        'assignDriverTable': {
+            ...commonOptions,
+            order: [[3, 'desc']],
+            rowGroup: {
+                dataSrc: 4,
+                startRender: function (rows, group) {
+                    return $('<tr/>')
+                        .append('<td colspan="5">' + group + ' (' + rows.count() + ' órdenes)</td>');
                 }
-            });
+            },
+            drawCallback: function (settings) {
+                const api = this.api();
+                api.rows().every(function () {
+                    const row = this.node();
+                    const driverName = this.data()[5];
+                    $(row).toggleClass('no-driver', driverName === 'No asignado');
+                });
+            }
+        }
+    };
+
+    Object.entries(tables).forEach(([tableId, options]) => {
+        if (!$.fn.DataTable.isDataTable(`#${tableId}`)) {
+            $(`#${tableId}`).DataTable(options);
         }
     });
 }
 
 // Logout
+// Modificar la función logout
 function logout() {
+    // Limpiar todos los listeners de Firestore
+    if (window.recentOrdersUnsubscribe) window.recentOrdersUnsubscribe();
+    if (window.statsOrdersUnsubscribe) window.statsOrdersUnsubscribe();
+    if (window.statsQuotesUnsubscribe) window.statsQuotesUnsubscribe();
+    if (window.ordersUnsubscribe) window.ordersUnsubscribe();
+    if (window.quotesUnsubscribe) window.quotesUnsubscribe();
+    if (window.customersUnsubscribe) window.customersUnsubscribe();
+    if (window.employeesUnsubscribe) window.employeesUnsubscribe();
+    if (window.inTransitUnsubscribe) window.inTransitUnsubscribe();
+    if (window.completedOrdersUnsubscribe) window.completedOrdersUnsubscribe();
+    if (window.assignDriverUnsubscribe) window.assignDriverUnsubscribe();
+    if (window.assignDriverRDUnsubscribe) window.assignDriverRDUnsubscribe();
+
     auth.signOut().then(() => {
-        window.location.href = 'index.html';
+        // Resetear variables globales
+        currentAdmin = null;
+        selectedOrderId = null;
+        selectedQuoteId = null;
+        selectedEmployeeId = null;
+        selectedServiceId = null;
+        selectedProductId = null;
+        isEditMode = false;
+        
+        // Mostrar login y ocultar panel
+        document.getElementById('loginContainer').style.display = 'flex';
+        document.querySelector('.admin-container').style.display = 'none';
+        
+        // Resetear formulario de login y botón
+        document.getElementById('loginForm').reset();
+        document.getElementById('loginError').textContent = '';
+        
+        // Restablecer el botón de inicio de sesión
+        const loginBtn = document.getElementById('loginBtn');
+        if (loginBtn) {
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Iniciar Sesión';
+        }
     }).catch(error => {
-        alert('Error al cerrar sesión: ' + error.message);
+        console.error("Logout error:", error);
+        showToast('Error al cerrar sesión: ' + error.message, 'error');
     });
 }
 

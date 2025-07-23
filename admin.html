@@ -27,7 +27,34 @@
 </head>
 
 <body>
-    <div class="admin-container">
+
+    <!-- Login Form for Employees -->
+    <div id="loginContainer" class="login-container" style="display: none;">
+
+        <div class="login-box">
+            <div class="login-header">
+                <h3>Mee<span style="color:#5cc528;">Transportation</span></h3>
+                <h5>INICIO DE SESIÓN PARA EMPLEADOS</h5>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Correo Electrónico</label>
+                    <input type="email" id="loginEmail" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Contraseña</label>
+                    <input type="password" id="loginPassword" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                </button>
+                <div id="loginError" class="error-message"></div>
+            </form>
+        </div>
+    </div>
+
+
+    <div class="admin-container" style="display: none;">
         <!-- Sidebar -->
         <div class="sidebar">
             <div class="sidebar-header">
@@ -506,45 +533,47 @@
                 <div class="data-table-container">
                     <h2>Configuración del Sistema</h2>
                     <form id="settingsForm">
-                        <div class="detail-section">
-                            <h4>Configuración General</h4>
-                            <!-- <div class="detail-row">
+
+                        <div id="div-setting">
+                            <div class="detail-section" style="width: 50%;">
+                                <h4>Configuración General</h4>
+                                <!-- <div class="detail-row">
                                 <label class="detail-label">Nombre de la Empresa:</label>
                                 <div class="detail-value">
                                     <input type="text" class="form-control" id="companyName" required>
                                 </div>
                             </div> -->
 
-                            <div class="detail-row">
-                                <label class="detail-label">Email de Contacto:</label>
-                                <div class="detail-value">
-                                    <input type="email" class="form-control" id="contactEmail" required>
+                                <div class="detail-row">
+                                    <label class="detail-label">Email de Contacto:</label>
+                                    <div class="detail-value">
+                                        <input type="email" class="form-control" id="contactEmail" required>
+                                    </div>
+                                </div>
+                                <div class="detail-row">
+                                    <label class="detail-label">Teléfono:</label>
+                                    <div class="detail-value">
+                                        <input type="tel" class="form-control" id="contactPhone" required>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Teléfono:</label>
-                                <div class="detail-value">
-                                    <input type="tel" class="form-control" id="contactPhone" required>
+
+                            <div class="detail-section" style="width: 50%;">
+                                <h4>Configuración de Envíos</h4>
+                                <div class="detail-row">
+                                    <label class="detail-label">Origen Predeterminado:</label>
+                                    <div class="detail-value">
+                                        <input type="text" class="form-control" id="defaultOrigin" required>
+                                    </div>
+                                </div>
+                                <div class="detail-row">
+                                    <label class="detail-label">Días de Procesamiento:</label>
+                                    <div class="detail-value">
+                                        <input type="number" class="form-control" id="processingDays" min="1" required>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="detail-section">
-                            <h4>Configuración de Envíos</h4>
-                            <div class="detail-row">
-                                <label class="detail-label">Origen Predeterminado:</label>
-                                <div class="detail-value">
-                                    <input type="text" class="form-control" id="defaultOrigin" required>
-                                </div>
-                            </div>
-                            <div class="detail-row">
-                                <label class="detail-label">Días de Procesamiento:</label>
-                                <div class="detail-value">
-                                    <input type="number" class="form-control" id="processingDays" min="1" required>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- <div class="detail-section">
                             <h4>Configuración de Pagos</h4>
                             <div class="detail-row">
