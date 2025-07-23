@@ -23,6 +23,8 @@ let selectedEmployeeId = null;
 let selectedServiceId = null;
 let selectedProductId = null;
 let isEditMode = false;
+let quotesUnsubscribe = null;
+let currentQuoteFilter = 'pending';
 
 // DOM Content Loaded
 document.addEventListener('DOMContentLoaded', function () {
@@ -151,6 +153,25 @@ function initModals() {
 
     document.getElementById('refreshAssignDriverRD')?.addEventListener('click', loadAssignDriverRDTable);
 
+
+          // Filtros de cotizaciones
+    document.getElementById('filterPendingQuotes')?.addEventListener('click', () => {
+        if (currentQuoteFilter !== 'pending') {
+            loadQuotesTable('pending', true);
+        }
+    });
+
+    document.getElementById('filterConvertedQuotes')?.addEventListener('click', () => {
+        if (currentQuoteFilter !== 'converted') {
+            loadQuotesTable('converted', true);
+        }
+    });
+
+    document.getElementById('refreshQuotes')?.addEventListener('click', () => {
+        loadQuotesTable(currentQuoteFilter, true);
+    });
+
+
     // Event delegation para los selects de choferes RD
     document.addEventListener('change', function (e) {
         if (e.target.classList.contains('driver-rd-select')) {
@@ -211,65 +232,97 @@ function initDashboard() {
 }
 
 
-// Nueva versión de loadStats con actualización en tiempo real
+// Modificación en la función loadStats()
 function loadStats() {
     // Escuchar cambios en las órdenes
     const ordersUnsubscribe = db.collection('orders').onSnapshot(snapshot => {
-        document.getElementById('totalOrders').textContent = snapshot.size;
-
-        // Calcular órdenes pendientes
-        let pendingOrders = 0;
-        let assignedDriverOrders = 0;
+        let pendingAndAssignedCount = 0;
+        let pendingOrdersCount = 0; // Nuevo contador solo para order-pending
+        
         snapshot.forEach(doc => {
             const status = doc.data().status;
+            
+            // Contar órdenes pendientes y asignadas para el card 1
+            if (status === 'order-pending' || status === 'assignedDriver') {
+                pendingAndAssignedCount++;
+            }
+            
+            // Contar solo órdenes pendientes para el card 3
+            if (status === 'order-pending') {
+                pendingOrdersCount++;
+            }
+        });
+
+        // Actualizar los contadores de órdenes
+        document.getElementById('totalOrders').textContent = pendingAndAssignedCount;
+        document.getElementById('pendingItems').textContent = pendingOrdersCount;
+
+        let pendingOrders = 0;
+        let assignedDriverOrders = 0;
+        let receivedWarehouseRD = 0;
+        let assignedDriverRD = 0;
+        let inTransitOrders = 0;
+        let deliveredOrders = 0;
+
+        snapshot.forEach(doc => {
+            const status = doc.data().status;
+            
+            // Estados para "Asignar recolector (USA)"
             if (status === 'order-pending') {
                 pendingOrders++;
             } else if (status === 'assignedDriver') {
                 assignedDriverOrders++;
-            }
-        });
-        document.getElementById('pendingOrdersBadge').textContent = pendingOrders + assignedDriverOrders;
-
-        // Calcular órdenes en tránsito (ahora incluyendo driverPickup)
-        let inTransitOrders = 0;
-        snapshot.forEach(doc => {
-            const status = doc.data().status;
-            if (['recogidaUSA', 'enTransito', 'enAduana', 'repartoLocal', 'driverPickup'].includes(status)) {
+            } 
+            // Estados para "Asignar repartidor (RD)"
+            else if (status === 'Received_Warehouse_rd') {
+                receivedWarehouseRD++;
+            } else if (status === 'assignedDriver_rd') {
+                assignedDriverRD++;
+                inTransitOrders++; // También cuenta como en tránsito
+            } 
+            // Estados para "Envíos en tránsito"
+            else if ([
+                'driverPickup',
+                'Received_Warehouse_usa',
+                'Warehouse_Exit_usa',
+                'Warehouse_Exit_rd'
+            ].includes(status)) {
                 inTransitOrders++;
+            } 
+            // Estados completados
+            else if (status === 'delivered') {
+                deliveredOrders++;
             }
         });
+
+        // Actualizar todos los contadores
+        document.getElementById('pendingOrdersBadge').textContent = pendingOrders + assignedDriverOrders;
+        document.getElementById('assignDriverBadge').textContent = pendingOrders + assignedDriverOrders;
+        document.getElementById('assignDriverRDBadge').textContent = receivedWarehouseRD + assignedDriverRD;
         document.getElementById('inTransitOrders').textContent = inTransitOrders;
         document.getElementById('inTransitBadge').textContent = inTransitOrders;
-
-        // Calcular órdenes completadas
-        let completedOrders = 0;
-        snapshot.forEach(doc => {
-            if (doc.data().status === 'completed') {
-                completedOrders++;
-            }
-        });
-        document.getElementById('completedOrdersBadge').textContent = completedOrders;
+        document.getElementById('completedOrdersBadge').textContent = deliveredOrders;
     });
 
     // Escuchar cambios en las cotizaciones
     const quotesUnsubscribe = db.collection('quotes').onSnapshot(snapshot => {
-        document.getElementById('totalQuotes').textContent = snapshot.size;
-
-        // Calcular cotizaciones pendientes
-        let pendingQuotes = 0;
+        let pendingQuotesCount = 0;
+        
         snapshot.forEach(doc => {
             if (doc.data().status === 'quotes-pending') {
-                pendingQuotes++;
+                pendingQuotesCount++;
             }
         });
-        document.getElementById('pendingQuotesBadge').textContent = pendingQuotes;
+        
+        // Actualizar solo el contador de cotizaciones pendientes
+        document.getElementById('totalQuotes').textContent = pendingQuotesCount;
+        document.getElementById('pendingQuotesBadge').textContent = pendingQuotesCount;
 
-        // Actualizar contador total de pendientes
-        const pendingOrders = parseInt(document.getElementById('pendingOrdersBadge').textContent) || 0;
-        document.getElementById('pendingItems').textContent = pendingOrders + pendingQuotes;
+        // Actualizar el contador de pendientes (card 3) que ahora solo usa order-pending
+        const pendingOrders = parseInt(document.getElementById('pendingItems').textContent) || 0;
+        document.getElementById('pendingItems').textContent = pendingOrders; // Ya no suma las cotizaciones
     });
 
-    // Guardar las funciones unsubscribe para limpiar cuando sea necesario
     window.statsOrdersUnsubscribe = ordersUnsubscribe;
     window.statsQuotesUnsubscribe = quotesUnsubscribe;
 }
@@ -314,8 +367,8 @@ function showTab(tabName) {
     const tabLoaders = {
         'dashboard': () => { loadStats(); loadRecentOrders(); },
         'orders': loadOrdersTable,
-        'quotes': loadQuotesTable,
-        'customers': loadCustomersTable,
+        'quotes': () => loadQuotesTable('pending'), // Solo carga pendientes por defecto
+        'customers': () => loadCustomersTable().catch(console.error), // Asegurar carga de clientes
         'employees': loadEmployeesTable,
         'in-transit': loadInTransitTable,
         'completed-orders': loadCompletedOrdersTable,
@@ -366,11 +419,10 @@ function loadRecentOrders() {
                 const table = $('#recentOrdersTable').DataTable();
                 table.clear().draw();
 
-                // Escuchar cambios en tiempo real
+                // Escuchar cambios en tiempo real, ordenando por timestamp (más recientes primero) y limitando a 10
                 const unsubscribe = db.collection('orders')
-                    .where('status', '==', 'order-pending') // Solo órdenes pendientes
-                    .orderBy('timestamp', 'desc')
-                    .limit(50)
+                    .orderBy('timestamp', 'desc') // Ordena por fecha de creación (más reciente primero)
+                    .limit(10) // Solo trae las 10 más recientes
                     .onSnapshot(snapshot => {
                         table.clear();
                         snapshot.forEach(doc => {
@@ -398,22 +450,11 @@ function loadOrdersTable() {
         handleTableLoading('ordersTable', () => {
             return new Promise((innerResolve, innerReject) => {
                 const table = $('#ordersTable').DataTable();
-
-                // Limpiar la tabla
                 table.clear().draw();
 
-                // Escuchar cambios en tiempo real
+                // Escuchar cambios en tiempo real SOLO para órdenes pendientes y asignadas
                 const unsubscribe = db.collection('orders')
-                    .where('status', 'in', [
-                        'order-pending',
-                        'assignedDriver',
-                        'driverPickup',
-                        'Received_Warehouse_usa',
-                        'Warehouse_Exit_usa',
-                        'Received_Warehouse_rd',
-                        'assignedDriver_rd',
-                        'Warehouse_Exit_rd'
-                    ])
+                    .where('status', 'in', ['order-pending', 'assignedDriver'])
                     .orderBy('timestamp', 'desc')
                     .onSnapshot(snapshot => {
                         table.clear(); // Limpiar la tabla antes de agregar nuevos datos
@@ -440,46 +481,83 @@ function loadOrdersTable() {
 
 
 // Dashboard functions
-function loadQuotesTable() {
+function loadQuotesTable(filter = 'pending', forceReload = false) {
     return new Promise((resolve, reject) => {
+        // Si ya hay un listener y no se fuerza recarga, solo cambia el filtro
+        if (quotesUnsubscribe && !forceReload && currentQuoteFilter === filter) {
+            resolve();
+            return;
+        }
+
+        // Cancela el listener anterior si existe
+        if (quotesUnsubscribe) {
+            quotesUnsubscribe();
+        }
+
         handleTableLoading('quotesTable', () => {
             return new Promise((innerResolve, innerReject) => {
                 const table = $('#quotesTable').DataTable();
                 table.clear().draw();
 
-                const unsubscribe = db.collection('quotes')
-                    .orderBy('timestamp', 'desc')
-                    .onSnapshot(snapshot => {
-                        table.clear();
+                // Actualizar estado del filtro
+                currentQuoteFilter = filter;
+                updateQuoteFilterButtons();
 
-                        snapshot.forEach(doc => {
-                            const quote = doc.data();
-                            const date = quote.timestamp?.toDate().toLocaleString() || 'N/A';
-                            table.row.add([
-                                doc.id,
-                                quote.name,
-                                quote.email,
-                                quote.phone,
-                                quote.packageType,
-                                quote.destination,
-                                date,
-                                getStatusBadge(quote.status),
-                                `<button class="btn btn-outline view-quote" data-id="${doc.id}">Ver</button>`
-                            ]).draw(false);
-                        });
+                // Configurar la consulta según el filtro
+                let query = db.collection('quotes')
+                    .orderBy('timestamp', 'desc');
 
-                        addRowClickHandlers('quotesTable', viewQuoteDetails);
-                    }, error => {
-                        console.error("Error en tiempo real:", error);
-                        innerReject(error);
+                if (filter === 'pending') {
+                    query = query.where('status', '==', 'quotes-pending');
+                } else if (filter === 'converted') {
+                    query = query.where('status', '==', 'converted');
+                }
+
+                // Crear nuevo listener
+                quotesUnsubscribe = query.onSnapshot(snapshot => {
+                    table.clear();
+
+                    snapshot.forEach(doc => {
+                        const quote = doc.data();
+                        const date = quote.timestamp?.toDate().toLocaleString() || 'N/A';
+                        table.row.add([
+                            doc.id,
+                            quote.name,
+                            quote.email,
+                            quote.phone,
+                            quote.packageType,
+                            quote.destination,
+                            date,
+                            getStatusBadge(quote.status),
+                            `<button class="btn btn-outline view-quote" data-id="${doc.id}">Ver</button>`
+                        ]).draw(false);
                     });
 
-                window.quotesUnsubscribe = unsubscribe;
-                innerResolve();
+                    addRowClickHandlers('quotesTable', viewQuoteDetails);
+                    innerResolve();
+                }, error => {
+                    console.error("Error en tiempo real:", error);
+                    innerReject(error);
+                });
+
+                // Guardar el unsubscribe en el ámbito global
+                window.quotesUnsubscribe = quotesUnsubscribe;
             });
         });
     });
 }
+
+// Función auxiliar para actualizar botones de filtro
+function updateQuoteFilterButtons() {
+    const pendingBtn = document.getElementById('filterPendingQuotes');
+    const convertedBtn = document.getElementById('filterConvertedQuotes');
+    
+    if (pendingBtn && convertedBtn) {
+        pendingBtn.classList.toggle('active', currentQuoteFilter === 'pending');
+        convertedBtn.classList.toggle('active', currentQuoteFilter === 'converted');
+    }
+}
+
 
 function createOrderRowData(id, order, showPaymentMethod = false) {
     const date = order.timestamp?.toDate() ? formatDate(order.timestamp.toDate()) : 'N/A';
@@ -575,6 +653,7 @@ function loadInTransitTable() {
 
 
 // Función para cargar órdenes completadas
+// Función para cargar órdenes completadas (modificada para mostrar órdenes con status "delivered")
 function loadCompletedOrdersTable() {
     return new Promise((resolve, reject) => {
         handleTableLoading('completedOrdersTable', () => {
@@ -583,7 +662,7 @@ function loadCompletedOrdersTable() {
                 table.clear().draw();
 
                 const unsubscribe = db.collection('orders')
-                    .where('status', '==', 'completed')
+                    .where('status', '==', 'delivered') // Cambiado a 'delivered' en lugar de 'completed'
                     .orderBy('timestamp', 'desc')
                     .onSnapshot(snapshot => {
                         table.clear();
@@ -593,7 +672,8 @@ function loadCompletedOrdersTable() {
                             table.row.add(createOrderRowData(doc.id, order, true)).draw(false);
                         });
 
-                        addViewOrderHandlers();
+                        // Agregar manejadores de clic a las filas para abrir el modal de detalles
+                        addRowClickHandlers('completedOrdersTable', viewOrderDetails);
                     }, error => {
                         console.error("Error en tiempo real:", error);
                         innerReject(error);
@@ -1817,31 +1897,44 @@ function showToast(message, type = 'info') {
 function initDataTables() {
     const commonOptions = {
         language: {
+            search: "",
+            searchPlaceholder: "Buscar...",
+            emptyTable: "No hay órdenes aquí...",
             url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
         },
-        order: [] // Esto se configurará individualmente para cada tabla
-    };
-
-    const exportOptions = {
-        dom: 'Bfrtip',
+        paging: false,
+        order: [], // Esto se configurará individualmente para cada tabla
+        dom: '<"top"<"search-container"f><"export-container"B>>rt<"bottom"i>', // Nueva estructura DOM
         buttons: ['excel', 'print'],
-        ...commonOptions
+        initComplete: function() {
+            // Mueve el input de búsqueda a la izquierda
+            $('.search-container').css({
+                'float': 'left',
+                'margin-right': 'auto'
+            });
+            
+            // Mueve los botones a la derecha
+            $('.export-container').css({
+                'float': 'right',
+                'margin-left': 'auto'
+            });
+        }
     };
 
     // Orders table - ordenar por fecha descendente (columna 3)
     $('#ordersTable').DataTable({
-        ...exportOptions,
+        ...commonOptions,
         order: [[3, 'desc']] // Columna 3 (Fecha) en orden descendente
     });
 
     // Quotes table - ordenar por fecha descendente (columna 6)
     $('#quotesTable').DataTable({
-        ...exportOptions,
+        ...commonOptions,
         order: [[6, 'desc']] // Columna 6 (Fecha) en orden descendente
     });
 
     // Customers table
-    $('#customersTable').DataTable(exportOptions);
+    $('#customersTable').DataTable(commonOptions);
 
     // Employees table
     $('#employeesTable').DataTable(commonOptions);
@@ -1854,7 +1947,7 @@ function initDataTables() {
 
     // Completed Orders table - ordenar por fecha descendente (columna 3)
     $('#completedOrdersTable').DataTable({
-        ...exportOptions,
+        ...commonOptions,
         order: [[3, 'desc']] // Columna 3 (Fecha) en orden descendente
     });
 
@@ -1870,6 +1963,7 @@ function initDataTables() {
         order: [[3, 'desc']] // Columna 3 (Fecha) en orden descendente
     });
 
+    // Assign Driver RD table
     $('#assignDriverRDTable').DataTable({
         ...commonOptions,
         order: [[3, 'desc']] // Ordenar por fecha descendente

@@ -32,6 +32,7 @@
         <div class="sidebar">
             <div class="sidebar-header">
                 <h3>Mee<span style="color:#5cc528;">Transportation</span></h3>
+                <h5>ADMINISTRADOR</h5>
             </div>
             <div class="sidebar-menu">
                 <div class="menu-item active" data-tab="dashboard">
@@ -51,13 +52,15 @@
 
                 <div class="menu-item" data-tab="assign-driver">
                     <i class="fas fa-user-tie"></i>
-                    <span>Asignar a recolector</span>
+                    <span id="flex1">Asignar a recolector</span>
+                    <span class="menu-badge" id="assignDriverBadge">0</span>
                 </div>
 
                 <div class="menu-item" data-tab="assign-driver-rd">
-    <i class="fas fa-truck"></i>
-    <span>Asignar a repartidor</span>
-</div>
+                    <i class="fas fa-truck"></i>
+                    <span id="flex1">Asignar a repartidor</span>
+                    <span class="menu-badge" id="assignDriverRDBadge">0</span>
+                </div>
 
                 <div class="menu-item" data-tab="in-transit">
                     <i class="fas fa-shipping-fast"></i>
@@ -185,7 +188,7 @@
             <div class="tab-content" id="ordersTab" style="display: none;">
                 <div class="data-table-container">
                     <div class="table-header">
-                        <h2>Todas las Órdenes</h2>
+                        <h2>Órdenes</h2>
                     </div>
                     <div class="table-container">
                         <div class="loading-overlay">
@@ -216,14 +219,15 @@
                 <div class="data-table-container">
                     <div class="table-header">
                         <h2>Cotizaciones</h2>
-                        <!-- <div class="table-actions">
-                            <button class="btn btn-primary" id="exportQuotes">
-                                <i class="fas fa-file-export"></i> Exportar
+                        <div class="table-actions">
+                            <div class="filter-buttons">
+                                <button class="btn btn-filter active" id="filterPendingQuotes">Cotizaciones</button>
+                                <button class="btn btn-filter" id="filterConvertedQuotes">Convertidas</button>
+                            </div>
+                            <button class="btn btn-outline" id="refreshQuotes">
+                                <i class="fas fa-sync-alt"></i> Actualizar
                             </button>
-                            <button class="btn btn-outline" id="filterQuotes">
-                                <i class="fas fa-filter"></i> Filtrar
-                            </button>
-                        </div> -->
+                        </div>
                     </div>
                     <table id="quotesTable" class="display" style="width:100%">
                         <thead>
@@ -246,11 +250,11 @@
             </div>
 
 
-                        <!-- Assign Driver Tab -->
+            <!-- Assign Driver Tab -->
             <div class="tab-content" id="assign-driverTab" style="display: none;">
                 <div class="data-table-container">
                     <div class="table-header">
-                        <h2>Órdenes Pendientes para Asignar</h2>
+                        <h2>Asignar a Recolector (USA)</h2>
                         <div class="table-actions">
                             <button class="btn btn-outline" id="refreshAssignDriver">
                                 <i class="fas fa-sync-alt"></i> Actualizar
@@ -274,34 +278,34 @@
                 </div>
             </div>
 
-            
+
             <!-- En la sección de contenido principal, después del div con id="assign-driverTab" -->
-<div class="tab-content" id="assign-driver-rdTab" style="display: none;">
-    <div class="data-table-container">
-        <div class="table-header">
-            <h2>Órdenes Listas para Reparto (RD)</h2>
-            <div class="table-actions">
-                <button class="btn btn-outline" id="refreshAssignDriverRD">
-                    <i class="fas fa-sync-alt"></i> Actualizar
-                </button>
+            <div class="tab-content" id="assign-driver-rdTab" style="display: none;">
+                <div class="data-table-container">
+                    <div class="table-header">
+                        <h2>Asignar a Repartidor (RD)</h2>
+                        <div class="table-actions">
+                            <button class="btn btn-outline" id="refreshAssignDriverRD">
+                                <i class="fas fa-sync-alt"></i> Actualizar
+                            </button>
+                        </div>
+                    </div>
+                    <table id="assignDriverRDTable" class="display" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Dirección Destino (RD)</th>
+                                <th>Teléfono Destino</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Datos se cargarán dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
-        <table id="assignDriverRDTable" class="display" style="width:100%">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Cliente</th>
-                    <th>Dirección Destino (RD)</th>
-                    <th>Teléfono Destino</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Datos se cargarán dinámicamente -->
-            </tbody>
-        </table>
-    </div>
-</div>
 
 
             <!-- Envíos en Tránsito Tab -->
@@ -504,12 +508,13 @@
                     <form id="settingsForm">
                         <div class="detail-section">
                             <h4>Configuración General</h4>
-                            <div class="detail-row">
+                            <!-- <div class="detail-row">
                                 <label class="detail-label">Nombre de la Empresa:</label>
                                 <div class="detail-value">
                                     <input type="text" class="form-control" id="companyName" required>
                                 </div>
-                            </div>
+                            </div> -->
+
                             <div class="detail-row">
                                 <label class="detail-label">Email de Contacto:</label>
                                 <div class="detail-value">
@@ -540,7 +545,7 @@
                             </div>
                         </div>
 
-                        <div class="detail-section">
+                        <!-- <div class="detail-section">
                             <h4>Configuración de Pagos</h4>
                             <div class="detail-row">
                                 <label class="detail-label">Habilitar Pagos en Línea:</label>
@@ -548,10 +553,10 @@
                                     <input type="checkbox" id="enableOnlinePayments">
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
 
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-outline" id="cancelSettings">Cancelar</button>
+                        <div class="modal-footer" id="setting-footer">
+                            <!-- <button type="button" class="btn btn-outline" id="cancelSettings">Cancelar</button> -->
                             <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                         </div>
                     </form>
@@ -1156,17 +1161,13 @@
     <!-- Employee Modal -->
     <div class="modal" id="employeeModal">
         <div class="modal-content">
-
-
             <div class="modal-header">
                 <h3 id="employeeModalTitle">Agregar Nuevo Empleado</h3>
-                <!-- <button class="close-modal">&times;</button> -->
+                <button class="close-modal">X</button>
             </div>
-
-
             <div class="modal-body">
                 <form id="employeeForm">
-                    <div class="detail-section">
+                    <div id="emple_div1" class="detail-section">
                         <h4>Información Personal</h4>
                         <div class="detail-row">
                             <label class="detail-label">Email:</label>
@@ -1174,7 +1175,6 @@
                                 <input type="email" id="employeeEmail" class="form-control" required>
                             </div>
                         </div>
-
                         <div class="detail-row">
                             <label class="detail-label">Nombre Completo:</label>
                             <div class="detail-value">
@@ -1184,36 +1184,48 @@
                         <div class="detail-row">
                             <label class="detail-label">Teléfono:</label>
                             <div class="detail-value">
-                                <input type="tel" id="employeePhone" class="form-control" required>
+                                <input type="tel" id="employeePhone" class="form-control" required
+                                    style="padding-left: 60px;">
                             </div>
                         </div>
                     </div>
 
-                    <div class="detail-section">
+                    <div id="emple_div2" class="detail-section">
                         <h4>Información Laboral</h4>
                         <div class="detail-row">
                             <label class="detail-label">Rol:</label>
                             <div class="detail-value">
                                 <select id="employeeRole" class="form-control" required>
-                                    <option value="admin">Administrador</option>
-                                    <option value="driver">Chofer</option>
-                                    <option value="warehouse">Almacén</option>
-                                    <option value="customer_service">Servicio al Cliente</option>
+                                    <option value="admin_usa">Administrador USA</option>
+                                    <option value="admin_rd">Administrador RD</option>
+                                    <option value="driver_usa">Chofer USA</option>
+                                    <option value="driver_rd">Chofer RD</option>
+                                    <option value="warehouse_usa">Almacén USA</option>
+                                    <option value="warehouse_rd">Almacén RD</option>
+                                    <option value="customer_service_usa">Servicio al Cliente USA</option>
+                                    <option value="customer_service_rd">Servicio al Cliente RD</option>
                                 </select>
                             </div>
                         </div>
                         <div class="detail-row">
-                            <label class="detail-label">Contraseña Temporal:</label>
+                            <label class="detail-label">Contraseña:</label>
                             <div class="detail-value">
                                 <input type="password" id="employeePassword" class="form-control" required>
                                 <small>La contraseña debe tener al menos 6 caracteres</small>
                             </div>
                         </div>
+                        <div class="detail-row">
+                            <label class="detail-label">Repetir Contraseña:</label>
+                            <div class="detail-value">
+                                <input type="password" id="employeePasswordConfirm" class="form-control" required>
+                                <small id="passwordMatchFeedback" style="font-weight: bold;">.</small>
+                            </div>
+                        </div>
+                        <!-- El botón de reset se agregará dinámicamente -->
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" id="cancelEmployee">Cancelar</button>
                 <button class="btn btn-primary" id="saveEmployee">Guardar Empleado</button>
             </div>
         </div>
