@@ -1684,14 +1684,14 @@ function getStatusBadge(status) {
         'cancelled': ['status-cancelled', 'Cancelado'],
         'converted': ['status-completed', 'Convertida'],
 
-        'assignedDriver': ['status-assigned', 'Chofer Asignado USA'],
+        'assignedDriver': ['status-assigned-driver-usa', 'Chofer Asignado USA'],
         'driverPickup': ['status-assigned', 'Recogido por Chofer'],
         'Received_Warehouse_usa': ['status-assigned', 'Recibido en Almacén USA'],
         'Warehouse_Exit_usa': ['status-assigned', 'Salida de Almacén USA'],
         'Received_Warehouse_rd': ['status-assigned', 'Recibido en Almacén RD'],
-        'assignedDriver_rd': ['status-assigned', 'Chofer Asignado RD'],
+        'assignedDriver_rd': ['status-assigned-driver-rd', 'Chofer Asignado RD'],
         'Warehouse_Exit_rd': ['status-assigned', 'Salida de Almacén RD'],
-        'delivered': ['status-completed', 'Entregado']
+        'delivered': ['status-completed', 'Entregado ✓']
     };
 
     const [badgeClass, badgeText] = statusMap[status] || ['status-pending', status];

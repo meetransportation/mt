@@ -528,6 +528,18 @@
      box-shadow: inset 0px 0px 0px 1px rgb(176 214 255);
  }
 
+.status-assigned-driver-usa {
+    background-color: #ccceff;
+    color: #1a1da3;
+    box-shadow: inset 0px 0px 0px 1px rgb(212 176 255);
+}
+
+.status-assigned-driver-rd {
+    background-color: #ccf1ff;
+    color: #0293db;
+    box-shadow: inset 0px 0px 0px 1px rgb(78 196 255);
+}
+
 
  .status-processing {
      background-color: #cce5ff;
