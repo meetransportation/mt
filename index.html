@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meetransportation - Envíos de USA a República Dominicana</title>
-    <link rel="stylesheet" href="./css/style.css">
     <link rel="icon" href="./img/icon_favicon_meetax_1_2048x2048.png" type="image/png" sizes="any">
     <!-- Firebase SDK -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app-compat.min.js"></script>
@@ -18,21 +17,12 @@
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
 
-
     <!-- intl-tel-input CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css">
     <!-- intl-tel-input JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"></script>
-
-
-    <style>
-
-
-
-    </style>
-
-
+    <link rel="stylesheet" href="./css/style.css">
 </head>
 
 <body>
@@ -54,11 +44,13 @@
                         <li><a href="#" id="loginBtn" data-i18n="login">Iniciar Sesión</a></li>
                         <li><a href="./profile.html" id="userProfile" style="display: none;"></a></li>
                         <li style="margin-left: 0rem;"><a href="#" id="logoutBtn" style="display:none;"
-                                class="btn btn-outline">Cerrar Sesión</a></li>
-                        <li style="display: none;">
-                            <select id="languageSelector">
-                                style="cursor: pointer;background: var(--primary); color: white; border: 1px solid
-                                white; border-radius: 5px; padding: 2px 5px;">
+                                class="btn btn-outline" data-i18n="logout">Cerrar Sesión</a></li>
+                        <li>
+                            <div id="languageToggle" style="cursor: pointer; display: flex; align-items: center;">
+                                <i class="fas fa-globe" style="font-size: 1.2rem; margin-right: 5px;"></i>
+                                <span id="currentLanguageText">ES</span>
+                            </div>
+                            <select id="languageSelector" style="display: none;">
                                 <option value="es">🇩🇴 Español</option>
                                 <option value="en">🇺🇸 English</option>
                             </select>
@@ -131,7 +123,7 @@
         <img src="./img/mundi_2.png" id="mundi-img-2">
 
         <div class="container" style="position: relative;">
-            <h2 class="section-title">Nuestros Servicios</h2>
+            <h2 class="section-title" data-i18n="servicesBtn">Nuestros Servicios</h2>
             <div class="services-grid" id="servicesContainer">
                 <!-- Los servicios se cargarán aquí dinámicamente desde Firebase -->
             </div>
@@ -140,25 +132,25 @@
                 <div id="comprar-arroz-tanque">
                     <img src="./img/comprar_arroz_aceite_1.png">
                     <div>
-                        <h3>
+                        <h3 data-i18n="noArroz">
                             ¿No tienes arroz o aceite?
                         </h3>
-                        <p>
+                        <p data-i18n="vendemosArroz">
                             ¡No te preocupes! Nosotros te lo vendemos al mejor precio.
                         </p>
                     </div>
-                    <button id="comprar-arroz-tanque-btn">Ordenar</button>
+                    <button id="comprar-arroz-tanque-btn" data-i18n="orderBtn">Ordenar</button>
                 </div>
 
                 <div id="comprar-arroz-tanque">
                     <img src="./img/comprar_caja_tanque_1.png">
                     <div>
-                        <h3>¿No tienes caja o tanque?</h3>
-                        <p>
+                        <h3 data-i18n="noCaja">¿No tienes caja o tanque?</h3>
+                        <p data-i18n="vendemosCaja">
                             ¡No te preocupes! Nosotros te lo vendemos al mejor precio.
                         </p>
                     </div>
-                    <button id="comprar-arroz-tanque-btn">Ordenar</button>
+                    <button id="comprar-arroz-tanque-btn" data-i18n="orderBtn">Ordenar</button>
                 </div>
 
 
@@ -170,44 +162,44 @@
     <!-- Quote Section -->
     <section id="quote" class="quote">
         <div class="container">
-            <h2 class="section-title" style="color: white;">Solicita tu Cotización</h2>
+            <h2 class="section-title" style="color: white;" data-i18n="solicitaCotizacion">Solicita tu Cotización</h2>
 
             <div class="quote-form">
                 <form id="quoteForm">
                     <div class="form-group">
-                        <label for="name">Nombre Completo:</label>
+                        <label for="name" data-i18n="nombreCompleto" data-i18n="nombreCompleto">Nombre Completo:</label>
                         <input type="text" id="name" class="form-control" placeholder="Nombre y Apellido" required>
                     </div>
 
                     <div class="form-row" style="border-bottom: 1px solid #e9ecef;margin-bottom: 15px;">
                         <div class="form-group">
-                            <label for="email">Correo Electrónico:</label>
+                            <label for="email" data-i18n="correoElectronico">Correo Electrónico:</label>
                             <input type="email" id="email" class="form-control" placeholder="tucorreo@email.com"
                                 required>
                         </div>
                         <div class="form-group">
-                            <label for="phone">Teléfono:</label>
+                            <label for="phone" data-i18n="telefono">Teléfono:</label>
                             <input type="tel" id="phone" class="form-control" required>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Tipo de Paquete:</label>
+                        <label data-i18n="tipoPaquete">Tipo de Paquete:</label>
                         <div class="package-type">
                             <div class="package-option">
                                 <input type="radio" id="commonItem" name="package" value="Artículo Común" checked>
-                                <label for="commonItem">Artículo Común</label>
+                                <label for="commonItem" data-i18n="articuloComun">Artículo Común</label>
                             </div>
                             <div class="package-option">
                                 <input type="radio" id="custom" name="package" value="Personalizado">
-                                <label for="custom">Personalizado</label>
+                                <label for="custom" data-i18n="personalizado">Personalizado</label>
                             </div>
                         </div>
                     </div>
 
                     <div id="commonItemDiv" class="custom-package show">
                         <div class="form-group">
-                            <label>Seleccione el artículo:</label>
+                            <label data-i18n="seleccioneArticulo">Seleccione el artículo:</label>
                             <div id="commonItemsContainer" class="package-type" style="margin-top: 1rem;">
                                 <!-- Los artículos se cargarán aquí dinámicamente desde Firebase -->
                             </div>
@@ -217,28 +209,28 @@
 
                     <div id="customPackage" class="custom-package">
                         <div class="form-group">
-                            <label for="item">Artículo a enviar:</label>
+                            <label for="item" data-i18n="articuloEnviar">Artículo a enviar:</label>
                             <input type="text" id="item" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label for="commercialValue">Valor comercial (USD):</label>
+                            <label for="commercialValue" data-i18n="valorComercial">Valor comercial (USD):</label>
                             <input type="number" id="commercialValue" class="form-control" min="0" step="0.01">
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="length">Largo (pulgadas):</label>
+                                <label for="length" data-i18n="largo">Largo (pulgadas):</label>
                                 <input type="number" id="length" class="form-control" min="1">
                             </div>
                             <div class="form-group">
-                                <label for="width">Ancho (pulgadas):</label>
+                                <label for="width" data-i18n="ancho">Ancho (pulgadas):</label>
                                 <input type="number" id="width" class="form-control" min="1">
                             </div>
                             <div class="form-group">
-                                <label for="height">Alto (pulgadas):</label>
+                                <label for="height" data-i18n="alto">Alto (pulgadas):</label>
                                 <input type="number" id="height" class="form-control" min="1">
                             </div>
                             <div class="form-group">
-                                <label for="weight">Peso (lbs):</label>
+                                <label for="weight" data-i18n="peso">Peso (lbs):</label>
                                 <input type="number" id="weight" class="form-control" min="1">
                             </div>
                         </div>
@@ -247,8 +239,9 @@
                     <div class="form-row">
                         <!-- Reemplaza esto en la sección de cotización -->
                         <div class="form-group">
-                            <label for="origin" style="display: inline-flex;align-items: center;">Origen <img
-                                    src="./img/Bandera_USA_1.png" style="height: 22px;margin: 0px 5px;"> (Ciudad,
+                            <label for="origin" style="display: inline-flex;align-items: center;"
+                                data-i18n="origen">Origen <img src="./img/Bandera_USA_1.png"
+                                    style="height: 22px;margin: 0px 5px;"> (Ciudad,
                                 Estado):</label>
                             <select id="origin" class="form-control" required>
                                 <option value="New York, NY" selected>New York, NY</option>
@@ -257,11 +250,13 @@
 
 
                         <div class="form-group">
-                            <label for="destination" style="display: inline-flex;align-items: center;">Destino <img
-                                    src="./img/Bandera_RD_1.png" style="height: 22px;margin: 0px 5px;">
+                            <label for="destination" style="display: inline-flex;align-items: center;"
+                                data-i18n="destino">Destino <img src="./img/Bandera_RD_1.png"
+                                    style="height: 22px;margin: 0px 5px;">
                                 (Provincia):</label>
                             <select id="destination" class="form-control" required>
-                                <option value="" disabled selected>Seleccione una provincia</option>
+                                <option value="" disabled selected data-i18n="seleccioneProvincia">Seleccione una
+                                    provincia</option>
                                 <option value="Distrito Nacional">Distrito Nacional</option>
                                 <option value="Santo Domingo">Santo Domingo</option>
                                 <option value="Santiago">Santiago</option>
@@ -300,11 +295,11 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="message">Mensaje adicional (opcional):</label>
+                        <label for="message" data-i18n="mensajeAdicional">Mensaje adicional (opcional):</label>
                         <textarea id="message" class="form-control" rows="4"></textarea>
                     </div>
 
-                    <button type="submit" class="btn">Enviar Solicitud</button>
+                    <button type="submit" class="btn" data-i18n="enviarSolicitud">Enviar Solicitud</button>
                 </form>
             </div>
         </div>
@@ -314,9 +309,10 @@
     <section id="contact" class="contact">
 
         <div class="container">
-            <h2 class="section-title">Contacto</h2>
+            <h2 class="section-title" data-i18n="contactoTitle">Contacto</h2>
             <div class="contact-content" style="margin-bottom: 1rem;">
-                <p style="text-align: justify;">¿Tienes alguna pregunta? No dudes en contactarnos. Estamos aquí para
+                <p style="text-align: justify;" data-i18n="preguntaContacto">¿Tienes alguna pregunta? No dudes en
+                    contactarnos. Estamos aquí para
                     ayudarte con tus necesidades de
                     envío.</p>
                 <div class="contact-info">
@@ -357,7 +353,8 @@
             <div class="footer-content">
                 <div class="footer-column">
                     <h3>Mee<span style="color: var(--secondary);">Transportation</span></h3>
-                    <p>Especialistas en envíos desde Estados Unidos a República Dominicana. Confiabilidad y rapidez en
+                    <p data-i18n="especialistas">Especialistas en envíos desde Estados Unidos a República Dominicana.
+                        Confiabilidad y rapidez en
                         cada entrega.</p>
                     <div class="social-links">
                         <a href="#"><i class="fab fa-facebook-f"></i></a>
@@ -368,20 +365,20 @@
                     </div>
                 </div>
                 <div class="footer-column">
-                    <h3>Enlaces Rápidos</h3>
-                    <a href="#services">Servicios</a>
-                    <a href="#quote">Cotización</a>
-                    <a href="#">Rastreo</a>
-                    <a href="#contact">Contacto</a>
+                    <h3 data-i18n="enlacesrapidos">Enlaces Rápidos</h3>
+                    <a href="#services" data-i18n="servicios">Servicios</a>
+                    <a href="#quote" data-i18n="cotizacion">Cotización</a>
+                    <a href="#" data-i18n="rastreo">Rastreo</a>
+                    <a href="#contact" data-i18n="contacto">Contacto</a>
                 </div>
                 <div class="footer-column">
-                    <h3>Horario</h3>
-                    <p>Lunes - Sábado: 9:30am - 8:00pm</p>
-                    <p>Domingo: Cerrado</p>
+                    <h3 data-i18n="horarioTitle">Horario</h3>
+                    <p data-i18n="lunesSabado">Lunes - Sábado: 9:30am - 8:00pm</p>
+                    <p data-i18n="domingoCerrado">Domingo: Cerrado</p>
                 </div>
             </div>
             <div class="copyright">
-                <p>&copy; 2025 MeeTransportation. Todos los derechos reservados.</p>
+                <p data-i18n="derechosReservados">&copy; 2025 MeeTransportation. Todos los derechos reservados.</p>
             </div>
         </div>
     </footer>
@@ -389,11 +386,17 @@
     <!-- Modal -->
     <div id="successModal" class="modal">
         <div class="modal-content"
-            style="background-color: #ffffff;padding: 2rem;display: inline-flex;align-items: center;">
-            <h3>¡Solicitud Enviada!</h3>
-            <p>Hemos recibido tu solicitud de cotización. Nos pondremos en contacto contigo en las próximas 24 horas con
+            style="background-color: #ffffff;display: inline-flex;align-items: center;">
+            <div class="Modal-Title">
+                <h3 data-i18n="solicitudEnviada">¡Solicitud Enviada!</h3>
+                <button class="close-modal btn">X</button>
+            </div>
+
+            <div class="Modal-Body" style="padding: 3rem 1rem;">
+            <p data-i18n="confirmacionSolicitud">Hemos recibido tu solicitud de cotización. Nos pondremos en contacto
+                contigo en las próximas 24 horas con
                 los detalles de tu envío.</p>
-            <button class="close-modal btn">Cerrar</button>
+                </div>
         </div>
     </div>
 
@@ -401,17 +404,17 @@
     <div id="loginModal" class="modal">
         <div class="modal-content" id="modal-login">
             <div class="Modal-Title ">
-                <h3>Iniciar Sesión / Registrarse</h3>
+                <h3 data-i18n="iniciarRegistroTitle">Iniciar Sesión / Registrarse</h3>
                 <button class="close-btn">&times;</button>
             </div>
             <div class="Modal-Body">
                 <form id="authForm">
                     <div class="form-group">
-                        <label for="authEmail">Correo Electrónico</label>
+                        <label for="authEmail" data-i18n="correoElectronico">Correo Electrónico</label>
                         <input type="email" id="authEmail" class="form-control" required>
                     </div>
                     <div class="form-group">
-                        <label for="authPassword">Contraseña</label>
+                        <label for="authPassword" data-i18n="contraseña">Contraseña</label>
                         <input type="password" id="authPassword" class="form-control" required>
                     </div>
 
@@ -422,65 +425,66 @@
                             <input type="text" id="fullName" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label for="phoneNumber">Número de Teléfono</label>
+                            <label for="phoneNumber" data-i18n="telefono">Número de Teléfono</label>
                             <input type="tel" id="phoneNumber" class="form-control">
                         </div>
 
                         <div style="display: inline-flex;gap: 22px;">
                             <div class="form-group" style="width: 50%;">
-                                <label for="country">País:</label>
+                                <label for="country" data-i18n="paisreg">País:</label>
                                 <select id="country" class="form-control" required>
-                                    <option value="" disabled selected>Seleccione un país</option>
+                                    <option value="" disabled selected data-i18n="selectpais">Seleccione un país</option>
                                     <option value="US">Estados Unidos</option>
                                     <option value="DO">República Dominicana</option>
                                 </select>
                             </div>
                             <div class="form-group" style="width: 50%;">
-                                <label for="state">Estado/Provincia:</label>
+                                <label for="state" data-i18n="selectstate">Estado/Provincia:</label>
                                 <select id="state" class="form-control" required>
-                                    <option value="" disabled selected>Estado/Provincia</option>
+                                    <option value="" disabled selected data-i18n="selectstate">Estado/Provincia</option>
                                 </select>
                             </div>
                         </div>
 
 
                         <div class="form-group">
-                            <label for="street">Dirección (Calle y Número):</label>
+                            <label for="street" data-i18n="direccionreg">Dirección (Calle y Número):</label>
                             <input type="text" id="street" class="form-control" required>
                         </div>
 
 
                         <div style="display: inline-flex;gap: 22px;">
                             <div class="form-group" style="width: 50%;">
-                                <label for="city">Ciudad:</label>
+                                <label for="city" data-i18n="Ciudad">Ciudad:</label>
                                 <input type="text" id="city" class="form-control" required>
                             </div>
                             <div class="form-group" style="width: 50%;">
-                                <label for="zipCode">Código Postal:</label>
+                                <label for="zipCode" data-i18n="codigopostal">Código Postal:</label>
                                 <input type="text" id="zipCode" class="form-control" required>
                             </div>
                         </div>
 
                         <div class="form-group" id="terminos">
                             <input type="checkbox" id="termsCheckbox" required>
-                            <label for="termsCheckbox" style="margin-bottom: 0rem;">Acepto los <a href="#"
-                                    style="color: var(--secondary);" onclick="showTerms()">Términos y
-                                    Condiciones</a></label>
+                            <label for="termsCheckbox" style="margin-bottom: 0rem;" data-i18n="aceptoTerminos">Acepto los</label> <a href="#"
+                                    style="color: var(--secondary);" onclick="showTerms()" data-i18n="terminosCondiciones">Términos y Condiciones</a>
                         </div>
                     </div>
 
                     <div
                         style="display: inline-flex;align-items: center;width: 100%;gap: 15px;justify-content: center;flex-direction: row;">
-                        <button type="button" id="loginUserBtn" class="btn">Iniciar Sesión</button>
-                        <button type="button" id="showLoginBtn" class="btn btn-outline-2" style="display: none;">Ya
+                        <button type="button" id="loginUserBtn" class="btn" data-i18n="login">Iniciar Sesión</button>
+                        <button type="button" id="showLoginBtn" class="btn btn-outline-2" style="display: none;"
+                            data-i18n="yaTengoCuenta">Ya
                             tengo
                             cuenta</button>
-                        <button type="button" id="registerUserBtn" class="btn btn-outline-2">Crear cuenta</button>
+                        <button type="button" id="registerUserBtn" class="btn btn-outline-2"
+                            data-i18n="crearCuenta">Crear cuenta</button>
                     </div>
 
                     <!-- Botón de Google -->
                     <div style="text-align: center;margin: 1rem 0;display: inline-flex;flex-direction: column;">
-                        <p style="margin: 1rem 0;">O inicia sesión con</p>
+                        <p style="margin: 1rem 0;" data-i18n="oIniciaGoogle">O inicia sesión con</p>
                         <button type="button" id="googleSignInBtn" class="btn">
                             <img src="./img/google_logo_1.png" style="height: 32px;">Google</button>
                     </div>
@@ -495,7 +499,7 @@
     <div id="termsModal" class="modal" style="background-color: rgb(0 0 0 / 5%);">
         <div class="modal-content" style="max-width: 800px; max-height: 80vh; overflow-y: auto;">
             <div class="Modal-Title">
-                <h3>Términos y Condiciones</h3>
+                <h3 data-i18n="terminosCondiciones">Términos y Condiciones</h3>
                 <button class="close-terms-modal">&times;</button>
             </div>
             <div class="Modal-Body">
@@ -522,7 +526,7 @@
                         del
                         servicio.</p>
                 </div>
-                <button class="close-terms-modal terms-OK">Aceptar</button>
+                <button class="close-terms-modal terms-OK" data-i18n="Aceptar">Aceptar</button>
             </div>
         </div>
     </div>
@@ -532,23 +536,23 @@
     <div id="cartModal" class="modal">
         <div class="modal-content" id="modal-cart">
             <div class="Modal-Title">
-                <h3>Tu Carrito</h3>
+                <h3 data-i18n="tuCarrito">Tu Carrito</h3>
                 <button class="close-modal">&times;</button>
             </div>
             <div class="Modal-Body">
                 <div id="cartItemsContainer" style="max-height: 400px; overflow-y: auto;">
                     <!-- Los items del carrito se mostrarán aquí -->
-                    <p style="text-align: center;">Tu carrito está vacío</p>
+                    <p style="text-align: center;" data-i18n="carritoVacio">Tu carrito está vacío</p>
                 </div>
                 <div id="cartTotal" style="font-weight: bold;text-align: right;margin-top: 0.5rem;font-size: 1.2rem;">
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
-                    <button id="clearCartBtn" class="btn btn-outline">Vaciar Carrito</button>
+                    <button id="clearCartBtn" class="btn btn-outline" data-i18n="vaciarCarrito">Vaciar Carrito</button>
 
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="checkoutBtn" class="btn">Proceder al Pago</button>
+                <button id="checkoutBtn" class="btn" data-i18n="pago">Proceder al Pago</button>
             </div>
         </div>
     </div>
@@ -578,21 +582,23 @@
     <div id="orderItemsModal" class="modal">
         <div class="modal-content" style="max-width: 500px;">
             <div class="Modal-Title">
-                <h3>Información de Compra</h3>
+                <h3 data-i18n="infoCompra">Información de Compra</h3>
             </div>
             <div class="Modal-Body">
-                <p>Nos encantaría ayudarte con tu pedido. Por favor llámanos al siguiente número y te lo vendemos al
+                <p data-i18n="llamanosParaComprar">Nos encantaría ayudarte con tu pedido. Por favor llámanos al
+                    siguiente número y te lo vendemos al
                     mejor precio:</p>
                 <p style="text-align: center; font-size: 1.2rem; margin: 1rem 0;">
                     <a href="tel:+18885313887"
                         style="background-color: var(--secondary);color: white;font-weight: bold;padding: 0.5rem 1rem;text-decoration: none;border-radius: 23px;display: inline-flex;align-items: center;">+1
                         (888) 531-3887</a>
                 </p>
-                <p>Nuestro equipo estará encantado de atenderte y proporcionarte toda la información que necesites.</p>
+                <p data-i18n="llamanosParaComprar2">Nuestro equipo estará encantado de atenderte y proporcionarte toda
+                    la información que necesites.</p>
             </div>
             <div class="modal-footer" style="text-align: center;">
-                <button class="btn close-modal"
-                    style="position: relative;background-color: var(--secondary);">Entendido</button>
+                <button class="btn close-modal" style="position: relative;background-color: var(--secondary);"
+                    data-i18n="entendido">Entendido</button>
             </div>
         </div>
     </div>

@@ -45,12 +45,12 @@
      font-size: 1.8rem;
  }
 
-.login-header h5 {
-    color: #666;
-    font-size: 0.9rem;
-    letter-spacing: 7px;
-    font-weight: 500;
-}
+ .login-header h5 {
+     color: #666;
+     font-size: 0.9rem;
+     letter-spacing: 7px;
+     font-weight: 500;
+ }
 
  .form-group {
      margin-bottom: 1.2rem;
@@ -65,7 +65,7 @@
 
  .form-control {
      width: 100%;
-     padding: 0.8rem;
+     padding: 0.4rem;
      border: 1px solid #ddd;
      border-radius: 5px;
      font-size: 1rem;
@@ -183,8 +183,9 @@
      width: 270px;
      background-color: var(--primary);
      color: white;
-     padding: 0.5rem 0rem 1rem 0rem;
      transition: all 0.3s;
+     display: inline-flex;
+     flex-direction: column;
  }
 
  .sidebar-header {
@@ -210,6 +211,14 @@
 
  .sidebar-menu {
      padding: 1rem 0;
+     flex: 1;
+ }
+
+ .sidebar-footer {
+     border-top: 1px solid rgba(255, 255, 255, 0.1);
+     padding: 0.7rem 0rem;
+     display: inline-flex;
+     justify-content: center;
  }
 
  .menu-item {
@@ -302,17 +311,21 @@
 
 
  .logout-btn {
-     background-color: var(--accent);
-     color: white;
+     background-color: #28a745;
+     color: #ffffff;
      padding: 0.5rem 1rem;
      border-radius: 5px;
      cursor: pointer;
      margin-left: 1rem;
      transition: all 0.3s;
+     font-size: 1rem;
+     display: inline-flex;
+     gap: 0.5rem;
+     align-items: center;
  }
 
  .logout-btn:hover {
-     background-color: #c0392b;
+     background-color: #20993c;
  }
 
  /* Cards */
@@ -442,12 +455,14 @@
 
  .btn-primary {
      background-color: var(--secondary);
+     background-color: #28a745;
      color: white;
      border: none;
  }
 
  .btn-primary:hover {
      background-color: #4cad1c;
+     background-color: #259e41;
  }
 
  .btn-outline {
@@ -468,6 +483,20 @@
 
  .btn-danger:hover {
      background-color: #c0392b;
+ }
+
+ .buttons-excel {
+     background: #28a745;
+     /*background: linear-gradient(1deg, #158930, #28a745) !important;*/
+          background: #28a745 !important;
+     color: white !important;
+     border: none !important;
+     transition: all 0.3s !important;
+ }
+
+ .buttons-excel:hover {
+     /*background: linear-gradient(1deg, #13802c, #259e41) !important;*/
+          background: #259c41 !important;
  }
 
  #saveQuoteChanges {
@@ -528,17 +557,17 @@
      box-shadow: inset 0px 0px 0px 1px rgb(176 214 255);
  }
 
-.status-assigned-driver-usa {
-    background-color: #ccceff;
-    color: #1a1da3;
-    box-shadow: inset 0px 0px 0px 1px rgb(212 176 255);
-}
+ .status-assigned-driver-usa {
+     background-color: #ccceff;
+     color: #1a1da3;
+     box-shadow: inset 0px 0px 0px 1px rgb(212 176 255);
+ }
 
-.status-assigned-driver-rd {
-    background-color: #ccf1ff;
-    color: #0293db;
-    box-shadow: inset 0px 0px 0px 1px rgb(78 196 255);
-}
+ .status-assigned-driver-rd {
+     background-color: #ccf1ff;
+     color: #0293db;
+     box-shadow: inset 0px 0px 0px 1px rgb(78 196 255);
+ }
 
 
  .status-processing {
@@ -835,6 +864,7 @@
      display: inline-flex;
      justify-content: space-between;
      width: 100%;
+     align-items: center;
  }
 
  .dataTables_wrapper .dataTables_filter input {
@@ -867,9 +897,9 @@
  }
 
  .btn-filter.active {
-     background-color: #5cc528;
+     background-color: #28a745;
      color: white;
-     border-color: #5cc528;
+     border-color: #28a745;
  }
 
  .btn-filter:hover:not(.active) {

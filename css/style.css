@@ -292,7 +292,6 @@
       background: #5b6779;
       padding: 4px 10px;
       border-radius: 8px;
-      min-width: 117px;
   }
 
   #logoutBtn {
@@ -866,7 +865,7 @@
 
 
   .modal p {
-      margin-bottom: 2rem;
+      margin-bottom: 1rem;
   }
 
   .close-modal {
@@ -986,6 +985,7 @@
       pointer-events: auto;
   }
 
+  .close-btn:hover,
   .close:hover,
   .close-terms-modal:hover {
       background: #eb0707;
@@ -1036,7 +1036,7 @@
       background: rgba(255, 255, 255, 0);
       overflow: auto;
       flex: 1;
-      padding: 20px;
+      padding: 1rem;
   }
 
   .modal-footer {
@@ -1299,7 +1299,20 @@
   }
 
 
+#languageToggle {
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
 
+#languageToggle:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+#currentLanguageText {
+    font-weight: 400;
+    font-size: 0.9rem;
+}
 
 
   /* WhatsApp Floating Button */
@@ -1314,7 +1327,7 @@
       border-radius: 50%;
       text-align: center;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      z-index: 1000;
+      z-index: 997;
       display: flex;
       align-items: center;
       justify-content: center;

@@ -28,6 +28,7 @@ const translations = {
         "contacto": "Contacto",
         "login": "Iniciar Sesión",
         "logout": "Cerrar Sesión",
+        "miPerfil": "Mi perfil",
         "heroTitle": "Envíos seguros de USA a República Dominicana",
         "heroText": "Especializados en el envío de cajas y tanques azules desde Nueva York a todo el territorio dominicano. Confiabilidad, rapidez y transparencia en cada envío.",
         "quoteBtn": "Solicitar Cotización",
@@ -37,6 +38,66 @@ const translations = {
         "NY": "Nueva York, NY",
         "TodoPais": "Todo el país",
         "rastreo": "Rastreo",
+
+        // Nuevos textos
+        "NuestrosServiciosTitle": "Nuestros Servicios",
+        "noArroz": "¿No tienes arroz o aceite?",
+        "vendemosArroz": "¡No te preocupes! Nosotros te lo vendemos al mejor precio.",
+        "noCaja": "¿No tienes caja o tanque?",
+        "vendemosCaja": "¡No te preocupes! Nosotros te lo vendemos al mejor precio.",
+        "orderBtn": "Ordenar",
+        "solicitaCotizacion": "Solicita tu Cotización",
+        "nombreCompleto": "Nombre Completo",
+        "correoElectronico": "Correo Electrónico",
+        "contraseña": "Contraseña",
+        "telefono": "Teléfono",
+        "tipoPaquete": "Tipo de Paquete",
+        "articuloComun": "Artículo Común",
+        "personalizado": "Personalizado",
+        "seleccioneArticulo": "Seleccione el artículo",
+        "articuloEnviar": "Artículo a enviar",
+        "valorComercial": "Valor comercial (USD)",
+        "largo": "Largo (pulgadas)",
+        "ancho": "Ancho (pulgadas)",
+        "alto": "Alto (pulgadas)",
+        "peso": "Peso (lbs)",
+        //"origen": "Origen",
+        //"destino": "Destino",
+        "seleccioneProvincia": "Seleccione una provincia",
+        "mensajeAdicional": "Mensaje adicional (opcional)",
+        "enviarSolicitud": "Enviar Solicitud",
+        "contactoTitle": "Contacto",
+        "preguntaContacto": "¿Tienes alguna pregunta? No dudes en contactarnos. Estamos aquí para ayudarte con tus necesidades de envío.",
+        "especialistas": "Especialistas en envíos desde Estados Unidos a República Dominicana. Confiabilidad y rapidez encada entrega.",
+        "enlacesrapidos": "Enlaces Rápidos",
+        "horarioTitle": "Horario",
+        "lunesSabado": "Lunes - Sábado: 9:30am - 8:00pm",
+        "domingoCerrado": "Domingo: Cerrado",
+        "derechosReservados": "© 2025 MeeTransportation. Todos los derechos reservados.",
+        "solicitudEnviada": "¡Solicitud Enviada!",
+        "confirmacionSolicitud": "Hemos recibido tu solicitud de cotización. Nos pondremos en contacto contigo en las próximas 24 horas con los detalles de tu envío.",
+        "cerrar": "Cerrar",
+        "iniciarRegistroTitle": "Iniciar Sesión / Registrarse",
+        "yaTengoCuenta": "Ya tengo cuenta",
+        "crearCuenta": "Crear cuenta",
+        "oIniciaGoogle": "O inicia sesión con",
+        "paisreg": "País:",
+        "selectpais": "Seleccione un país:",
+        "selectstate": "Estado/Provincia:",
+        "direccionreg": "Dirección (Calle y Número):",
+        "Ciudad": "Ciudad:",
+        "codigopostal": "Código Postal:",
+        "aceptoTerminos": "Acepto los",
+        "terminosCondiciones": "Términos y Condiciones",
+        "Aceptar": "Accept",
+        "tuCarrito": "Tu Carrito",
+        "carritoVacio": "Tu carrito está vacío",
+        "vaciarCarrito": "Vaciar Carrito",
+        "pago": "Proceder al Pago",
+        "infoCompra": "Información de Compra",
+        "llamanosParaComprar": "Nos encantaría ayudarte con tu pedido. Por favor llámanos al siguiente número y te lo vendemos al mejor precio:",
+        "llamanosParaComprar2": "Nuestro equipo estará encantado de atenderte y proporcionarte toda la información que necesites.",
+        "entendido": "Entendido"
     },
     en: {
         "inicio": "Home",
@@ -45,16 +106,79 @@ const translations = {
         "contacto": "Contact",
         "login": "Login",
         "logout": "Logout",
+        "miPerfil": "My Profile",
         "heroTitle": "Secure shipping from USA to Dominican Republic",
         "heroText": "Specialized in shipping boxes and blue tanks from New York to all Dominican territory. Reliability, speed and transparency in every shipment.",
         "quoteBtn": "Request Quote",
+        "servicesBtn": "Our Services",
         "EstadosUnidos": "United States",
         "RD": "Dominican Republic",
         "NY": "New York, NY",
         "TodoPais": "The whole country",
         "rastreo": "Tracking",
+
+        // Nuevos textos
+        "NuestrosServiciosTitle": "Our Services",
+        "noArroz": "Don't have rice or oil?",
+        "vendemosArroz": "Don't worry! We’ll sell it to you at the best price.",
+        "noCaja": "Don't have a box or tank?",
+        "vendemosCaja": "Don't worry! We’ll sell it to you at the best price.",
+        "orderBtn": "Order",
+        "solicitaCotizacion": "Request your Quote",
+        "nombreCompleto": "Full Name",
+        "correoElectronico": "Email Address",
+        "contraseña": "Password",
+        "telefono": "Phone Number",
+        "tipoPaquete": "Package Type",
+        "articuloComun": "Common Item",
+        "personalizado": "Custom",
+        "seleccioneArticulo": "Select the item",
+        "articuloEnviar": "Item to send",
+        "valorComercial": "Commercial Value (USD)",
+        "largo": "Length (inches)",
+        "ancho": "Width (inches)",
+        "alto": "Height (inches)",
+        "peso": "Weight (lbs)",
+        "origen": "Origin",
+        "destino": "Destination",
+        "seleccioneProvincia": "Select a province",
+        "mensajeAdicional": "Additional message (optional)",
+        "enviarSolicitud": "Submit Request",
+        "contactoTitle": "Contact",
+        "preguntaContacto": "Have a question? Don’t hesitate to contact us. We’re here to help with your shipping needs.",
+        "especialistas": "Specialists in shipping from the United States to the Dominican Republic. Reliability and speed in every delivery.",
+        "enlacesrapidos": "Quick Links",
+        "horarioTitle": "Hours",
+        "lunesSabado": "Monday - Saturday: 9:30am - 8:00pm",
+        "domingoCerrado": "Sunday: Closed",
+        "derechosReservados": "© 2025 MeeTransportation. All rights reserved.",
+        "solicitudEnviada": "Request Sent!",
+        "confirmacionSolicitud": "We have received your quote request. We'll contact you within 24 hours with the shipping details.",
+        "cerrar": "Close",
+        "iniciarRegistroTitle": "Sign In / Register",
+        "yaTengoCuenta": "I already have an account",
+        "crearCuenta": "Create Account",
+        "oIniciaGoogle": "Or sign in with",
+        "direccionreg": "Address (Street and Number):",
+        "Ciudad": "City:",
+        "codigopostal": "Postal Code:",
+        "aceptoTerminos": "I accept the",
+        "terminosCondiciones": "Terms and Conditions",
+        "Aceptar": "Accept",
+        "paisreg": "Country:",
+        "selectpais": "Select a country:",
+        "selectstate": "State/Province:",
+        "tuCarrito": "Your Cart",
+        "carritoVacio": "Your cart is empty",
+        "vaciarCarrito": "Empty Cart",
+        "pago": "Proceed to Checkout",
+        "infoCompra": "Purchase Information",
+        "llamanosParaComprar": "We'd love to help with your order. Please call us at the number below and we’ll sell it to you at the best price:",
+        "llamanosParaComprar2": "Our team will be happy to assist you and provide all the information you need.",
+        "entendido": "Understood"
     }
 };
+
 
 let currentLanguage = 'es'; // Default language
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -63,6 +187,9 @@ function changeLanguage(lang) {
     currentLanguage = lang;
     document.getElementById('languageSelector').value = lang;
 
+    // Actualizar el texto del idioma actual
+    document.getElementById('currentLanguageText').textContent = lang === 'es' ? 'ES' : 'EN';
+
     // Update texts
     document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
@@ -70,6 +197,15 @@ function changeLanguage(lang) {
             element.textContent = translations[lang][key];
         }
     });
+
+    // Actualizar el texto "Mi perfil" si el usuario está logueado
+    if (currentUser) {
+        const userProfile = document.getElementById('userProfile');
+        if (userProfile) {
+            userProfile.textContent = translations[lang]['miPerfil'];
+            userProfile.innerHTML = translations[lang]['miPerfil'];
+        }
+    }
 
     // Actualizar servicios
     const servicesContainer = document.getElementById('servicesContainer');
@@ -112,7 +248,7 @@ function updateCartCount() {
 }
 
 // Para los botones
-document.getElementById('cartBtn').addEventListener('click', function(e) {
+document.getElementById('cartBtn').addEventListener('click', function (e) {
     e.preventDefault();
     renderCartItems();
     showModal(document.getElementById('cartModal'));
@@ -121,7 +257,7 @@ document.getElementById('cartBtn').addEventListener('click', function(e) {
 // Si tienes un segundo botón con ID diferente
 const cartBtn2 = document.getElementById('cartBtn2');
 if (cartBtn2) {
-    cartBtn2.addEventListener('click', function(e) {
+    cartBtn2.addEventListener('click', function (e) {
         e.preventDefault();
         renderCartItems();
         showModal(document.getElementById('cartModal'));
@@ -131,9 +267,9 @@ if (cartBtn2) {
 function renderCartItems() {
     const container = document.getElementById('cartItemsContainer');
     const totalElement = document.getElementById('cartTotal');
-    
+
     if (cart.length === 0) {
-        container.innerHTML = '<p style="text-align: center;">Tu carrito está vacío</p>';
+        container.innerHTML = '<p style="text-align: center;">Your cart is empty</p>';
         totalElement.textContent = '';
         return;
     }
@@ -189,7 +325,7 @@ function saveCart() {
 
 function addToCart(service) {
     const existingItem = cart.find(item => item.id === service.id);
-    
+
     if (existingItem) {
         existingItem.quantity = (existingItem.quantity || 1) + 1;
     } else {
@@ -198,10 +334,10 @@ function addToCart(service) {
             quantity: 1
         });
     }
-    
+
     saveCart();
     renderCartItems();
-    
+
     // Mostrar notificación
     const notification = document.createElement('div');
     notification.style.position = 'fixed';
@@ -214,7 +350,7 @@ function addToCart(service) {
     notification.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
     notification.style.zIndex = '1000';
     notification.textContent = 'Servicio agregado al carrito';
-    
+
     document.body.appendChild(notification);
     setTimeout(() => notification.remove(), 3000);
 }
@@ -223,7 +359,7 @@ function addToCart(service) {
 // Modifica la función loadServices para implementar el caché
 async function loadServices() {
     const servicesContainer = document.getElementById('servicesContainer');
-    
+
     // Verificar si hay datos en el localStorage
     const cachedServices = localStorage.getItem('cachedServices');
     const lastUpdated = localStorage.getItem('servicesLastUpdated');
@@ -318,17 +454,18 @@ function renderServices(services, container) {
             serviceCard.classList.add('offer-card');
         }
 
-        // Usar el idioma actual
+        // Usar el idioma actual para todos los campos traducibles
         const serviceName = service[`name_${currentLanguage}`] || service.name;
         const slot1 = service[`slot1_${currentLanguage}`] || service.slot1;
         const slot2 = service[`slot2_${currentLanguage}`] || service.slot2;
         const slot3 = service[`slot3_${currentLanguage}`] || service.slot3;
         const slot4 = service[`slot4_${currentLanguage}`] || service.slot4;
+        const price = service[`price_${currentLanguage}`] || service.price;
 
-        // Resto del código sigue igual pero usando las variables traducidas
+        // Formatear el precio según si es promoción o no
         const priceContent = isPromo
-            ? `<div class="service-price">${service.price}</div>`
-            : `<div class="service-price">US$${service.price}</div>`;
+            ? `<div class="service-price">${price}</div>`
+            : `<div class="service-price">${currentLanguage === 'es' ? 'US$' : 'USD$'}${price}</div>`;
 
         const headerContent = `
             <div class="service-header">
@@ -368,13 +505,13 @@ function renderServices(services, container) {
 function setupServiceButtons() {
     // Event listeners para los botones de ordenar
     document.querySelectorAll('.btn-ordenar').forEach(button => {
-        button.addEventListener('click', async function() {
+        button.addEventListener('click', async function () {
             const serviceId = this.getAttribute('data-service-id');
             try {
                 const doc = await db.collection('services').doc(serviceId).get();
                 if (doc.exists) {
                     const service = doc.data();
-                    
+
                     // Agregar el servicio al carrito
                     addToCart({
                         id: doc.id,
@@ -387,7 +524,7 @@ function setupServiceButtons() {
                         slot3: service.slot3,
                         slot4: service.slot4
                     });
-                    
+
                     // Redirigir al checkout
                     window.location.href = 'checkout.html';
                 }
@@ -400,7 +537,7 @@ function setupServiceButtons() {
 
     // Event listeners para los botones de añadir al carrito
     document.querySelectorAll('.btn-add-to-cart').forEach(button => {
-        button.addEventListener('click', async function() {
+        button.addEventListener('click', async function () {
             const serviceId = this.getAttribute('data-service-id');
             try {
                 const doc = await db.collection('services').doc(serviceId).get();
@@ -671,14 +808,14 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
-    
+
 
     // Address country change listeners
-    document.getElementById('country')?.addEventListener('change', function() {
+    document.getElementById('country')?.addEventListener('change', function () {
         loadStates(this.value, 'state');
     });
-    
-    document.getElementById('profileCountry')?.addEventListener('change', function() {
+
+    document.getElementById('profileCountry')?.addEventListener('change', function () {
         loadStates(this.value, 'profileState');
     });
 
@@ -709,7 +846,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('showLoginBtn').addEventListener('click', showLoginForm);
 
     // Event listener para el formulario de autenticación
-    document.getElementById('authForm').addEventListener('keypress', function(e) {
+    document.getElementById('authForm').addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
             // Solo activar login si no estamos en modo registro
             if (document.getElementById('registerFields').style.display === 'none') {
@@ -751,52 +888,52 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Carrito functionality
-    document.getElementById('cartBtn').addEventListener('click', function(e) {
+    document.getElementById('cartBtn').addEventListener('click', function (e) {
         e.preventDefault();
         renderCartItems();
         showModal(document.getElementById('cartModal'));
     });
 
-    document.getElementById('checkoutBtn').addEventListener('click', function() {
+    document.getElementById('checkoutBtn').addEventListener('click', function () {
         if (cart.length === 0) return;
         localStorage.setItem('cart', JSON.stringify(cart));
         window.location.href = 'checkout.html';
     });
 
-    document.getElementById('clearCartBtn').addEventListener('click', function() {
+    document.getElementById('clearCartBtn').addEventListener('click', function () {
         cart = [];
         saveCart();
         renderCartItems();
     });
 
     // Delegación de eventos para los botones de cantidad y eliminar
-    document.getElementById('cartItemsContainer').addEventListener('click', function(e) {
+    document.getElementById('cartItemsContainer').addEventListener('click', function (e) {
         if (e.target.classList.contains('change-quantity') || e.target.parentElement.classList.contains('change-quantity')) {
             const button = e.target.classList.contains('change-quantity') ? e.target : e.target.parentElement;
             const index = parseInt(button.getAttribute('data-index'));
             const change = parseInt(button.getAttribute('data-change'));
-            
+
             cart[index].quantity = (cart[index].quantity || 1) + change;
-            
+
             if (cart[index].quantity < 1) {
                 cart.splice(index, 1);
             }
-            
+
             saveCart();
             renderCartItems();
         }
-        
+
         if (e.target.classList.contains('remove-item') || e.target.parentElement.classList.contains('remove-item')) {
             const button = e.target.classList.contains('remove-item') ? e.target : e.target.parentElement;
             const index = parseInt(button.getAttribute('data-index'));
-            
+
             cart.splice(index, 1);
             saveCart();
             renderCartItems();
         }
     });
 
-    
+
 
     // Inicializar el contador del carrito
     updateCartCount();
@@ -817,6 +954,14 @@ document.addEventListener('DOMContentLoaded', function () {
             updateUIForLoggedOutUser();
         }
     });
+
+
+    // Toggle language with globe icon
+    document.getElementById('languageToggle').addEventListener('click', function () {
+        const newLang = currentLanguage === 'es' ? 'en' : 'es';
+        changeLanguage(newLang);
+    });
+
 });
 
 // Sign in with Google
@@ -886,7 +1031,7 @@ async function handleQuoteSubmission(e) {
             itemsWithSubIds = formData.commonItems.flatMap(item => {
                 const items = [];
                 const quantity = item.quantity || 1;
-                
+
                 for (let i = 0; i < quantity; i++) {
                     const itemData = {
                         id: item.id,
@@ -898,13 +1043,13 @@ async function handleQuoteSubmission(e) {
                         commercialValue: item.price || 0, // Usamos el precio como valor comercial
                         iconUrl: item.iconUrl || "https://firebasestorage.googleapis.com/v0/b/meetransportation.firebasestorage.app/o/icons%2Fcaja_icon_1.png?alt=media&token=203a7bd1-d2ea-4cc2-bc86-c2772382b363"
                     };
-                    
+
                     Object.keys(itemData).forEach(key => {
                         if (itemData[key] === undefined) {
                             delete itemData[key];
                         }
                     });
-                    
+
                     items.push(itemData);
                 }
                 return items;
@@ -912,7 +1057,7 @@ async function handleQuoteSubmission(e) {
         } else if (formData.packageType === 'Personalizado' && formData.customItem) {
             // Crear array de items para artículos personalizados
             const dimensionsStr = `"${formData.customItem.length}" x "${formData.customItem.width}" x "${formData.customItem.height}"`;
-            
+
             itemsWithSubIds = [{
                 subId: `${quoteId}-${itemCounter++}`,
                 name: formData.customItem.item || "Artículo personalizado",
@@ -963,10 +1108,10 @@ async function handleQuoteSubmission(e) {
         quoteForm.reset();
         customPackageDiv.classList.remove('show');
         resetCommonItemsSelection();
-        
+
         if (currentUser) {
             fillQuoteFormWithUserData(
-                await getUserData(currentUser.uid), 
+                await getUserData(currentUser.uid),
                 currentUser
             );
         }
@@ -989,9 +1134,9 @@ function resetCommonItemsSelection() {
     if (container) {
         container.innerHTML = '';
     }
-    
+
     document.getElementById('commonItemType').value = '';
-    
+
     // Remover la clase 'selected' de todos los botones
     document.querySelectorAll('.common-item-btn.selected').forEach(btn => {
         btn.classList.remove('selected');
@@ -1008,17 +1153,17 @@ async function generateId(prefix = 'mt') {
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
     const datePart = year + month + day;
-    
+
     const counterRef = db.collection('counters').doc('orders');
-    
+
     return db.runTransaction(async (transaction) => {
         const doc = await transaction.get(counterRef);
-        
+
         // Caso 1: El contador existe (flujo normal)
         if (doc.exists) {
             const data = doc.data();
             let { lastLetter, lastNumber, lastDate } = data;
-            
+
             // Reiniciar contadores si es un nuevo día
             if (lastDate !== datePart) {
                 lastLetter = 'a';
@@ -1033,34 +1178,34 @@ async function generateId(prefix = 'mt') {
                     if (lastLetter > 'z') lastLetter = 'a'; // Reiniciar letras
                 }
             }
-            
+
             // Actualizar contador
             transaction.update(counterRef, {
                 lastLetter,
                 lastNumber,
                 lastDate
             });
-            
+
             return `${prefix}${datePart}${lastLetter}${String(lastNumber).padStart(2, '0')}`;
         }
-        
+
         // Caso 2: El contador NO existe (primera vez o fue eliminado)
         console.warn('Contador no encontrado. Regenerando desde colecciones...');
-        
+
         // Buscar el documento más reciente entre orders y quotes
         const [lastOrder, lastQuote] = await Promise.all([
             db.collection('orders').orderBy('timestamp', 'desc').limit(1).get(),
             db.collection('quotes').orderBy('timestamp', 'desc').limit(1).get()
         ]);
-        
+
         let lastDoc = null;
         let lastTimestamp = null;
-        
+
         // Determinar cuál es el documento más reciente
         if (!lastOrder.empty && !lastQuote.empty) {
             const orderTime = lastOrder.docs[0].data().timestamp?.toMillis() || 0;
             const quoteTime = lastQuote.docs[0].data().timestamp?.toMillis() || 0;
-            
+
             if (orderTime > quoteTime) {
                 lastDoc = lastOrder.docs[0];
             } else {
@@ -1071,42 +1216,42 @@ async function generateId(prefix = 'mt') {
         } else if (!lastQuote.empty) {
             lastDoc = lastQuote.docs[0];
         }
-        
+
         // Si encontramos un documento, extraer el último ID
         if (lastDoc) {
             console.log(`Documento más reciente encontrado: ${lastDoc.id}`);
-            
+
             const regex = /^mt\d{6}([a-z])(\d{2})$/;
             const match = lastDoc.id.match(regex);
-            
+
             if (match) {
                 const lastLetter = match[1];
                 const lastNumber = parseInt(match[2]);
                 const lastDate = lastDoc.id.substring(2, 8);
-                
+
                 // Si es del mismo día, incrementar
                 if (lastDate === datePart) {
                     const newId = generateNextId(datePart, lastLetter, lastNumber);
-                    
+
                     // Crear el contador con los valores actualizados
                     transaction.set(counterRef, {
                         lastLetter: newId.charAt(8), // La letra del nuevo ID
                         lastNumber: parseInt(newId.substring(9)), // El número del nuevo ID
                         lastDate: datePart
                     });
-                    
+
                     return newId;
                 }
             }
         }
-        
+
         // Si no hay documentos o el formato no coincide, iniciar nueva secuencia
         transaction.set(counterRef, {
             lastLetter: 'a',
             lastNumber: 1,
             lastDate: datePart
         });
-        
+
         return `${prefix}${datePart}a01`;
     }).catch(error => {
         console.error('Error en la transacción:', error);
@@ -1118,13 +1263,13 @@ async function generateId(prefix = 'mt') {
 function generateNextId(datePart, lastLetter, lastNumber) {
     let nextLetter = lastLetter;
     let nextNumber = lastNumber + 1;
-    
+
     if (nextNumber > 99) {
         nextNumber = 1;
         nextLetter = String.fromCharCode(nextLetter.charCodeAt(0) + 1);
         if (nextLetter > 'z') nextLetter = 'a';
     }
-    
+
     return `mt${datePart}${nextLetter}${String(nextNumber).padStart(2, '0')}`;
 }
 
@@ -1329,14 +1474,14 @@ async function registerUser() {
     const phoneInput = document.getElementById('phoneNumber');
     const phoneIti = window.intlTelInputGlobals.getInstance(phoneInput);
     const phoneNumber = phoneIti.getNumber(intlTelInputUtils.numberFormat.E164);
-    
+
     // New address fields
     const country = document.getElementById('country').value;
     const state = document.getElementById('state').value;
     const city = document.getElementById('city').value.trim();
     const street = document.getElementById('street').value.trim();
     const zipCode = document.getElementById('zipCode').value.trim();
-    
+
     const termsChecked = document.getElementById('termsCheckbox').checked;
     const messageDiv = document.getElementById('authMessage');
 
@@ -1420,15 +1565,15 @@ function updateUIForLoggedInUser(user) {
     userProfile.style.display = 'inline-block';
     logoutBtn.style.display = 'inline-block';
 
-    // Cambiar el texto a "Mi perfil" en lugar del nombre del usuario
-    userProfile.textContent = 'Mi perfil';
-    userProfile.innerHTML = 'Mi perfil'; // Esto asegura que no haya HTML adicional
+    // Usar la traducción para "Mi perfil"
+    userProfile.textContent = translations[currentLanguage]['miPerfil'];
+    userProfile.innerHTML = translations[currentLanguage]['miPerfil'];
 
-    // Get user data (aunque ya no usaremos el nombre para mostrarlo)
+    // Get user data
     db.collection('users').doc(user.uid).get().then(doc => {
         if (doc.exists) {
             const userData = doc.data();
-            
+
             // Auto-fill quote form with user data
             fillQuoteFormWithUserData(userData, user);
         }
@@ -1447,10 +1592,10 @@ function fillQuoteFormWithUserData(userData, user) {
     } else if (user.displayName) {
         document.getElementById('name').value = user.displayName;
     }
-    
+
     // Fill email
     document.getElementById('email').value = user.email || '';
-    
+
     // Fill phone if available
     const phoneInput = document.getElementById('phone');
     if (userData?.profile?.phone) {
@@ -1462,7 +1607,7 @@ function fillQuoteFormWithUserData(userData, user) {
             phoneInput.value = userData.profile.phone;
         }
     }
-    
+
     // Set a flag to know this is a logged-in user's quote
     document.getElementById('quoteForm').dataset.userId = user.uid;
 }
@@ -1486,14 +1631,14 @@ async function showProfileModal(userId) {
     try {
         const userDoc = await db.collection('users').doc(userId).get();
         const user = auth.currentUser;
-        
+
         if (userDoc.exists) {
             const userData = userDoc.data();
-            
+
             // Fill basic info
             document.getElementById('profileName').value = userData.profile?.name || '';
             document.getElementById('profileEmail').value = user.email;
-            
+
             // Fill phone
             const phoneInput = document.getElementById('profilePhone');
             if (window.intlTelInput) {
@@ -1503,35 +1648,35 @@ async function showProfileModal(userId) {
                     initialCountry: "us",
                     utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
                 });
-                
+
                 if (userData.profile?.phone) {
                     phoneIti.setNumber(userData.profile.phone);
                 }
             } else {
                 phoneInput.value = userData.profile?.phone || '';
             }
-            
+
             // Fill address
             if (userData.profile?.address) {
                 const address = userData.profile.address;
                 document.getElementById('profileCountry').value = address.country || '';
                 loadStates(address.country, 'profileState');
-                
+
                 // Need timeout to ensure states are loaded before setting value
                 setTimeout(() => {
                     document.getElementById('profileState').value = address.state || '';
                 }, 100);
-                
+
                 document.getElementById('profileCity').value = address.city || '';
                 document.getElementById('profileStreet').value = address.street || '';
                 document.getElementById('profileZipCode').value = address.zipCode || '';
             }
-            
-            
+
+
             // Configurar event listeners para los botones
             document.getElementById('saveProfileBtn').addEventListener('click', () => saveProfileChanges(userId));
             document.getElementById('deleteAccountBtn').addEventListener('click', () => confirmDeleteAccount(userId));
-            
+
             // Mostrar el modal
             showModal(document.getElementById('profileModal'));
         }
@@ -1549,18 +1694,18 @@ async function saveProfileChanges(userId) {
         const phoneInput = document.getElementById('profilePhone');
         const phoneIti = window.intlTelInputGlobals.getInstance(phoneInput);
         const phone = phoneIti.getNumber();
-        
+
         const country = document.getElementById('profileCountry').value;
         const state = document.getElementById('profileState').value;
         const city = document.getElementById('profileCity').value.trim();
         const street = document.getElementById('profileStreet').value.trim();
         const zipCode = document.getElementById('profileZipCode').value.trim();
-        
+
         if (!name || !country || !state || !city || !street || !zipCode) {
             alert('Por favor complete todos los campos obligatorios');
             return;
         }
-        
+
         // Actualizar en Firestore
         await db.collection('users').doc(userId).update({
             'profile.name': name,
@@ -1573,11 +1718,11 @@ async function saveProfileChanges(userId) {
                 zipCode: zipCode
             }
         });
-        
+
         // Actualizar la UI
         const firstName = name.split(' ')[0];
         userProfile.textContent = firstName;
-        
+
         alert('Cambios guardados exitosamente');
         closeModals();
     } catch (error) {
@@ -1597,22 +1742,22 @@ function confirmDeleteAccount(userId) {
 async function deleteAccount(userId) {
     try {
         const user = auth.currentUser;
-        
+
         // Primero eliminar los datos de Firestore
         await db.collection('users').doc(userId).delete();
-        
+
         // Luego eliminar la cuenta de autenticación
         await user.delete();
-        
+
         // Cerrar sesión y actualizar UI
         await auth.signOut();
         updateUIForLoggedOutUser();
         closeModals();
-        
+
         alert('Su cuenta ha sido eliminada exitosamente');
     } catch (error) {
         console.error('Error deleting account:', error);
-        
+
         // Si el error es que necesita reautenticación
         if (error.code === 'auth/requires-recent-login') {
             if (confirm('Por seguridad, necesita volver a autenticarse para eliminar la cuenta. ¿Desea hacerlo ahora?')) {
@@ -1629,16 +1774,16 @@ async function reauthenticateAndDelete(userId) {
     const user = auth.currentUser;
     const email = user.email;
     const password = prompt('Por favor ingrese su contraseña para confirmar la eliminación de la cuenta:');
-    
+
     if (!password) return;
-    
+
     try {
         // Crear credenciales
         const credential = firebase.auth.EmailAuthProvider.credential(email, password);
-        
+
         // Reautenticar
         await user.reauthenticateWithCredential(credential);
-        
+
         // Ahora eliminar la cuenta
         await deleteAccount(userId);
     } catch (error) {
@@ -1766,7 +1911,7 @@ function getAuthErrorMessage(errorCode) {
 
 
 // Event listeners para los botones de ordenar arroz/aceite y cajas/tanques
-document.getElementById('comprar-arroz-tanque-content').addEventListener('click', function(e) {
+document.getElementById('comprar-arroz-tanque-content').addEventListener('click', function (e) {
     if (e.target.id === 'comprar-arroz-tanque-btn' || e.target.closest('#comprar-arroz-tanque-btn')) {
         e.preventDefault();
         showModal(document.getElementById('orderItemsModal'));
@@ -1778,13 +1923,13 @@ document.getElementById('comprar-arroz-tanque-content').addEventListener('click'
 function adjustWhatsAppButton() {
     const whatsappBtn = document.querySelector('.whatsapp-float');
     const copyright = document.querySelector('.copyright');
-    
+
     if (!copyright || !whatsappBtn) return;
-    
+
     const copyrightRect = copyright.getBoundingClientRect();
     const viewportHeight = window.innerHeight;
     const distanceToCopyright = copyrightRect.top - viewportHeight;
-    
+
     // Si el copyright está visible o cerca (100px antes de que aparezca)
     if (distanceToCopyright < -30) {
         whatsappBtn.classList.add('near-copyright');
@@ -1797,3 +1942,14 @@ function adjustWhatsAppButton() {
 window.addEventListener('load', adjustWhatsAppButton);
 window.addEventListener('scroll', adjustWhatsAppButton);
 window.addEventListener('resize', adjustWhatsAppButton);
+
+
+document.addEventListener('click', function (event) {
+    const nav = document.getElementById('main-nav');
+    const toggle = document.getElementById('mobile-menu');
+
+    // Verifica si el nav está activo y si el clic fue fuera del nav y del botón
+    if (nav.classList.contains('active') && !nav.contains(event.target) && !toggle.contains(event.target)) {
+        nav.classList.remove('active');
+    }
+});
