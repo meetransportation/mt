@@ -1,12 +1,12 @@
 // Firebase Configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyDUPUM36QOLPGb-FmPx6-qMZoS2pCZdurI",
-    authDomain: "meetransportation.firebaseapp.com",
-    projectId: "meetransportation",
-    storageBucket: "meetransportation.appspot.com",
-    messagingSenderId: "1087042032724",
-    appId: "1:1087042032724:web:0975e57ca30ff342f349c1",
-    measurementId: "G-8XHXKXL0CV"
+  apiKey: "AIzaSyDUPUM36QOLPGb-FmPx6-qMZoS2pCZdurI",
+  authDomain: "meetransportation.firebaseapp.com",
+  projectId: "meetransportation",
+  storageBucket: "meetransportation.firebasestorage.app",
+  messagingSenderId: "1087042032724",
+  appId: "1:1087042032724:web:0975e57ca30ff342f349c1",
+  measurementId: "G-8XHXKXL0CV"
 };
 
 // Initialize Firebase
