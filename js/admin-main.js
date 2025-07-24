@@ -25,6 +25,7 @@ let selectedProductId = null;
 let isEditMode = false;
 let quotesUnsubscribe = null;
 let currentQuoteFilter = 'pending';
+let selectedProductImageFile = null;
 
 // DOM Content Loaded
 document.addEventListener('DOMContentLoaded', function () {

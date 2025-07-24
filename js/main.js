@@ -207,7 +207,7 @@ function changeLanguage(lang) {
         }
     }
 
-    // Actualizar servicios
+    // Actualizar servicios y artículos comunes
     const servicesContainer = document.getElementById('servicesContainer');
     const cachedServices = localStorage.getItem('cachedServices');
     if (cachedServices) {
@@ -216,6 +216,18 @@ function changeLanguage(lang) {
             renderServices(services, servicesContainer);
         } catch (e) {
             console.error('Error parsing cached services:', e);
+        }
+    }
+
+    const commonItemsContainer = document.getElementById('commonItemsContainer');
+    const cachedCommonItems = localStorage.getItem('cachedCommonItems');
+    if (cachedCommonItems) {
+        try {
+            const items = JSON.parse(cachedCommonItems);
+            const selectedItemsContainer = document.querySelector('.selected-items-container');
+            renderCommonItems(items, commonItemsContainer, selectedItemsContainer || document.createElement('div'));
+        } catch (e) {
+            console.error('Error parsing cached common items:', e);
         }
     }
 
@@ -651,6 +663,7 @@ function setupCommonItemsRealtimeListener(container, selectedItemsContainer) {
 }
 
 // Función para renderizar los artículos comunes (extraída de la lógica original)
+// En la función renderCommonItems, modifica la parte donde se muestra el nombre del artículo
 function renderCommonItems(items, container, selectedItemsContainer) {
     container.innerHTML = '';
 
@@ -669,9 +682,12 @@ function renderCommonItems(items, container, selectedItemsContainer) {
         // Mostrar peso si existe
         const weightText = item.weight ? `${item.weight} lbs` : 'N/A';
 
+        // Mostrar el nombre en el idioma correspondiente
+        const itemName = currentLanguage === 'en' && item.name_en ? item.name_en : item.name;
+
         btn.innerHTML = `
-            <img src="${item.icon || 'https://via.placeholder.com/50'}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: contain;">
-            <span class="item-name">${item.name}</span>
+            <img src="${item.icon || 'https://via.placeholder.com/50'}" alt="${itemName}" style="width: 50px; height: 50px; object-fit: contain;">
+            <span class="item-name">${itemName}</span>
             <span class="item-dimensions">${dimensionsText}</span>
             <span class="item-weight">${weightText}</span>
         `;
@@ -695,10 +711,13 @@ function renderCommonItems(items, container, selectedItemsContainer) {
             const defaultDims = Array.isArray(item.dimensions) ? item.dimensions : [0, 0, 0];
             const defaultWeight = item.weight || 0;
 
+            // Usar el nombre en el idioma correspondiente también en el item seleccionado
+            const selectedItemName = currentLanguage === 'en' && item.name_en ? item.name_en : item.name;
+
             selectedItem.innerHTML = `
-                <img src="${item.icon || 'https://via.placeholder.com/50'}" alt="${item.name}">
+                <img src="${item.icon || 'https://via.placeholder.com/50'}" alt="${selectedItemName}">
                 <div class="item-info">
-                    <span id="item-info-name">${item.name}</span>
+                    <span id="item-info-name">${selectedItemName}</span>
                     <div class="dimension-inputs">
                         <div>
                             <label>Largo (pulg):</label>

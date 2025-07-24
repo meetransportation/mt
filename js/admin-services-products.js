@@ -137,35 +137,57 @@ function saveService() {
 /**
  * Carga la tabla de productos con datos de Firestore
  */
+/**
+ * Carga los productos en formato de tarjetas
+ */
 function loadProductsTable() {
     return new Promise((resolve, reject) => {
-        handleTableLoading('productsTable', () => {
-            return new Promise((innerResolve, innerReject) => {
-                db.collection('CommonItems')
-                    .get()
-                    .then(snapshot => {
-                        const table = $('#productsTable').DataTable();
-                        snapshot.forEach(doc => {
-                            const product = doc.data();
-                            table.row.add([
-                                doc.id,
-                                product.icon ? `<img src="${product.icon}" width="50" height="50">` : 'N/A',
-                                product.name,
-                                Array.isArray(product.dimensions) ? product.dimensions.join('" x ') + '"' : product.dimensions,
-                                product.weight ? `${product.weight} lbs` : 'N/A',
-                                product.price ? `$${product.price}` : 'N/A',
-                                `<button class="btn btn-outline edit-product" data-id="${doc.id}">Editar</button>
-                                 <button class="btn btn-danger delete-product" data-id="${doc.id}">Eliminar</button>`
-                            ]).draw(false);
-                        });
-                        addProductEventListeners();
-                        innerResolve();
-                    })
-                    .catch(innerReject);
+        const productsGrid = document.getElementById('productsGrid');
+        productsGrid.innerHTML = ''; // Limpiar el contenedor
+        
+        db.collection('CommonItems')
+            .get()
+            .then(snapshot => {
+                snapshot.forEach(doc => {
+                    const product = doc.data();
+                    const productCard = document.createElement('div');
+                    productCard.className = 'product-card';
+                    productCard.dataset.id = doc.id;
+                    
+                    // Formatear dimensiones si es un array
+                    let dimensions = product.dimensions;
+                    if (Array.isArray(dimensions)) {
+                        dimensions = dimensions.join('" × ') + '"';
+                    }
+                    
+productCard.innerHTML = `
+    ${product.icon ? `<img src="${product.icon}" class="product-image" alt="${product.name}">` : '<div class="product-image no-image">No hay imagen</div>'}
+    <div class="product-details">
+        <h3 class="product-name">${product.name}</h3>
+        ${product.name_en ? `<div class="product-name-en">${product.name_en}</div>` : ''}
+        <div class="product-detail"><strong></strong> ${dimensions || 'N/A'}</div>
+        <div class="product-detail-lbs"><strong></strong> ${product.weight ? product.weight + ' lbs' : 'N/A'}</div>
+    </div>
+    <div class="product-actions">
+        <button class="btn btn-danger delete-product" data-id="${doc.id}">Eliminar</button>
+        <button class="btn btn-outline edit-product" data-id="${doc.id}">Editar</button>
+    </div>
+`;
+
+                    
+                    productsGrid.appendChild(productCard);
+                });
+                
+                addProductEventListeners();
+                resolve();
+            })
+            .catch(error => {
+                console.error('Error al cargar productos:', error);
+                reject(error);
             });
-        });
     });
 }
+
 
 /**
  * Edita un producto existente
@@ -174,23 +196,39 @@ function loadProductsTable() {
 function editProduct(productId) {
     selectedProductId = productId;
     isEditMode = true;
+    selectedProductImageFile = null; // Resetear la imagen seleccionada
     
     db.collection('CommonItems').doc(productId).get().then(doc => {
         if (doc.exists) {
             const product = doc.data();
             
             // Llenar el formulario con los datos del producto
-            document.getElementById('productName').value = product.name;
-            document.getElementById('productImage').value = product.icon || '';
+            document.getElementById('productName').value = product.name || '';
+            document.getElementById('productNameEn').value = product.name_en || ''; // Nuevo campo
             
-            if (Array.isArray(product.dimensions)) {
-                document.getElementById('productDimensions').value = product.dimensions.join('x');
+            
+            // Mostrar la imagen existente
+            const imagePreview = document.getElementById('productImagePreview');
+            if (product.icon) {
+                imagePreview.innerHTML = `<img src="${product.icon}" style="max-width: 170px; max-height: 170px; border-radius: 4px;">`;
+                document.getElementById('productImage').value = product.icon;
             } else {
-                document.getElementById('productDimensions').value = product.dimensions || '';
+                imagePreview.innerHTML = '<div class="no-image">No hay imagen</div>';
+                document.getElementById('productImage').value = '';
+            }
+            
+            // Llenar dimensiones individuales
+            if (Array.isArray(product.dimensions) && product.dimensions.length === 3) {
+                document.getElementById('productLength').value = product.dimensions[0] || '';
+                document.getElementById('productWidth').value = product.dimensions[1] || '';
+                document.getElementById('productHeight').value = product.dimensions[2] || '';
+            } else {
+                document.getElementById('productLength').value = '';
+                document.getElementById('productWidth').value = '';
+                document.getElementById('productHeight').value = '';
             }
             
             document.getElementById('productWeight').value = product.weight || '';
-            document.getElementById('productPrice').value = product.price || '';
             document.getElementById('productStatus').value = product.status || 'active';
             
             // Actualizar título del modal
@@ -221,47 +259,101 @@ function deleteProduct(productId) {
     }
 }
 
+
+/**
+ * Sube una imagen a Firebase Storage
+ * @param {File} file - Archivo de imagen a subir
+ * @returns {Promise<string>} URL de descarga de la imagen
+ */
+function uploadProductImage(file) {
+    return new Promise((resolve, reject) => {
+        if (!file) {
+            reject('No se seleccionó ningún archivo');
+            return;
+        }
+        
+        const storageRef = firebase.storage().ref();
+        const fileRef = storageRef.child(`product-images/${Date.now()}_${file.name}`);
+        
+        fileRef.put(file).then(snapshot => {
+            snapshot.ref.getDownloadURL().then(url => {
+                resolve(url);
+            }).catch(reject);
+        }).catch(reject);
+    });
+}
+
 /**
  * Guarda un producto (nuevo o existente)
  */
 function saveProduct() {
-    const dimensions = document.getElementById('productDimensions').value.split('x').map(d => d.trim());
+    const length = parseFloat(document.getElementById('productLength').value) || 0;
+    const width = parseFloat(document.getElementById('productWidth').value) || 0;
+    const height = parseFloat(document.getElementById('productHeight').value) || 0;
+    const dimensions = [length, width, height];
     
     const productData = {
         name: document.getElementById('productName').value,
-        icon: document.getElementById('productImage').value,
+        name_en: document.getElementById('productNameEn').value || '', // Nuevo campo
         dimensions: dimensions,
         weight: parseFloat(document.getElementById('productWeight').value) || 0,
-        price: parseFloat(document.getElementById('productPrice').value) || 0,
         status: document.getElementById('productStatus').value,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
     
-    if (isEditMode) {
-        // Actualizar producto existente
-        db.collection('CommonItems').doc(selectedProductId).update(productData)
-            .then(() => {
-                alert('Producto actualizado correctamente');
-                document.getElementById('productModal').style.display = 'none';
-                loadProductsTable();
-            })
-            .catch(error => {
-                alert('Error al actualizar: ' + error.message);
-            });
-    } else {
-        // Agregar nuevo producto
-        productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    // Mostrar loader mientras se procesa
+    const saveBtn = document.getElementById('saveProduct');
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+    
+    // Primero subir la imagen si hay una nueva
+    const imageUploadPromise = selectedProductImageFile 
+        ? uploadProductImage(selectedProductImageFile) 
+        : Promise.resolve(document.getElementById('productImage').value);
+    
+    imageUploadPromise.then(imageUrl => {
+        if (imageUrl) {
+            productData.icon = imageUrl;
+        }
         
-        db.collection('CommonItems').add(productData)
-            .then(() => {
-                alert('Producto agregado correctamente');
-                document.getElementById('productModal').style.display = 'none';
-                loadProductsTable();
-            })
-            .catch(error => {
-                alert('Error al agregar: ' + error.message);
-            });
-    }
+        if (isEditMode) {
+            // Actualizar producto existente
+            db.collection('CommonItems').doc(selectedProductId).update(productData)
+                .then(() => {
+                    alert('Producto actualizado correctamente');
+                    document.getElementById('productModal').style.display = 'none';
+                    loadProductsTable();
+                })
+                .catch(error => {
+                    alert('Error al actualizar: ' + error.message);
+                })
+                .finally(() => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = 'Guardar Producto';
+                });
+        } else {
+            // Agregar nuevo producto
+            productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            
+            db.collection('CommonItems').add(productData)
+                .then(() => {
+                    alert('Producto agregado correctamente');
+                    document.getElementById('productModal').style.display = 'none';
+                    loadProductsTable();
+                })
+                .catch(error => {
+                    alert('Error al agregar: ' + error.message);
+                })
+                .finally(() => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = 'Guardar Producto';
+                });
+        }
+    }).catch(error => {
+        alert('Error al subir la imagen: ' + error);
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = 'Guardar Producto';
+    });
 }
 
 // ==================== MANEJADORES DE EVENTOS ====================
@@ -304,33 +396,51 @@ function addProductEventListeners() {
  * Inicializa los modales y eventos para servicios y productos
  */
 function initServicesProductsModals() {
-    // Modal de servicio
-    document.getElementById('addService')?.addEventListener('click', function() {
-        isEditMode = false;
-        selectedServiceId = null;
-        document.getElementById('serviceForm').reset();
-        document.getElementById('serviceModalTitle').textContent = 'Agregar Nuevo Servicio';
-        document.getElementById('serviceModal').style.display = 'flex';
-    });
-
-    document.getElementById('cancelService')?.addEventListener('click', function() {
-        document.getElementById('serviceModal').style.display = 'none';
-    });
-
-    document.getElementById('saveService')?.addEventListener('click', saveService);
-
     // Modal de producto
     document.getElementById('addProduct')?.addEventListener('click', function() {
         isEditMode = false;
         selectedProductId = null;
+        selectedProductImageFile = null;
         document.getElementById('productForm').reset();
+        document.getElementById('productImagePreview').innerHTML = '<div class="no-image">No hay imagen</div>';
         document.getElementById('productModalTitle').textContent = 'Agregar Nuevo Producto';
         document.getElementById('productModal').style.display = 'flex';
     });
 
-    document.getElementById('cancelProduct')?.addEventListener('click', function() {
+    // Cerrar modal al hacer clic en la X
+    document.querySelector('#productModal .close-modal')?.addEventListener('click', function() {
         document.getElementById('productModal').style.display = 'none';
     });
 
     document.getElementById('saveProduct')?.addEventListener('click', saveProduct);
+    
+    // Evento para subir imagen
+    document.getElementById('uploadImageBtn')?.addEventListener('click', function() {
+        document.getElementById('productImageUpload').click();
+    });
+    
+    document.getElementById('productImageUpload')?.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Validar tipo de archivo
+            if (!file.type.match('image.*')) {
+                alert('Por favor selecciona un archivo de imagen (JPEG, PNG, etc.)');
+                return;
+            }
+            
+            // Validar tamaño (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('La imagen no debe exceder los 2MB');
+                return;
+            }
+            
+            selectedProductImageFile = file;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const imagePreview = document.getElementById('productImagePreview');
+                imagePreview.innerHTML = `<img src="${event.target.result}" style="max-width: 200px; max-height: 200px; border-radius: 4px;">`;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
 }
