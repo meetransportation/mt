@@ -266,21 +266,22 @@ function deleteProduct(productId) {
  * @returns {Promise<string>} URL de descarga de la imagen
  */
 function uploadProductImage(file) {
-    return new Promise((resolve, reject) => {
-        if (!file) {
-            reject('No se seleccionó ningún archivo');
-            return;
-        }
-        
-        const storageRef = firebase.storage().ref();
-        const fileRef = storageRef.child(`product-images/${Date.now()}_${file.name}`);
-        
-        fileRef.put(file).then(snapshot => {
-            snapshot.ref.getDownloadURL().then(url => {
-                resolve(url);
-            }).catch(reject);
-        }).catch(reject);
-    });
+  return new Promise((resolve, reject) => {
+    if (!file) {
+      reject('No file selected');
+      return;
+    }
+    
+    // Use the initialized storage reference
+    const storageRef = firebase.storage().ref();
+    const fileRef = storageRef.child(`product-images/${Date.now()}_${file.name}`);
+    
+    fileRef.put(file).then(snapshot => {
+      snapshot.ref.getDownloadURL().then(url => {
+        resolve(url);
+      }).catch(reject);
+    }).catch(reject);
+  });
 }
 
 /**
