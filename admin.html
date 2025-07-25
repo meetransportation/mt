@@ -100,6 +100,14 @@
                     <span class="menu-badge" id="completedOrdersBadge">0</span>
                 </div>
 
+                <!-- Agregar el nuevo ítem del menú en la barra lateral -->
+                <div class="menu-item" data-tab="canceled-orders">
+                    <i class="fas fa-times-circle"></i>
+                    <span id="flex1">Órdenes Canceladas</span>
+                    <span class="menu-badge" id="canceledOrdersBadge">0</span>
+                </div>
+
+<div class="divisor"></div>
 
                 <div class="menu-item" data-tab="services">
                     <i class="fa-solid fa-box"></i>
@@ -405,6 +413,38 @@
 
 
 
+            <!-- Órdenes Canceladas Tab -->
+            <div class="tab-content" id="canceled-ordersTab" style="display: none;">
+                <div class="data-table-container">
+                    <div class="table-header">
+                        <h2>Órdenes Canceladas</h2>
+                    </div>
+                    <div class="table-container">
+                        <div class="loading-overlay">
+                            <div class="loading-spinner"></div>
+                        </div>
+                        <table id="canceledOrdersTable" class="display" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cliente</th>
+                                    <th>Tipo</th>
+                                    <th>Fecha Cancelación</th>
+                                    <th>Total</th>
+                                    <th>Método Pago</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Datos se cargarán dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+
             <!-- Services Tab -->
             <div class="tab-content" id="servicesTab" style="display: none;">
                 <div class="data-table-container">
@@ -436,22 +476,22 @@
             </div>
 
             <!-- Products Tab -->
-<!-- En productsTab, reemplazar la tabla por esto -->
-<div class="tab-content" id="productsTab" style="display: none;">
-    <div class="data-table-container">
-        <div class="table-header">
-            <h2>Productos</h2>
-            <div class="table-actions">
-                <button class="btn btn-primary" id="addProduct">
-                    <i class="fas fa-plus"></i> Agregar
-                </button>
+            <!-- En productsTab, reemplazar la tabla por esto -->
+            <div class="tab-content" id="productsTab" style="display: none;">
+                <div class="data-table-container">
+                    <div class="table-header">
+                        <h2>Productos</h2>
+                        <div class="table-actions">
+                            <button class="btn btn-primary" id="addProduct">
+                                <i class="fas fa-plus"></i> Agregar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="products-grid" id="productsGrid">
+                        <!-- Los productos se cargarán aquí dinámicamente -->
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="products-grid" id="productsGrid">
-            <!-- Los productos se cargarán aquí dinámicamente -->
-        </div>
-    </div>
-</div>
 
             <!-- Customers Tab -->
             <div class="tab-content" id="customersTab" style="display: none;">
@@ -733,9 +773,9 @@
                             <label class="detail-label">Teléfono:</label>
                             <div id="tel-ws-box-receiver">
                                 <div class="detail-value" id="modalReceiverPhone"></div>
-                                <!-- <button class="btn whatsapp-btn" id="whatsappReceiverBtn">
+                                <button class="btn whatsapp-btn" id="whatsappReceiverBtn">
                                     <i class="fab fa-whatsapp"></i> Contactar
-                                </button> -->
+                                </button>
                             </div>
                         </div>
                         <div class="detail-row">
@@ -763,6 +803,7 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelOrderBtn"><i class="fa-solid fa-trash"></i></button>
                 <button class="btn btn-primary" id="saveOrderChanges">Guardar Cambios</button>
             </div>
         </div>
@@ -790,9 +831,7 @@
                         </div>
                         <div class="detail-row">
                             <label class="detail-label">Estado:</label>
-                            <div class="detail-value">
-                                <span class="status-badge status-pending">Cotización Pendiente</span>
-                            </div>
+                            <div class="detail-value" id="modalQuoteStatus"></div>
                         </div>
                     </div>
 
@@ -1017,6 +1056,7 @@
 
             </div>
             <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelQuoteBtn"><i class="fa-solid fa-trash"></i></button>
                 <button class="btn btn-primary" id="saveQuoteChanges">Guardar Cambios</button>
                 <button class="btn btn-success" id="convertToOrderBtn">Convertir a Orden</button>
             </div>
@@ -1114,91 +1154,96 @@
         </div>
     </div>
 
-   <!-- Add Product Modal -->
-<div class="modal" id="productModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 id="productModalTitle">Agregar Nuevo Producto</h3>
-            <button class="close-modal">X</button>
-        </div>
-        <div class="modal-body">
-            <form id="productForm">
-                <div class="detail-section">
-                    <h4>Información del Producto</h4>
-                    
-                    <!-- Sección de imagen -->
-                    <div class="detail-row">
-                        <label class="detail-label">Imagen:</label>
-                        <div class="detail-value" style="display: inline-flex;flex-direction: column;align-items: center;">
-                            <div id="productImagePreview" style="margin-bottom: 10px;">
-                                <!-- La previsualización de la imagen aparecerá aquí -->
+    <!-- Add Product Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="productModalTitle">Agregar Nuevo Producto</h3>
+                <button class="close-modal">X</button>
+            </div>
+            <div class="modal-body">
+                <form id="productForm">
+                    <div class="detail-section">
+                        <h4>Información del Producto</h4>
+
+                        <!-- Sección de imagen -->
+                        <div class="detail-row">
+                            <label class="detail-label">Imagen:</label>
+                            <div class="detail-value"
+                                style="display: inline-flex;flex-direction: column;align-items: center;">
+                                <div id="productImagePreview" style="margin-bottom: 10px;">
+                                    <!-- La previsualización de la imagen aparecerá aquí -->
+                                </div>
+                                <input type="file" id="productImageUpload" accept="image/*" style="display: none;">
+                                <button type="button" class="btn btn-outline" id="uploadImageBtn">
+                                    <i class="fas fa-upload"></i> Subir Imagen
+                                </button>
+                                <input type="hidden" id="productImage" class="form-control">
                             </div>
-                            <input type="file" id="productImageUpload" accept="image/*" style="display: none;">
-                            <button type="button" class="btn btn-outline" id="uploadImageBtn">
-                                <i class="fas fa-upload"></i> Subir Imagen
-                            </button>
-                            <input type="hidden" id="productImage" class="form-control">
                         </div>
-                    </div>
-                    
-<div class="detail-row">
-    <label class="detail-label">Nombre (Español):</label>
-    <div class="detail-value">
-        <input type="text" id="productName" class="form-control" required>
-    </div>
-</div>
-<div class="detail-row">
-    <label class="detail-label">Nombre (Inglés):</label>
-    <div class="detail-value">
-        <input type="text" id="productNameEn" class="form-control">
-    </div>
-</div>
-                    
-                    <div style="display: flex; gap: 10px;">
-                        <div class="detail-row" style="flex: 1;">
-                            <label class="detail-label">Largo (pulg):</label>
+
+                        <div class="detail-row">
+                            <label class="detail-label">Nombre (Español):</label>
                             <div class="detail-value">
-                                <input type="number" id="productLength" class="form-control" min="0.1" step="0.1" required>
+                                <input type="text" id="productName" class="form-control" required>
                             </div>
                         </div>
-                        <div class="detail-row" style="flex: 1;">
-                            <label class="detail-label">Ancho (pulg):</label>
+                        <div class="detail-row">
+                            <label class="detail-label">Nombre (Inglés):</label>
                             <div class="detail-value">
-                                <input type="number" id="productWidth" class="form-control" min="0.1" step="0.1" required>
+                                <input type="text" id="productNameEn" class="form-control">
                             </div>
                         </div>
-                        <div class="detail-row" style="flex: 1;">
-                            <label class="detail-label">Alto (pulg):</label>
+
+                        <div style="display: flex; gap: 10px;">
+                            <div class="detail-row" style="flex: 1;">
+                                <label class="detail-label">Largo (pulg):</label>
+                                <div class="detail-value">
+                                    <input type="number" id="productLength" class="form-control" min="0.1" step="0.1"
+                                        required>
+                                </div>
+                            </div>
+                            <div class="detail-row" style="flex: 1;">
+                                <label class="detail-label">Ancho (pulg):</label>
+                                <div class="detail-value">
+                                    <input type="number" id="productWidth" class="form-control" min="0.1" step="0.1"
+                                        required>
+                                </div>
+                            </div>
+                            <div class="detail-row" style="flex: 1;">
+                                <label class="detail-label">Alto (pulg):</label>
+                                <div class="detail-value">
+                                    <input type="number" id="productHeight" class="form-control" min="0.1" step="0.1"
+                                        required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="detail-row">
+                            <label class="detail-label">Peso (lbs):</label>
                             <div class="detail-value">
-                                <input type="number" id="productHeight" class="form-control" min="0.1" step="0.1" required>
+                                <input type="number" id="productWeight" class="form-control" min="0.1" step="0.1"
+                                    required>
+                            </div>
+                        </div>
+
+                        <div class="detail-row">
+                            <label class="detail-label">Estado:</label>
+                            <div class="detail-value">
+                                <select id="productStatus" class="form-control" required>
+                                    <option value="active">Activo</option>
+                                    <option value="inactive">Inactivo</option>
+                                </select>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="detail-row">
-                        <label class="detail-label">Peso (lbs):</label>
-                        <div class="detail-value">
-                            <input type="number" id="productWeight" class="form-control" min="0.1" step="0.1" required>
-                        </div>
-                    </div>
-                    
-                    <div class="detail-row">
-                        <label class="detail-label">Estado:</label>
-                        <div class="detail-value">
-                            <select id="productStatus" class="form-control" required>
-                                <option value="active">Activo</option>
-                                <option value="inactive">Inactivo</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-primary" id="saveProduct">Guardar Producto</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="saveProduct">Guardar Producto</button>
+            </div>
         </div>
     </div>
-</div>
 
 
 

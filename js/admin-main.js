@@ -1,12 +1,12 @@
 // Firebase Configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDUPUM36QOLPGb-FmPx6-qMZoS2pCZdurI",
-  authDomain: "meetransportation.firebaseapp.com",
-  projectId: "meetransportation",
-  storageBucket: "meetransportation.firebasestorage.app",
-  messagingSenderId: "1087042032724",
-  appId: "1:1087042032724:web:0975e57ca30ff342f349c1",
-  measurementId: "G-8XHXKXL0CV"
+    apiKey: "AIzaSyDUPUM36QOLPGb-FmPx6-qMZoS2pCZdurI",
+    authDomain: "meetransportation.firebaseapp.com",
+    projectId: "meetransportation",
+    storageBucket: "meetransportation.firebasestorage.app",
+    messagingSenderId: "1087042032724",
+    appId: "1:1087042032724:web:0975e57ca30ff342f349c1",
+    measurementId: "G-8XHXKXL0CV"
 };
 
 // Initialize Firebase
@@ -80,60 +80,60 @@ function initAuth() {
     });
 
     // Setup login form (código existente permanece igual)
-   document.getElementById('loginForm')?.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    const loginBtn = document.getElementById('loginBtn');
-    const errorElement = document.getElementById('loginError');
+    document.getElementById('loginForm')?.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        const loginBtn = document.getElementById('loginBtn');
+        const errorElement = document.getElementById('loginError');
 
-    loginBtn.disabled = true;
-    loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
 
-    auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            return db.collection('users').doc(userCredential.user.uid).get();
-        })
-        .then((doc) => {
-            if (doc.exists && doc.data().isEmployee === true) {
-                currentAdmin = auth.currentUser;
-                document.getElementById('loginContainer').style.display = 'none';
-                document.querySelector('.admin-container').style.display = 'flex';
-                loadAdminProfile(currentAdmin);
-                
-                initUI();
-                initDataTables();
-                initModals();
-                initDashboard();
+        auth.signInWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                return db.collection('users').doc(userCredential.user.uid).get();
+            })
+            .then((doc) => {
+                if (doc.exists && doc.data().isEmployee === true) {
+                    currentAdmin = auth.currentUser;
+                    document.getElementById('loginContainer').style.display = 'none';
+                    document.querySelector('.admin-container').style.display = 'flex';
+                    loadAdminProfile(currentAdmin);
 
-                // Restablecer el botón después de un inicio de sesión exitoso
+                    initUI();
+                    initDataTables();
+                    initModals();
+                    initDashboard();
+
+                    // Restablecer el botón después de un inicio de sesión exitoso
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Iniciar Sesión';
+                } else {
+                    auth.signOut();
+                    throw new Error('Solo los empleados pueden acceder a esta sección');
+                }
+            })
+            .catch((error) => {
+                console.error("Login error:", error);
+
+                // Mensaje personalizado para credenciales incorrectas
+                let errorMessage = error.message;
+                if (error.code === 'auth/invalid-login-credentials') {
+                    errorMessage = 'Credenciales incorrectas';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Correo electrónico inválido';
+                } else if (error.code === 'auth/missing-password') {
+                    errorMessage = 'Ingrese una contraseña';
+                }
+
+                errorElement.textContent = errorMessage;
+
+                // Restablecer el botón después de un error
                 loginBtn.disabled = false;
                 loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Iniciar Sesión';
-            } else {
-                auth.signOut();
-                throw new Error('Solo los empleados pueden acceder a esta sección');
-            }
-        })
-        .catch((error) => {
-            console.error("Login error:", error);
-            
-            // Mensaje personalizado para credenciales incorrectas
-            let errorMessage = error.message;
-            if (error.code === 'auth/invalid-login-credentials') {
-                errorMessage = 'Credenciales incorrectas';
-            } else if (error.code === 'auth/invalid-email') {
-                errorMessage = 'Correo electrónico inválido';
-            } else if (error.code === 'auth/missing-password') {
-                errorMessage = 'Ingrese una contraseña';
-            }
-            
-            errorElement.textContent = errorMessage;
-            
-            // Restablecer el botón después de un error
-            loginBtn.disabled = false;
-            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Iniciar Sesión';
-        });
-});
+            });
+    });
 }
 
 // Añade esta función al inicio del archivo (puede ir junto con las otras funciones de formato)
@@ -248,6 +248,9 @@ function initModals() {
     });
 
 
+    document.getElementById('cancelOrderBtn')?.addEventListener('click', cancelOrder);
+    document.getElementById('cancelQuoteBtn')?.addEventListener('click', cancelQuote);
+
     // Event delegation para los selects de choferes RD
     document.addEventListener('change', function (e) {
         if (e.target.classList.contains('driver-rd-select')) {
@@ -309,12 +312,14 @@ function initDashboard() {
 
 
 // Modificación en la función loadStats()
+// Modificar la función loadStats() para contar órdenes y cotizaciones canceladas
 function loadStats() {
     if (!currentAdmin) return;
     // Escuchar cambios en las órdenes
     const ordersUnsubscribe = db.collection('orders').onSnapshot(snapshot => {
         let pendingAndAssignedCount = 0;
-        let pendingOrdersCount = 0; // Nuevo contador solo para order-pending
+        let pendingOrdersCount = 0;
+        let canceledOrdersCount = 0;
 
         snapshot.forEach(doc => {
             const status = doc.data().status;
@@ -328,12 +333,19 @@ function loadStats() {
             if (status === 'order-pending') {
                 pendingOrdersCount++;
             }
+
+            // Contar órdenes canceladas
+            if (status === 'canceled') {
+                canceledOrdersCount++;
+            }
         });
 
         // Actualizar los contadores de órdenes
         document.getElementById('totalOrders').textContent = pendingAndAssignedCount;
         document.getElementById('pendingItems').textContent = pendingOrdersCount;
+        document.getElementById('canceledOrdersBadge').textContent = canceledOrdersCount;
 
+        // Resto del código para otros contadores...
         let pendingOrders = 0;
         let assignedDriverOrders = 0;
         let receivedWarehouseRD = 0;
@@ -384,20 +396,25 @@ function loadStats() {
     // Escuchar cambios en las cotizaciones
     const quotesUnsubscribe = db.collection('quotes').onSnapshot(snapshot => {
         let pendingQuotesCount = 0;
+        let canceledQuotesCount = 0;
 
         snapshot.forEach(doc => {
-            if (doc.data().status === 'quotes-pending') {
+            const status = doc.data().status;
+            
+            if (status === 'quotes-pending') {
                 pendingQuotesCount++;
+            } else if (status === 'canceled') {
+                canceledQuotesCount++;
             }
         });
 
-        // Actualizar solo el contador de cotizaciones pendientes
+        // Actualizar contador de cotizaciones pendientes
         document.getElementById('totalQuotes').textContent = pendingQuotesCount;
         document.getElementById('pendingQuotesBadge').textContent = pendingQuotesCount;
-
-        // Actualizar el contador de pendientes (card 3) que ahora solo usa order-pending
-        const pendingOrders = parseInt(document.getElementById('pendingItems').textContent) || 0;
-        document.getElementById('pendingItems').textContent = pendingOrders; // Ya no suma las cotizaciones
+        
+        // Sumar cotizaciones canceladas al contador total de canceladas
+        const currentCanceledOrders = parseInt(document.getElementById('canceledOrdersBadge').textContent) || 0;
+        document.getElementById('canceledOrdersBadge').textContent = currentCanceledOrders + canceledQuotesCount;
     });
 
     window.statsOrdersUnsubscribe = ordersUnsubscribe;
@@ -408,6 +425,13 @@ function loadStats() {
 
 // Show selected tab
 function showTab(tabName) {
+    // Función auxiliar para inicializar DataTables si es necesario
+    const initTableIfNeeded = (tableId) => {
+        if (!$.fn.DataTable.isDataTable(`#${tableId}`)) {
+            initDataTables(tableId);
+        }
+    };
+
     // Limpiar listeners anteriores si existen
     const tabUnsubscribers = {
         'dashboard': () => {
@@ -421,7 +445,14 @@ function showTab(tabName) {
         'employees': () => { if (window.employeesUnsubscribe) window.employeesUnsubscribe(); },
         'in-transit': () => { if (window.inTransitUnsubscribe) window.inTransitUnsubscribe(); },
         'completed-orders': () => { if (window.completedOrdersUnsubscribe) window.completedOrdersUnsubscribe(); },
-        'assign-driver': () => { if (window.assignDriverUnsubscribe) window.assignDriverUnsubscribe(); }
+        'assign-driver': () => { if (window.assignDriverUnsubscribe) window.assignDriverUnsubscribe(); },
+        'assign-driver-rd': () => { if (window.assignDriverRDUnsubscribe) window.assignDriverRDUnsubscribe(); },
+        'canceled-orders': () => {
+            if (window.canceledOrdersUnsubscribe) window.canceledOrdersUnsubscribe();
+            if (window.canceledQuotesUnsubscribe) window.canceledQuotesUnsubscribe();
+            initTableIfNeeded('canceledOrdersTable');
+            loadCanceledOrdersTable();
+        }
     };
 
     if (tabUnsubscribers[tabName]) {
@@ -440,30 +471,23 @@ function showTab(tabName) {
 
     tabElement.style.display = 'block';
 
-    // Asegurar que DataTables esté inicializado antes de cargar datos
-    const initTable = () => {
-        if (!$.fn.DataTable.isDataTable(`#${tabName.replace('-', '')}Table`)) {
-            initDataTables();
-        }
-    };
-
     // Load data for the tab
     const tabLoaders = {
-        'dashboard': () => { initTable(); loadStats(); loadRecentOrders(); },
-        'orders': () => { initTable(); loadOrdersTable(); },
-        'quotes': () => { 
-            initTable(); 
-            // Esperar un breve momento para asegurar que DataTables esté listo
+        'dashboard': () => { initTableIfNeeded('recentOrdersTable'); loadStats(); loadRecentOrders(); },
+        'orders': () => { initTableIfNeeded('ordersTable'); loadOrdersTable(); },
+        'quotes': () => {
+            initTableIfNeeded('quotesTable');
             setTimeout(() => loadQuotesTable('pending'), 50);
         },
-        'customers': () => { initTable(); loadCustomersTable().catch(console.error); },
-        'employees': () => { initTable(); loadEmployeesTable(); },
-        'in-transit': () => { initTable(); loadInTransitTable(); },
-        'completed-orders': () => { initTable(); loadCompletedOrdersTable(); },
-        'services': () => { initTable(); loadServicesTable(); },
-        'products': () => { initTable(); loadProductsTable(); },
-        'assign-driver-rd': () => { initTable(); loadAssignDriverRDTable(); },
-        'assign-driver': () => { initTable(); loadAssignDriverTable(); }
+        'customers': () => { initTableIfNeeded('customersTable'); loadCustomersTable().catch(console.error); },
+        'employees': () => { initTableIfNeeded('employeesTable'); loadEmployeesTable(); },
+        'in-transit': () => { initTableIfNeeded('inTransitTable'); loadInTransitTable(); },
+        'completed-orders': () => { initTableIfNeeded('completedOrdersTable'); loadCompletedOrdersTable(); },
+        'services': () => { initTableIfNeeded('servicesTable'); loadServicesTable(); },
+        'products': () => { initTableIfNeeded('productsTable'); loadProductsTable(); },
+        'assign-driver-rd': () => { initTableIfNeeded('assignDriverRDTable'); loadAssignDriverRDTable(); },
+        'assign-driver': () => { initTableIfNeeded('assignDriverTable'); loadAssignDriverTable(); },
+        'canceled-orders': () => { initTableIfNeeded('canceledOrdersTable'); loadCanceledOrdersTable(); }
     };
 
     if (tabLoaders[tabName]) {
@@ -676,24 +700,6 @@ function createOrderRowData(id, order, showPaymentMethod = false) {
     return rowData;
 }
 
-// Modificar la función para añadir eventos a las filas
-function addRowClickHandlers(tableId, clickHandler) {
-    $(`#${tableId} tbody`).on('click', 'tr', function () {
-        const table = $(`#${tableId}`).DataTable();
-        const rowData = table.row(this).data();
-        if (rowData) {
-            clickHandler(rowData[0]); // El ID está en la primera columna
-        }
-    });
-}
-
-function addViewOrderHandlers() {
-    document.querySelectorAll('.view-order').forEach(btn => {
-        btn.addEventListener('click', function () {
-            viewOrderDetails(this.getAttribute('data-id'));
-        });
-    });
-}
 
 
 // Función para cargar envíos en tránsito
@@ -736,7 +742,7 @@ function loadInTransitTable() {
 }
 
 
-// Función para cargar órdenes completadas
+
 // Función para cargar órdenes completadas (modificada para mostrar órdenes con status "delivered")
 function loadCompletedOrdersTable() {
     return new Promise((resolve, reject) => {
@@ -771,8 +777,183 @@ function loadCompletedOrdersTable() {
 }
 
 
+// Nueva función para cargar órdenes canceladas
+function loadCanceledOrdersTable() {
+    return new Promise((resolve, reject) => {
+        handleTableLoading('canceledOrdersTable', () => {
+            return new Promise((innerResolve, innerReject) => {
+                const table = $('#canceledOrdersTable').DataTable();
+                table.clear().draw();
 
-// Nueva versión de loadQuotesTable con actualización en tiempo real
+                // Escuchar cambios en órdenes canceladas
+                const ordersUnsubscribe = db.collection('orders')
+                    .where('status', '==', 'canceled')
+                    .orderBy('canceledAt', 'desc')
+                    .onSnapshot(ordersSnapshot => {
+                        
+                        // Escuchar cambios en cotizaciones canceladas
+                        const quotesUnsubscribe = db.collection('quotes')
+                            .where('status', '==', 'canceled')
+                            .orderBy('canceledAt', 'desc')
+                            .onSnapshot(quotesSnapshot => {
+                                
+                                table.clear();
+                                
+                                // Procesar órdenes canceladas
+                                ordersSnapshot.forEach(doc => {
+                                    const order = doc.data();
+                                    table.row.add([
+                                        doc.id,
+                                        order.sender?.name || 'N/A',
+                                        order.services?.[0]?.name || 'N/A',
+                                        order.canceledAt?.toDate ? formatDate(order.canceledAt.toDate()) : 'N/A',
+                                        order.totalPrice ? `US$${order.totalPrice.toFixed(2)}` : 'N/A',
+                                        getPaymentMethodText(order.paymentMethod || 'N/A'),
+                                        `<span class="status-badge status-canceled">Orden Cancelada</span>`
+                                    ]).draw(false);
+                                });
+                                
+                                // Procesar cotizaciones canceladas
+                                quotesSnapshot.forEach(doc => {
+                                    const quote = doc.data();
+                                    table.row.add([
+                                        doc.id,
+                                        quote.name || 'N/A',
+                                        quote.packageType || 'N/A',
+                                        quote.canceledAt?.toDate ? formatDate(quote.canceledAt.toDate()) : 'N/A',
+                                        quote.estimatedPrice ? `US$${quote.estimatedPrice.toFixed(2)}` : 'N/A',
+                                        'N/A', // Las cotizaciones no tienen método de pago
+                                        `<span class="status-badge status-canceled">Cotización Cancelada</span>`
+                                    ]).draw(false);
+                                });
+                                
+                                // Agregar manejadores de clic a las filas
+                                $('#canceledOrdersTable tbody').on('click', 'tr', function() {
+                                    const rowData = table.row(this).data();
+                                    if (rowData) {
+                                        const isQuote = rowData[6].includes('Cotización');
+                                        if (isQuote) {
+                                            viewQuoteDetails(rowData[0]);
+                                        } else {
+                                            viewOrderDetails(rowData[0]);
+                                        }
+                                    }
+                                });
+                                
+                                innerResolve();
+                            }, innerReject);
+                        
+                        window.canceledQuotesUnsubscribe = quotesUnsubscribe;
+                    }, innerReject);
+                
+                window.canceledOrdersUnsubscribe = ordersUnsubscribe;
+            });
+        });
+    });
+}
+
+// Función para cancelar una orden
+function cancelOrder() {
+    const confirmation = confirm('¿Estás seguro de que deseas cancelar esta orden? Esta acción no se puede deshacer.');
+
+    if (!confirmation) return;
+
+    const cancelBtn = document.getElementById('cancelOrderBtn');
+    cancelBtn.disabled = true;
+    cancelBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelando...';
+
+    db.collection('orders').doc(selectedOrderId).update({
+        status: 'canceled',
+        canceledAt: firebase.firestore.FieldValue.serverTimestamp(),
+        canceledBy: currentAdmin.uid,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    })
+        .then(() => {
+            showToast('Orden cancelada correctamente', 'success');
+            document.getElementById('orderModal').style.display = 'none';
+            refreshOrderTables();
+        })
+        .catch(error => {
+            console.error('Error al cancelar orden:', error);
+            showToast('Error al cancelar orden: ' + error.message, 'error');
+        })
+        .finally(() => {
+            cancelBtn.disabled = false;
+            cancelBtn.innerHTML = 'Cancelar Orden';
+        });
+}
+
+// Función para cancelar una cotización
+function cancelQuote() {
+    const confirmation = confirm('¿Estás seguro de que deseas cancelar esta cotización? Esta acción no se puede deshacer.');
+
+    if (!confirmation) return;
+
+    const cancelBtn = document.getElementById('cancelQuoteBtn');
+    cancelBtn.disabled = true;
+    cancelBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelando...';
+
+    db.collection('quotes').doc(selectedQuoteId).update({
+        status: 'canceled',
+        canceledAt: firebase.firestore.FieldValue.serverTimestamp(),
+        canceledBy: currentAdmin.uid,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    })
+        .then(() => {
+            showToast('Cotización cancelada correctamente', 'success');
+            document.getElementById('quoteModal').style.display = 'none';
+            loadQuotesTable();
+        })
+        .catch(error => {
+            console.error('Error al cancelar cotización:', error);
+            showToast('Error al cancelar cotización: ' + error.message, 'error');
+        })
+        .finally(() => {
+            cancelBtn.disabled = false;
+            cancelBtn.innerHTML = 'Cancelar Cotización';
+        });
+}
+
+
+// Modificar la función para añadir eventos a las filas
+function addRowClickHandlers(tableId, clickHandler) {
+    $(`#${tableId} tbody`).on('click', 'tr', function () {
+        const table = $(`#${tableId}`).DataTable();
+        const rowData = table.row(this).data();
+        if (rowData) {
+            // Para tablas de órdenes, el ID está en la primera columna
+            if (tableId === 'recentOrdersTable' || tableId === 'ordersTable' || 
+                tableId === 'inTransitTable' || tableId === 'completedOrdersTable' ||
+                tableId === 'assignDriverTable' || tableId === 'assignDriverRDTable') {
+                clickHandler(rowData[0]);
+            } 
+            // Para cotizaciones canceladas u otros casos especiales
+            else if (tableId === 'canceledOrdersTable') {
+                const isQuote = rowData[6].includes('Cotización');
+                if (isQuote) {
+                    viewQuoteDetails(rowData[0]);
+                } else {
+                    viewOrderDetails(rowData[0]);
+                }
+            }
+            // Para cotizaciones normales
+            else if (tableId === 'quotesTable') {
+                viewQuoteDetails(rowData[0]);
+            }
+        }
+    });
+}
+
+function addViewOrderHandlers() {
+    document.querySelectorAll('.view-order').forEach(btn => {
+        btn.addEventListener('click', function () {
+            viewOrderDetails(this.getAttribute('data-id'));
+        });
+    });
+}
+
+
+
 function viewOrderDetails(orderId) {
     if (!currentAdmin) return;
     selectedOrderId = orderId;
@@ -871,8 +1052,8 @@ function viewOrderDetails(orderId) {
             const statusMap = {
                 'pending': ['status-pending', 'Pendiente'],
                 'paid': ['status-completed', 'Pagado'],
-                'failed': ['status-cancelled', 'Fallido'],
-                'refunded': ['status-cancelled', 'Reembolsado'],
+                'failed': ['status-canceled', 'Fallido'],
+                'refunded': ['status-canceled', 'Reembolsado'],
                 'partially_refunded': ['status-processing', 'Reembolsado Parcialmente']
             };
 
@@ -1032,11 +1213,13 @@ function viewQuoteDetails(quoteId) {
         const quote = doc.data();
         const date = quote.timestamp?.toDate() ? formatFullDateWithTime(quote.timestamp.toDate()) : 'N/A';
 
-
         // Fill modal with quote data
         document.getElementById('modalQuoteId').textContent = quoteId;
         document.getElementById('modalQuoteDate').textContent = date;
         document.getElementById('quoteInternalNotes').value = quote.internalNotes || '';
+        
+        // Mostrar estado dinámico de la cotización
+        document.getElementById('modalQuoteStatus').innerHTML = getStatusBadge(quote.status || 'quotes-pending');
 
         // Customer info
         document.getElementById('modalQuoteName').textContent = quote.name;
@@ -1117,6 +1300,7 @@ function viewQuoteDetails(quoteId) {
         document.getElementById('modalQuoteType').textContent = quote.packageType;
         document.getElementById('modalQuoteOrigin').textContent = quote.origin;
         document.getElementById('modalQuoteDestination').textContent = quote.destination;
+        document.getElementById('modalQuoteStatus').innerHTML = getStatusBadge(quote.status || 'quotes-pending');
 
         // Price input field
         document.getElementById('quotePriceInput').value = quote.estimatedPrice || '';
@@ -1670,6 +1854,9 @@ function refreshOrderTables() {
     if (document.getElementById('assign-driverTab').style.display === 'block') {
         loadAssignDriverTable();
     }
+    if (document.getElementById('canceled-ordersTab').style.display === 'block') {
+        loadCanceledOrdersTable();
+    }
 
     // Actualizar estadísticas
     loadStats();
@@ -1678,11 +1865,10 @@ function refreshOrderTables() {
 // Employee Functions
 function getStatusBadge(status) {
     const statusMap = {
-        'quotes-pending': ['status-pending', 'Cot. Pendiente'],
+        'quotes-pending': ['status-pending', 'Pendiente'],
         'order-pending': ['status-pending', 'Pendiente'],
 
         'pending': ['status-pending', 'Pendiente'],
-        'cancelled': ['status-cancelled', 'Cancelado'],
         'converted': ['status-completed', 'Convertida'],
 
         'assignedDriver': ['status-assigned-driver-usa', 'Chofer Asignado USA'],
@@ -1692,6 +1878,7 @@ function getStatusBadge(status) {
         'Received_Warehouse_rd': ['status-assigned', 'Recibido en Almacén RD'],
         'assignedDriver_rd': ['status-assigned-driver-rd', 'Chofer Asignado RD'],
         'Warehouse_Exit_rd': ['status-assigned', 'Salida de Almacén RD'],
+        'canceled': ['status-canceled', 'Cancelada'],
         'delivered': ['status-completed', 'Entregado ✓']
     };
 
@@ -2019,6 +2206,19 @@ function initDataTables(tableId = null) {
         'employeesTable': commonOptions,
         'inTransitTable': { ...commonOptions, order: [[3, 'desc']] },
         'completedOrdersTable': { ...commonOptions, order: [[3, 'desc']] },
+        'canceledOrdersTable': {
+            ...commonOptions,
+            order: [[3, 'desc']],
+            columns: [
+                { title: "ID" },
+                { title: "Cliente" },
+                { title: "Tipo" },
+                { title: "Fecha Cancelación" },
+                { title: "Total" },
+                { title: "Método Pago" },
+                { title: "Estado" }
+            ]
+        },
         'servicesTable': commonOptions,
         'productsTable': commonOptions,
         'recentOrdersTable': { ...commonOptions, order: [[3, 'desc']] },
@@ -2066,6 +2266,7 @@ function logout() {
     if (window.completedOrdersUnsubscribe) window.completedOrdersUnsubscribe();
     if (window.assignDriverUnsubscribe) window.assignDriverUnsubscribe();
     if (window.assignDriverRDUnsubscribe) window.assignDriverRDUnsubscribe();
+    if (window.canceledUnsubscribe) window.canceledUnsubscribe();
 
     auth.signOut().then(() => {
         // Resetear variables globales
@@ -2076,15 +2277,15 @@ function logout() {
         selectedServiceId = null;
         selectedProductId = null;
         isEditMode = false;
-        
+
         // Mostrar login y ocultar panel
         document.getElementById('loginContainer').style.display = 'flex';
         document.querySelector('.admin-container').style.display = 'none';
-        
+
         // Resetear formulario de login y botón
         document.getElementById('loginForm').reset();
         document.getElementById('loginError').textContent = '';
-        
+
         // Restablecer el botón de inicio de sesión
         const loginBtn = document.getElementById('loginBtn');
         if (loginBtn) {

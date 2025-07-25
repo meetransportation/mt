@@ -1,11 +1,35 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" id="htmlRoot">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meetransportation - Envíos de USA a República Dominicana</title>
     <link rel="icon" href="./img/icon_favicon_meetax_1_2048x2048.png" type="image/png" sizes="any">
+
+    <!-- Early language initialization to prevent flash of wrong language -->
+    <script>
+        (function() {
+            var savedLanguage = localStorage.getItem('preferredLanguage');
+            if (savedLanguage === 'en') {
+                document.documentElement.lang = 'en';
+                
+                // Create and apply a style tag to hide text elements with data-i18n
+                var styleTag = document.createElement('style');
+                styleTag.id = 'preload-language-styles';
+                styleTag.innerHTML = '[data-i18n], [data-i18n-placeholder] { opacity: 0; }';
+                document.head.appendChild(styleTag);
+                
+                // Update page title immediately
+                document.title = "Meetransportation - Shipping from USA to Dominican Republic";
+                
+                // Let main.js handle the removal of the style
+                // The style will be kept until translations are fully applied
+            }
+        })();
+    </script>
+
+    
     <!-- Firebase SDK -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app-compat.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-firestore-compat.min.js"></script>
@@ -47,7 +71,8 @@
                                 class="btn btn-outline" data-i18n="logout">Cerrar Sesión</a></li>
                         <li>
                             <div id="languageToggle" style="cursor: pointer; display: flex; align-items: center;">
-                                <i class="fas fa-globe" style="font-size: 1.2rem; margin-right: 5px;"></i>
+                                <!-- <i class="fas fa-globe" style="font-size: 1.2rem; margin-right: 5px;"></i> -->
+                                <img src="./img/idioma_2.svg" style="height: 21px; margin-right: 5px;">
                                 <span id="currentLanguageText">ES</span>
                             </div>
                             <select id="languageSelector" style="display: none;">
@@ -57,7 +82,8 @@
                         </li>
                         <li>
                             <a href="#" id="cartBtn">
-                                <i class="fas fa-shopping-cart"></i>
+                                <!-- <i class="fas fa-shopping-cart"></i> -->
+                                 <img src="./img/carrito_1.svg" style="height: 25px;">
                                 <span id="cartCount">0</span>
                             </a>
                         </li>
@@ -168,13 +194,13 @@
                 <form id="quoteForm">
                     <div class="form-group">
                         <label for="name" data-i18n="nombreCompleto" data-i18n="nombreCompleto">Nombre Completo:</label>
-                        <input type="text" id="name" class="form-control" placeholder="Nombre y Apellido" required>
+                        <input type="text" id="name" class="form-control" data-i18n-placeholder="nombrePlaceholder" required>
                     </div>
 
                     <div class="form-row" style="border-bottom: 1px solid #e9ecef;margin-bottom: 15px;">
                         <div class="form-group">
                             <label for="email" data-i18n="correoElectronico">Correo Electrónico:</label>
-                            <input type="email" id="email" class="form-control" placeholder="tucorreo@email.com"
+                            <input type="email" id="email" class="form-control" data-i18n-placeholder="tuemail"
                                 required>
                         </div>
                         <div class="form-group">
@@ -330,7 +356,7 @@
                     </p>
                     <p>
                         <i class="fas fa-envelope"></i>
-                        <a href="mailto:info@meetransportation.com">info@meetransportation.com</a>
+                        <a href="/cdn-cgi/l/email-protection#d1b8bfb7be91bcb4b4a5a3b0bfa2a1bea3a5b0a5b8bebfffb2bebc"><span class="__cf_email__" data-cfemail="224b4c444d624f47475650434c51524d505643564b4d4c0c414d4f">[email&#160;protected]</span></a>
                     </p>
                     <p>
                         <i class="fas fa-map-marker-alt"></i>1877 Amsterdam Ave, Store 3, New York, NY 10031
@@ -385,18 +411,18 @@
 
     <!-- Modal -->
     <div id="successModal" class="modal">
-        <div class="modal-content"
-            style="background-color: #ffffff;display: inline-flex;align-items: center;">
+        <div class="modal-content" style="background-color: #ffffff;display: inline-flex;align-items: center;">
             <div class="Modal-Title">
                 <h3 data-i18n="solicitudEnviada">¡Solicitud Enviada!</h3>
                 <button class="close-modal btn">X</button>
             </div>
 
             <div class="Modal-Body" style="padding: 3rem 1rem;">
-            <p data-i18n="confirmacionSolicitud">Hemos recibido tu solicitud de cotización. Nos pondremos en contacto
-                contigo en las próximas 24 horas con
-                los detalles de tu envío.</p>
-                </div>
+                <p data-i18n="confirmacionSolicitud">Hemos recibido tu solicitud de cotización. Nos pondremos en
+                    contacto
+                    contigo en las próximas 24 horas con
+                    los detalles de tu envío.</p>
+            </div>
         </div>
     </div>
 
@@ -433,7 +459,8 @@
                             <div class="form-group" style="width: 50%;">
                                 <label for="country" data-i18n="paisreg">País:</label>
                                 <select id="country" class="form-control" required>
-                                    <option value="" disabled selected data-i18n="selectpais">Seleccione un país</option>
+                                    <option value="" disabled selected data-i18n="selectpais">Seleccione un país
+                                    </option>
                                     <option value="US">Estados Unidos</option>
                                     <option value="DO">República Dominicana</option>
                                 </select>
@@ -466,8 +493,9 @@
 
                         <div class="form-group" id="terminos">
                             <input type="checkbox" id="termsCheckbox" required>
-                            <label for="termsCheckbox" style="margin-bottom: 0rem;" data-i18n="aceptoTerminos">Acepto los</label> <a href="#"
-                                    style="color: var(--secondary);" onclick="showTerms()" data-i18n="terminosCondiciones">Términos y Condiciones</a>
+                            <label for="termsCheckbox" style="margin-bottom: 0rem;" data-i18n="aceptoTerminos">Acepto
+                                los</label> <a href="#" style="color: var(--secondary);" onclick="showTerms()"
+                                data-i18n="terminosCondiciones">Términos y Condiciones</a>
                         </div>
                     </div>
 
@@ -486,7 +514,9 @@
                     <div style="text-align: center;margin: 1rem 0;display: inline-flex;flex-direction: column;">
                         <p style="margin: 1rem 0;" data-i18n="oIniciaGoogle">O inicia sesión con</p>
                         <button type="button" id="googleSignInBtn" class="btn">
-                            <img src="./img/google_logo_1.png" style="height: 32px;">Google</button>
+                            <img src="./img/google_logo_1.png">
+                            <span data-i18n="continuarcongoogle">Continuar con Google</span>
+                        </button>
                     </div>
 
                     <div id="authMessage" style="margin-top: 1rem; color: var(--accent);"></div>
@@ -613,7 +643,7 @@
 
 
 
-    <script src="./js/addressData.js"></script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="./js/addressData.js"></script>
     <script src="./js/main.js"></script>
 
     <script>

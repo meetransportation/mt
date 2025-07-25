@@ -98,7 +98,10 @@ const translations = {
         "infoCompra": "Información de Compra",
         "llamanosParaComprar": "Nos encantaría ayudarte con tu pedido. Por favor llámanos al siguiente número y te lo vendemos al mejor precio:",
         "llamanosParaComprar2": "Nuestro equipo estará encantado de atenderte y proporcionarte toda la información que necesites.",
-        "entendido": "Entendido"
+        "entendido": "Entendido",
+        "continuarcongoogle": "Continuar con Google",
+        "nombrePlaceholder": "Nombre y Apellido",
+        "tuemail": "tucorreo@email.com"
     },
     en: {
         "inicio": "Home",
@@ -176,7 +179,10 @@ const translations = {
         "infoCompra": "Purchase Information",
         "llamanosParaComprar": "We'd love to help with your order. Please call us at the number below and we’ll sell it to you at the best price:",
         "llamanosParaComprar2": "Our team will be happy to assist you and provide all the information you need.",
-        "entendido": "Understood"
+        "entendido": "Understood",
+        "continuarcongoogle": "Continue with Google",
+        "nombrePlaceholder": "Full Name",
+        "tuemail": "yourmail@email.com"
     }
 };
 
@@ -188,14 +194,28 @@ function changeLanguage(lang) {
     currentLanguage = lang;
     document.getElementById('languageSelector').value = lang;
 
+    // Update document language and title
+    document.documentElement.lang = lang;
+    document.title = lang === 'es' 
+        ? "Meetransportation - Envíos de USA a República Dominicana"
+        : "Meetransportation - Shipping from USA to Dominican Republic";
+        
     // Actualizar el texto del idioma actual
     document.getElementById('currentLanguageText').textContent = lang === 'es' ? 'ES' : 'EN';
 
-    // Update texts
+    // Actualizar textos normales
     document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
         if (translations[lang][key]) {
             element.textContent = translations[lang][key];
+        }
+    });
+
+    // Actualizar placeholders
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+        const key = element.getAttribute('data-i18n-placeholder');
+        if (translations[lang][key]) {
+            element.setAttribute('placeholder', translations[lang][key]);
         }
     });
 
@@ -806,6 +826,7 @@ function updateSelectedItemsField(container) {
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', function () {
+    
     // Cargar artículos comunes
     loadCommonItems();
     loadServices();
@@ -962,7 +983,21 @@ document.addEventListener('DOMContentLoaded', function () {
     const savedLanguage = localStorage.getItem('preferredLanguage');
     const browserLanguage = navigator.language.split('-')[0];
     const initialLanguage = savedLanguage || (browserLanguage === 'es' ? 'es' : 'en');
-    changeLanguage(initialLanguage);
+    
+    // Apply language change but skip animation/transition if it's the initial load
+    const preloadStyleEl = document.getElementById('preload-language-styles');
+    
+    // If we're starting with English and the preload style exists, we'll handle transitions ourselves
+    if (initialLanguage === 'en' && preloadStyleEl) {
+        changeLanguage(initialLanguage);
+        // Remove the preload style after a short delay to ensure translations are applied
+        setTimeout(() => {
+            preloadStyleEl.remove();
+        }, 50);
+    } else {
+        // For Spanish or when no preload style exists, just change normally
+        changeLanguage(initialLanguage);
+    }
 
     // Check authentication state
     auth.onAuthStateChanged(user => {
@@ -1967,9 +2002,36 @@ window.addEventListener('resize', adjustWhatsAppButton);
 document.addEventListener('click', function (event) {
     const nav = document.getElementById('main-nav');
     const toggle = document.getElementById('mobile-menu');
+    const toggleIcon = toggle.querySelector('i');
 
     // Verifica si el nav está activo y si el clic fue fuera del nav y del botón
     if (nav.classList.contains('active') && !nav.contains(event.target) && !toggle.contains(event.target)) {
         nav.classList.remove('active');
+        toggleIcon.classList.remove('fa-times');
+        toggleIcon.classList.add('fa-bars');
     }
 });
+
+
+//ocultar li cuando los a estan en display none
+document.addEventListener('DOMContentLoaded', function() {
+    // Función para ocultar los li cuando su contenido está oculto
+    function hideEmptyListItems() {
+        document.querySelectorAll('li > a').forEach(link => {
+            const li = link.parentElement;
+            if (window.getComputedStyle(link).display === 'none') {
+                li.style.display = 'none';
+            } else {
+                li.style.display = ''; // Restaura el display original
+            }
+        });
+    }
+
+    // Ejecutar al cargar y cuando cambie el DOM (opcional)
+    hideEmptyListItems();
+    const observer = new MutationObserver(hideEmptyListItems);
+    observer.observe(document.body, { subtree: true, attributes: true });
+});
+//ocultar li cuando los a estan en display none FIN
+
+

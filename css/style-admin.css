@@ -105,6 +105,7 @@
  }
 
 
+
  /* Loading */
  .global-loader {
      position: fixed;
@@ -140,6 +141,12 @@
 
  /* Loading FIN */
 
+.divisor {
+    height: 1px;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.1);
+    margin: 0.5rem 0rem;
+}
 
  table.dataTable tbody th,
  table.dataTable tbody td {
@@ -184,10 +191,19 @@
      width: 270px;
      background-color: var(--primary);
      color: white;
-     transition: all 0.3s;
+     /*transition: all 0.3s;*/
      display: inline-flex;
      flex-direction: column;
+     height: 100vh;
  }
+
+
+ .sidebar-header,
+ .sidebar-footer {
+     flex-shrink: 0;
+     /* Evita que se encojan */
+ }
+
 
  .sidebar-header {
      padding: 0rem 1rem 0.5rem 1rem;
@@ -213,6 +229,9 @@
  .sidebar-menu {
      padding: 1rem 0;
      flex: 1;
+     overflow-y: auto;
+     scrollbar-width: thin;
+     scrollbar-color: #b5b5b5 #f1f1f100;
  }
 
  .sidebar-footer {
@@ -221,6 +240,8 @@
      display: inline-flex;
      justify-content: center;
  }
+
+
 
  .menu-item {
      padding: 0.7rem 0.7rem;
@@ -257,13 +278,19 @@
      font-size: 0.8rem;
  }
 
+
+
+
  /* Main Content */
  .main-content {
      flex: 1;
      padding: 1.5rem;
      background: #e4e9ed;
+     display: flex;
+     flex-direction: column;
+     height: 100vh;
+     overflow: hidden;
  }
-
 
  .header {
      display: flex;
@@ -280,6 +307,43 @@
      color: #465d75;
      font-size: 1.8rem;
  }
+
+
+
+
+ .header {
+     flex-shrink: 0;
+     /* Evita que el header se encoja */
+     /* Tus estilos existentes para el header */
+ }
+
+ .tab-content {
+     flex-grow: 1;
+     overflow-y: auto;
+     scrollbar-width: thin;
+     scrollbar-color: #b5b5b5 #00000000;
+ }
+
+ /* Estilos para el scroll en navegadores WebKit (Chrome, Safari) */
+ .tab-content::-webkit-scrollbar {
+     width: 8px;
+ }
+
+ .tab-content::-webkit-scrollbar-track {
+     background: #ffffff00;
+ }
+
+ /*.tab-content::-webkit-scrollbar-thumb {
+    background-color: #5cc528;
+    border-radius: 4px;
+}*/
+
+ /* Asegúrate que las tablas internas no causen doble scroll */
+ .tab-content .data-table-container,
+ .tab-content .table-container {
+     overflow: visible;
+ }
+
 
 
  .user-info {
@@ -358,22 +422,22 @@
 
  .card-1 {
      background: #cdf9e0;
-     box-shadow: 0px 0px 0px 1px rgb(176 221 195);
+     box-shadow: 0px 0px 0px 1px rgb(176 221 195) inset;
  }
 
  .card-2 {
      background: #dcf1ff;
-     box-shadow: 0px 0px 0px 1px rgb(157 209 243);
+     box-shadow: 0px 0px 0px 1px rgb(157 209 243) inset;
  }
 
  .card-3 {
      background: #ffebcc;
-     box-shadow: 0px 0px 0px 1px rgb(255 196 102);
+     box-shadow: 0px 0px 0px 1px rgb(255 196 102) inset;
  }
 
  .card-4 {
      background: #daffd4;
-     box-shadow: inset 0px 0px 0px 1px rgb(147 223 110);
+     box-shadow: inset 0px 0px 0px 1px rgb(147 223 110) inset;
  }
 
  .stat-icon {
@@ -424,7 +488,6 @@
      border-radius: 8px;
      padding: 1rem 1.5rem;
      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-     margin-bottom: 2rem;
  }
 
  .table-header {
@@ -436,6 +499,9 @@
  .table-header h2 {
      color: var(--primary);
      font-size: 1.5rem;
+     display: inline-flex;
+     align-items: center;
+     gap: 0.5rem;
  }
 
  .table-actions {
@@ -582,7 +648,7 @@
      box-shadow: inset 0px 0px 0px 1px rgb(111 219 29);
  }
 
- .status-cancelled {
+ .status-canceled {
      background-color: #f8d7da;
      color: #721c24;
  }
@@ -591,6 +657,24 @@
      background-color: #e2e3e5;
      color: #383d41;
  }
+
+ #cancelOrderBtn,
+ #cancelQuoteBtn {
+     position: absolute;
+     left: 1rem;
+     background: #c13636;
+     border: none;
+     color: #ffe9e9;
+     font-size: 0.8rem;
+     cursor: pointer;
+     transition: all 0.3s;
+ }
+
+ #cancelOrderBtn:hover,
+ #cancelQuoteBtn:hover {
+     background: #a02c2c;
+ }
+
 
 
 
