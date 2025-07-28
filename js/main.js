@@ -210,7 +210,7 @@ function changeLanguage(lang) {
             ? "./img/icons/bandera_rd_1.svg" 
             : "./img/icons/bandera_usa_1.svg";
     }
-
+    
     // Actualizar textos normales
     document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
@@ -1457,7 +1457,7 @@ function showTerms() {
 // Show login form
 function showLoginForm() {
     document.getElementById('registerFields').style.display = 'none';
-    document.getElementById('loginUserBtn').style.display = 'inline-block';
+    document.getElementById('loginUserBtn').style.display = 'inline-flex';
 
     // Restaurar completamente el botón de registro
     const registerBtn = document.getElementById('registerUserBtn');
@@ -1529,7 +1529,7 @@ async function registerUser() {
         registerBtn.style.backgroundColor = 'var(--secondary)';
         registerBtn.style.color = 'white';
         registerBtn.style.border = 'none';
-        showLoginBtn.style.display = 'inline-block';
+        showLoginBtn.style.display = 'inline-flex';
         return;
     }
 
@@ -1628,8 +1628,8 @@ async function logout() {
 // En la función updateUIForLoggedInUser, añade el event listener para el modal de perfil
 function updateUIForLoggedInUser(user) {
     loginBtn.style.display = 'none';
-    userProfile.style.display = 'flex';
-    logoutBtn.style.display = 'flex';
+    userProfile.style.display = 'inline-flex';
+    logoutBtn.style.display = 'inline-flex';
 
     // Usar la traducción para "Mi perfil"
 const miPerfilSpan = userProfile.querySelector('[data-i18n="miPerfil"]');
@@ -1861,7 +1861,7 @@ async function reauthenticateAndDelete(userId) {
 }
 
 function updateUIForLoggedOutUser() {
-    loginBtn.style.display = 'inline-block';
+    loginBtn.style.display = 'inline-flex';
     userProfile.style.display = 'none';
     logoutBtn.style.display = 'none';
 }
@@ -1952,7 +1952,7 @@ function closeModals() {
     if (authForm) {
         authForm.reset();
         document.getElementById('registerFields').style.display = 'none';
-        document.getElementById('loginUserBtn').style.display = 'inline-block';
+        document.getElementById('loginUserBtn').style.display = 'inline-flex';
         document.getElementById('registerUserBtn').textContent = 'Register';
         document.getElementById('showLoginBtn').style.display = 'none';
     }
