@@ -210,7 +210,7 @@ function changeLanguage(lang) {
             ? "./img/icons/bandera_rd_1.svg" 
             : "./img/icons/bandera_usa_1.svg";
     }
-    
+
     // Actualizar textos normales
     document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
@@ -1628,8 +1628,8 @@ async function logout() {
 // En la función updateUIForLoggedInUser, añade el event listener para el modal de perfil
 function updateUIForLoggedInUser(user) {
     loginBtn.style.display = 'none';
-    userProfile.style.display = 'inline-flex';
-    logoutBtn.style.display = 'inline-flex';
+    userProfile.style.display = 'flex';
+    logoutBtn.style.display = 'flex';
 
     // Usar la traducción para "Mi perfil"
 const miPerfilSpan = userProfile.querySelector('[data-i18n="miPerfil"]');

@@ -1671,6 +1671,11 @@
             display: inline-flex;
         }
 
+        #cartCount,
+        #cartCount2 {
+            top: -3px;
+        }
+
 
         .nav-dot {
             width: 10px;
