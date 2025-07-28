@@ -203,6 +203,14 @@ function changeLanguage(lang) {
     // Actualizar el texto del idioma actual
     document.getElementById('currentLanguageText').textContent = lang === 'es' ? 'ES' : 'EN';
 
+        // Actualizar la bandera según el idioma
+    const flagImg = document.querySelector('#languageToggle img');
+    if (flagImg) {
+        flagImg.src = lang === 'es' 
+            ? "./img/icons/bandera_rd_1.svg" 
+            : "./img/icons/bandera_usa_1.svg";
+    }
+    
     // Actualizar textos normales
     document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
@@ -220,13 +228,16 @@ function changeLanguage(lang) {
     });
 
     // Actualizar el texto "Mi perfil" si el usuario está logueado
-    if (currentUser) {
-        const userProfile = document.getElementById('userProfile');
-        if (userProfile) {
-            userProfile.textContent = translations[lang]['miPerfil'];
-            userProfile.innerHTML = translations[lang]['miPerfil'];
+if (currentUser) {
+    const userProfile = document.getElementById('userProfile');
+    if (userProfile) {
+        // Solo actualiza el texto del span que tiene el data-i18n, no todo el contenido
+        const miPerfilSpan = userProfile.querySelector('[data-i18n="miPerfil"]');
+        if (miPerfilSpan) {
+            miPerfilSpan.textContent = translations[lang]['miPerfil'];
         }
     }
+}
 
     // Actualizar servicios y artículos comunes
     const servicesContainer = document.getElementById('servicesContainer');
@@ -1617,12 +1628,14 @@ async function logout() {
 // En la función updateUIForLoggedInUser, añade el event listener para el modal de perfil
 function updateUIForLoggedInUser(user) {
     loginBtn.style.display = 'none';
-    userProfile.style.display = 'inline-block';
-    logoutBtn.style.display = 'inline-block';
+    userProfile.style.display = 'inline-flex';
+    logoutBtn.style.display = 'inline-flex';
 
     // Usar la traducción para "Mi perfil"
-    userProfile.textContent = translations[currentLanguage]['miPerfil'];
-    userProfile.innerHTML = translations[currentLanguage]['miPerfil'];
+const miPerfilSpan = userProfile.querySelector('[data-i18n="miPerfil"]');
+if (miPerfilSpan) {
+  miPerfilSpan.textContent = translations[currentLanguage]['miPerfil'];
+}
 
     // Get user data
     db.collection('users').doc(user.uid).get().then(doc => {

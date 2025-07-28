@@ -9,27 +9,27 @@
 
     <!-- Early language initialization to prevent flash of wrong language -->
     <script>
-        (function() {
+        (function () {
             var savedLanguage = localStorage.getItem('preferredLanguage');
             if (savedLanguage === 'en') {
                 document.documentElement.lang = 'en';
-                
+
                 // Create and apply a style tag to hide text elements with data-i18n
                 var styleTag = document.createElement('style');
                 styleTag.id = 'preload-language-styles';
                 styleTag.innerHTML = '[data-i18n], [data-i18n-placeholder] { opacity: 0; }';
                 document.head.appendChild(styleTag);
-                
+
                 // Update page title immediately
                 document.title = "Meetransportation - Shipping from USA to Dominican Republic";
-                
+
                 // Let main.js handle the removal of the style
                 // The style will be kept until translations are fully applied
             }
         })();
     </script>
 
-    
+
     <!-- Firebase SDK -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app-compat.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-firestore-compat.min.js"></script>
@@ -60,19 +60,61 @@
                 </div>
                 <nav id="main-nav">
                     <ul>
-                        <li><a href="#inicio" data-i18n="inicio">Inicio</a></li>
-                        <li><a href="#services" data-i18n="servicios">Servicios</a></li>
-                        <li><a href="#quote" data-i18n="cotizacion">Cotización</a></li>
-                        <li><a href="#tracking" data-i18n="rastreo">Rastreo</a></li>
-                        <li><a href="#contact" data-i18n="contacto">Contacto</a></li>
-                        <li><a href="#" id="loginBtn" data-i18n="login">Iniciar Sesión</a></li>
-                        <li><a href="./profile.html" id="userProfile" style="display: none;"></a></li>
-                        <li style="margin-left: 0rem;"><a href="#" id="logoutBtn" style="display:none;"
-                                class="btn btn-outline" data-i18n="logout">Cerrar Sesión</a></li>
+                        <li>
+                            <a href="#inicio"><img src="./img/icons/inicio_1.png" alt="Inicio" id="menuicon1"><span
+                                    data-i18n="inicio">Inicio</span></a>
+                        </li>
+
+                        <li>
+                            <a href="#services">
+                                <img src="./img/icons/servicios_1.png" alt="Servicios" id="menuicon1">
+                                <span data-i18n="servicios">Servicios</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#quote">
+                                <img src="./img/icons/cotizacion_1.png" alt="Cotización" id="menuicon1">
+                                <span data-i18n="cotizacion">Cotización</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#tracking">
+                                <img src="./img/icons/tracking_1.png" alt="Rastreo" id="menuicon1">
+                                <span data-i18n="rastreo">Rastreo</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#contact">
+                                <img src="./img/icons/contacto_1.png" alt="Contacto" id="menuicon1">
+                                <span data-i18n="contacto">Contacto</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" id="loginBtn">
+                                <img src="./img/icons/login_1.png" alt="Iniciar Sesión" id="menuicon1">
+                                <span data-i18n="login">Iniciar Sesión</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="./profile.html" id="userProfile" style="display: none;">
+                                <img src="./img/icons/perfil_1.png" alt="Perfil" id="menuicon1">
+                                <span data-i18n="miPerfil">Mi perfil</span>
+                            </a>
+                        </li>
+
+
+                        <li id="lilogin">
+                            <a href="#" id="logoutBtn" style="display:none;" class="btn btn-outline">
+                                <img src="./img/icons/logout_1.png" alt="Cerrar Sesión" id="menuicon1">
+                                <span data-i18n="logout">Cerrar Sesión</span>
+                            </a>
+                        </li>
+
                         <li>
                             <div id="languageToggle" style="cursor: pointer; display: flex; align-items: center;">
                                 <!-- <i class="fas fa-globe" style="font-size: 1.2rem; margin-right: 5px;"></i> -->
-                                <img src="./img/idioma_2.svg" style="height: 21px; margin-right: 5px;">
+                                <img src="./img/icons/bandera_rd_1.svg" style="height: 24px; margin-right: 5px;border-radius: 100%;">
                                 <span id="currentLanguageText">ES</span>
                             </div>
                             <select id="languageSelector" style="display: none;">
@@ -80,10 +122,11 @@
                                 <option value="en">🇺🇸 English</option>
                             </select>
                         </li>
+
                         <li>
                             <a href="#" id="cartBtn">
                                 <!-- <i class="fas fa-shopping-cart"></i> -->
-                                 <img src="./img/carrito_1.svg" style="height: 25px;">
+                                <img src="./img/carrito_1.svg" style="height: 25px;">
                                 <span id="cartCount">0</span>
                             </a>
                         </li>
@@ -194,7 +237,8 @@
                 <form id="quoteForm">
                     <div class="form-group">
                         <label for="name" data-i18n="nombreCompleto" data-i18n="nombreCompleto">Nombre Completo:</label>
-                        <input type="text" id="name" class="form-control" data-i18n-placeholder="nombrePlaceholder" required>
+                        <input type="text" id="name" class="form-control" data-i18n-placeholder="nombrePlaceholder"
+                            required>
                     </div>
 
                     <div class="form-row" style="border-bottom: 1px solid #e9ecef;margin-bottom: 15px;">
@@ -356,7 +400,9 @@
                     </p>
                     <p>
                         <i class="fas fa-envelope"></i>
-                        <a href="/cdn-cgi/l/email-protection#d1b8bfb7be91bcb4b4a5a3b0bfa2a1bea3a5b0a5b8bebfffb2bebc"><span class="__cf_email__" data-cfemail="224b4c444d624f47475650434c51524d505643564b4d4c0c414d4f">[email&#160;protected]</span></a>
+                        <a href="/cdn-cgi/l/email-protection#d1b8bfb7be91bcb4b4a5a3b0bfa2a1bea3a5b0a5b8bebfffb2bebc"><span
+                                class="__cf_email__"
+                                data-cfemail="224b4c444d624f47475650434c51524d505643564b4d4c0c414d4f">[email&#160;protected]</span></a>
                     </p>
                     <p>
                         <i class="fas fa-map-marker-alt"></i>1877 Amsterdam Ave, Store 3, New York, NY 10031
@@ -643,7 +689,8 @@
 
 
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="./js/addressData.js"></script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+    <script src="./js/addressData.js"></script>
     <script src="./js/main.js"></script>
 
     <script>

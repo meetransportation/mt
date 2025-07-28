@@ -92,7 +92,9 @@
         text-decoration: none;
         font-weight: 500;
         transition: color 0.3s;
+        display: inline-flex;
     }
+
 
     nav ul li a:hover {
         color: var(--secondary);
@@ -183,20 +185,25 @@
 
     #main-nav ul {
         display: flex;
-        gap: 1rem;
-        /* Esto reemplaza los márgenes */
+        gap: 0.7rem;
         align-items: center;
         list-style: none;
         padding: 0;
         margin: 0;
+        gap: 1rem;
     }
 
     #main-nav ul li {
         margin: 0;
         display: inline-flex;
         align-items: center;
+        gap: 1rem;
     }
 
+    #menuicon1 {
+        height: 27px;
+        display: none;
+    }
 
     /* Flecha animada moderna */
     .scroll-down {
@@ -660,21 +667,21 @@
         padding-left: 0.3rem;
     }
 
-#cartCount, #cartCount2 {
-    position: absolute;
-    top: -9px;
-    right: -17px;
-    background: var(--secondary);
-    color: white;
-    border-radius: 50%;
-    width: 18px;
-    height: 18px;
-    display: flex
-;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-}
+    #cartCount,
+    #cartCount2 {
+        position: absolute;
+        top: -9px;
+        right: -17px;
+        background: var(--secondary);
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+    }
 
     /* Estilos para el modal del carrito */
     .cart-item img {
@@ -1284,27 +1291,7 @@
         transition: height 0.2s ease-out;
     }
 
-    @media (max-width: 768px) {
-        .vertical-nav {
-            left: 5px;
-            padding: 8px 5px;
-        }
 
-        .nav-dot {
-            width: 10px;
-            height: 10px;
-        }
-
-        .nav-line-container {
-            height: 15px;
-        }
-    }
-
-    @media (max-width: 600px) {
-        .vertical-nav {
-            display: none;
-        }
-    }
 
 
     #languageToggle {
@@ -1647,6 +1634,62 @@
     /* Responsive */
     @media (max-width: 768px) {
 
+
+        .vertical-nav {
+            left: 5px;
+            padding: 8px 5px;
+        }
+
+        #main-nav ul li {
+            justify-content: flex-start;
+            width: 100%;
+        }
+
+        nav ul li a {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.2rem 1.5rem 0.2rem 1rem;
+        }
+
+        nav ul li a:hover {
+            background: #ffffff21;
+            border-radius: 5px;
+        }
+
+        #lilogin {
+            margin-left: 0.9rem !important;
+        }
+
+        #lilogin a {
+            gap: 0.8rem !important;
+            width: 95%;
+        }
+
+
+        #menuicon1 {
+            display: inline-flex;
+        }
+
+
+        .nav-dot {
+            width: 10px;
+            height: 10px;
+        }
+
+        .nav-line-container {
+            height: 15px;
+        }
+
+        #languageToggle {
+            padding: 0.2rem 1rem;
+            gap: 0.8rem;
+        }
+
+        #languageToggle span {
+            font-weight: 500;
+            font-size: 1rem;
+        }
 
         .whatsapp-float {
             width: 50px;
@@ -1998,6 +2041,12 @@
     }
 
     @media (max-width: 600px) {
+
+        .vertical-nav {
+            display: none;
+        }
+
+
         .service-card {
             padding: 0.5rem 0.2rem;
             display: inline-flex;
