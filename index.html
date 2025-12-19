@@ -1,1 +1,924 @@
+<!DOCTYPE html>
+<html lang="es" id="htmlRoot">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meetransportation - Envíos de USA a República Dominicana</title>
+    <link rel="icon" href="./img/icon_favicon_meetax_1_2048x2048.png" type="image/png" sizes="any">
+
+    <!-- Early language initialization to prevent flash of wrong language -->
+    <script>
+        (function () {
+            var savedLanguage = localStorage.getItem('preferredLanguage');
+            if (savedLanguage === 'en') {
+                document.documentElement.lang = 'en';
+
+                // Create and apply a style tag to hide text elements with data-i18n
+                var styleTag = document.createElement('style');
+                styleTag.id = 'preload-language-styles';
+                styleTag.innerHTML = '[data-i18n], [data-i18n-placeholder] { opacity: 0; }';
+                document.head.appendChild(styleTag);
+
+                // Update page title immediately
+                document.title = "Meetransportation - Shipping from USA to Dominican Republic";
+
+                // Let main.js handle the removal of the style
+                // The style will be kept until translations are fully applied
+            }
+        })();
+    </script>
+
+
+    <!-- Firebase SDK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-firestore-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-auth-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-storage-compat.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+
+    <!-- intl-tel-input CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css">
+    <!-- intl-tel-input JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"></script>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container" id="menu-s">
+            <div class="header-content">
+                <a href="#" class="logo">Mee<span>Transportation</span></a>
+                <div class="menu-toggle" id="mobile-menu">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <nav id="main-nav">
+                    <ul>
+                        <li>
+                            <a href="#inicio"><img src="./img/icons/inicio_1.png" alt="Inicio" id="menuicon1"><span
+                                    data-i18n="inicio">Inicio</span></a>
+                        </li>
+
+                        <li>
+                            <a href="#services">
+                                <img src="./img/icons/servicios_1.png" alt="Servicios" id="menuicon1">
+                                <span data-i18n="servicios">Servicios</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#quote">
+                                <img src="./img/icons/cotizacion_1.png" alt="Cotización" id="menuicon1">
+                                <span data-i18n="cotizacion">Cotización</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#tracking">
+                                <img src="./img/icons/tracking_1.png" alt="Rastreo" id="menuicon1">
+                                <span data-i18n="rastreo">Rastreo</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#contact">
+                                <img src="./img/icons/contacto_1.png" alt="Contacto" id="menuicon1">
+                                <span data-i18n="contacto">Contacto</span>
+                            </a>
+                        </li>
+                        <li  id="lilogin">
+                            <a href="#" id="loginBtn">
+                                <img src="./img/icons/login_1.png" alt="Iniciar Sesión" id="menuicon1">
+                                <span data-i18n="login">Iniciar Sesión</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="./profile.html" id="userProfile" style="display: none;">
+                                <img src="./img/icons/perfil_1.png" alt="Perfil" id="menuicon1">
+                                <span data-i18n="miPerfil">Mi perfil</span>
+                            </a>
+                        </li>
+
+
+                        <li id="lilogin">
+                            <a href="#" id="logoutBtn" style="display:none;" class="btn btn-outline">
+                                <img src="./img/icons/logout_1.png" alt="Cerrar Sesión" id="menuicon1">
+                                <span data-i18n="logout">Cerrar Sesión</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <div id="languageToggle" style="cursor: pointer; display: flex; align-items: center;">
+                                <!-- <i class="fas fa-globe" style="font-size: 1.2rem; margin-right: 5px;"></i> -->
+                                <img src="./img/icons/bandera_rd_1.svg" style="height: 24px; margin-right: 5px;border-radius: 100%;">
+                                <span id="currentLanguageText">ES</span>
+                            </div>
+                            <select id="languageSelector" style="display: none;">
+                                <option value="es">🇩🇴 Español</option>
+                                <option value="en">🇺🇸 English</option>
+                            </select>
+                        </li>
+
+                        <li>
+                            <a href="#" id="cartBtn">
+                                <!-- <i class="fas fa-shopping-cart"></i> -->
+                                <img src="./img/carrito_1.svg" style="height: 25px;">
+                                <span id="cartCount">0</span>
+                            </a>
+                        </li>
+
+                    </ul>
+                </nav>
+
+                <a href="#" id="cartBtn2">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cartCount2">0</span>
+                </a>
+
+
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="inicio">
+        <div class="container">
+            <div class="route-info">
+                <div class="location">
+                    <img src="./img/Bandera_USA_1.png">
+                    <h3 style="margin: 0px 31px;" data-i18n="EstadosUnidos">Estados Unidos</h3>
+                    <p data-i18n="NY">Nueva York, NY</p>
+                </div>
+                <div class="arrow">
+                    <i class="fas fa-arrow-right" style="font-size: 40px;color: #ffffff;"></i>
+                </div>
+                <div class="location">
+                    <img src="./img/Bandera_RD_1.png">
+                    <h3 data-i18n="RD">República Dominicana</h3>
+                    <p data-i18n="TodoPais">Todo el país</p>
+                </div>
+            </div>
+
+            <div class="hero-content">
+                <h1 data-i18n="heroTitle">Envíos seguros de USA a República Dominicana</h1>
+                <p data-i18n="heroText">Especializados en el envío de cajas y tanques azules desde Nueva York a todo el
+                    territorio dominicano. Confiabilidad, rapidez y transparencia en cada envío.</p>
+                <div id="hero-btn-content">
+                    <a href="#quote" class="btn" data-i18n="quoteBtn">Solicitar Cotización</a>
+                    <a href="#services" class="btn btn-outline" data-i18n="servicesBtn">Nuestros Servicios</a>
+                </div>
+            </div>
+
+
+            <!-- Flecha animada -->
+            <div class="scroll-down" onclick="scrollToServices()">
+                <div class="scroll-down-arrow">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+
+
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="services-Box">
+
+        <img src="./img/mundi_1.png" id="mundi-img-1">
+        <img src="./img/mundi_2.png" id="mundi-img-2">
+
+        <div class="container" style="position: relative;">
+            <h2 class="section-title" data-i18n="servicesBtn">Nuestros Servicios</h2>
+            <div class="services-grid" id="servicesContainer">
+                <!-- Los servicios se cargarán aquí dinámicamente desde Firebase -->
+            </div>
+
+            <div id="comprar-arroz-tanque-content">
+                <div id="comprar-arroz-tanque">
+                    <img src="./img/comprar_arroz_aceite_1.png">
+                    <div>
+                        <h3 data-i18n="noArroz">
+                            ¿No tienes arroz o aceite?
+                        </h3>
+                        <p data-i18n="vendemosArroz">
+                            ¡No te preocupes! Nosotros te lo vendemos al mejor precio.
+                        </p>
+                    </div>
+                    <button id="comprar-arroz-tanque-btn" data-i18n="orderBtn">Ordenar</button>
+                </div>
+
+                <div id="comprar-arroz-tanque">
+                    <img src="./img/comprar_caja_tanque_1.png">
+                    <div>
+                        <h3 data-i18n="noCaja">¿No tienes caja o tanque?</h3>
+                        <p data-i18n="vendemosCaja">
+                            ¡No te preocupes! Nosotros te lo vendemos al mejor precio.
+                        </p>
+                    </div>
+                    <button id="comprar-arroz-tanque-btn" data-i18n="orderBtn">Ordenar</button>
+                </div>
+
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Quote Section -->
+    <section id="quote" class="quote">
+        <div class="container">
+            <h2 class="section-title" style="color: white;" data-i18n="solicitaCotizacion">Solicita tu Cotización</h2>
+
+            <div class="quote-form">
+                <form id="quoteForm">
+                    <div class="form-group">
+                        <label for="name" data-i18n="nombreCompleto" data-i18n="nombreCompleto">Nombre Completo:</label>
+                        <input type="text" id="name" class="form-control" data-i18n-placeholder="nombrePlaceholder"
+                            required>
+                    </div>
+
+                    <div class="form-row" style="border-bottom: 1px solid #e9ecef;margin-bottom: 15px;">
+                        <div class="form-group">
+                            <label for="email" data-i18n="correoElectronico">Correo Electrónico:</label>
+                            <input type="email" id="email" class="form-control" data-i18n-placeholder="tuemail"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone" data-i18n="telefono">Teléfono:</label>
+                            <input type="tel" id="phone" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="tipoPaquete">Tipo de Paquete:</label>
+                        <div class="package-type">
+                            <div class="package-option">
+                                <input type="radio" id="commonItem" name="package" value="Artículo Común" checked>
+                                <label for="commonItem" data-i18n="articuloComun">Artículo Común</label>
+                            </div>
+                            <div class="package-option">
+                                <input type="radio" id="custom" name="package" value="Personalizado">
+                                <label for="custom" data-i18n="personalizado">Personalizado</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="commonItemDiv" class="custom-package show">
+                        <div class="form-group">
+                            <label data-i18n="seleccioneArticulo">Seleccione el artículo:</label>
+                            <div id="commonItemsContainer" class="package-type" style="margin-top: 1rem;">
+                                <!-- Los artículos se cargarán aquí dinámicamente desde Firebase -->
+                            </div>
+                            <input type="hidden" id="commonItemType">
+                        </div>
+                    </div>
+
+                    <div id="customPackage" class="custom-package">
+                        <div class="form-group">
+                            <label for="item" data-i18n="articuloEnviar">Artículo a enviar:</label>
+                            <input type="text" id="item" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="commercialValue" data-i18n="valorComercial">Valor comercial (USD):</label>
+                            <input type="number" id="commercialValue" class="form-control" min="0" step="0.01">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="length" data-i18n="largo">Largo (pulgadas):</label>
+                                <input type="number" id="length" class="form-control" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="width" data-i18n="ancho">Ancho (pulgadas):</label>
+                                <input type="number" id="width" class="form-control" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="height" data-i18n="alto">Alto (pulgadas):</label>
+                                <input type="number" id="height" class="form-control" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="weight" data-i18n="peso">Peso (lbs):</label>
+                                <input type="number" id="weight" class="form-control" min="1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <!-- Reemplaza esto en la sección de cotización -->
+                        <div class="form-group">
+                            <label for="origin" style="display: inline-flex;align-items: center;"
+                                data-i18n="origen">Origen <img src="./img/Bandera_USA_1.png"
+                                    style="height: 22px;margin: 0px 5px;"> (Ciudad,
+                                Estado):</label>
+                            <select id="origin" class="form-control" required>
+                                <option value="New York, NY" selected>New York, NY</option>
+                            </select>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="destination" style="display: inline-flex;align-items: center;"
+                                data-i18n="destino">Destino <img src="./img/Bandera_RD_1.png"
+                                    style="height: 22px;margin: 0px 5px;">
+                                (Provincia):</label>
+                            <select id="destination" class="form-control" required>
+                                <option value="" disabled selected data-i18n="seleccioneProvincia">Seleccione una
+                                    provincia</option>
+                                <option value="Distrito Nacional">Distrito Nacional</option>
+                                <option value="Santo Domingo">Santo Domingo</option>
+                                <option value="Santiago">Santiago</option>
+                                <option disabled>──────────</option>
+                                <option value="Azua">Azua</option>
+                                <option value="Bahoruco">Bahoruco</option>
+                                <option value="Barahona">Barahona</option>
+                                <option value="Dajabón">Dajabón</option>
+                                <option value="Duarte">Duarte</option>
+                                <option value="El Seibo">El Seibo</option>
+                                <option value="Elías Piña">Elías Piña</option>
+                                <option value="Espaillat">Espaillat</option>
+                                <option value="Hato Mayor">Hato Mayor</option>
+                                <option value="Hermanas Mirabal">Hermanas Mirabal</option>
+                                <option value="Independencia">Independencia</option>
+                                <option value="La Altagracia">La Altagracia</option>
+                                <option value="La Romana">La Romana</option>
+                                <option value="La Vega">La Vega</option>
+                                <option value="María Trinidad Sánchez">María Trinidad Sánchez</option>
+                                <option value="Monseñor Nouel">Monseñor Nouel</option>
+                                <option value="Monte Cristi">Monte Cristi</option>
+                                <option value="Monte Plata">Monte Plata</option>
+                                <option value="Pedernales">Pedernales</option>
+                                <option value="Peravia">Peravia</option>
+                                <option value="Puerto Plata">Puerto Plata</option>
+                                <option value="Samaná">Samaná</option>
+                                <option value="San Cristóbal">San Cristóbal</option>
+                                <option value="San José de Ocoa">San José de Ocoa</option>
+                                <option value="San Juan">San Juan</option>
+                                <option value="San Pedro de Macorís">San Pedro de Macorís</option>
+                                <option value="Sánchez Ramírez">Sánchez Ramírez</option>
+                                <option value="Santiago Rodríguez">Santiago Rodríguez</option>
+                                <option value="Valverde">Valverde</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message" data-i18n="mensajeAdicional">Mensaje adicional (opcional):</label>
+                        <textarea id="message" class="form-control" rows="4"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn" data-i18n="enviarSolicitud">Enviar Solicitud</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+
+        <div class="container">
+            <h2 class="section-title" data-i18n="contactoTitle">Contacto</h2>
+            <div class="contact-content" style="margin-bottom: 1rem;">
+                <p style="text-align: justify;" data-i18n="preguntaContacto">¿Tienes alguna pregunta? No dudes en
+                    contactarnos. Estamos aquí para
+                    ayudarte con tus necesidades de
+                    envío.</p>
+                <div class="contact-info">
+                    <p>
+                        <i class="fas fa-phone"></i>
+
+                        <a href="tel:+18885313887">+1 (888) 531-3887</a>
+                    </p>
+                    <p>
+                        <i class="fas fa-mobile-alt"></i>
+                        <a
+                            href="https://wa.me/12124242846?text=Saludos,%20me%20gustaría%20comunicarme%20con%20servicio%20al%20cliente.">
+                            +1 (212) 424-2846
+                        </a>
+                    </p>
+                    <p>
+                        <i class="fas fa-envelope"></i>
+                        <a href="/cdn-cgi/l/email-protection#d1b8bfb7be91bcb4b4a5a3b0bfa2a1bea3a5b0a5b8bebfffb2bebc"><span
+                                class="__cf_email__"
+                                data-cfemail="224b4c444d624f47475650434c51524d505643564b4d4c0c414d4f">[email&#160;protected]</span></a>
+                    </p>
+                    <p>
+                        <i class="fas fa-map-marker-alt"></i>1877 Amsterdam Ave, Store 3, New York, NY 10031
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- Start Map -->
+            <iframe class="map-iframe"
+                src="https://maps.google.com/maps?q=40.83005838598232, -73.94384101203005&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                allowfullscreen="" loading="lazy"></iframe>
+            <!-- End Map -->
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Mee<span style="color: var(--secondary);">Transportation</span></h3>
+                    <p data-i18n="especialistas">Especialistas en envíos desde Estados Unidos a República Dominicana.
+                        Confiabilidad y rapidez en
+                        cada entrega.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a
+                            href="https://wa.me/12124242846?text=Saludos,%20me%20gustaría%20comunicarme%20con%20servicio%20al%20cliente."><i
+                                class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3 data-i18n="enlacesrapidos">Enlaces Rápidos</h3>
+                    <a href="#services" data-i18n="servicios">Servicios</a>
+                    <a href="#quote" data-i18n="cotizacion">Cotización</a>
+                    <a href="#" data-i18n="rastreo">Rastreo</a>
+                    <a href="#contact" data-i18n="contacto">Contacto</a>
+                </div>
+                <div class="footer-column">
+                    <h3 data-i18n="horarioTitle">Horario</h3>
+                    <p data-i18n="lunesSabado">Lunes - Sábado: 9:30am - 8:00pm</p>
+                    <p data-i18n="domingoCerrado">Domingo: Cerrado</p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p data-i18n="derechosReservados">&copy; 2025 MeeTransportation. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content" style="background-color: #ffffff;display: inline-flex;align-items: center;">
+            <div class="Modal-Title">
+                <h3 data-i18n="solicitudEnviada">¡Solicitud Enviada!</h3>
+                <button class="close-modal btn">X</button>
+            </div>
+
+            <div class="Modal-Body" style="padding: 3rem 1rem;">
+                <p data-i18n="confirmacionSolicitud">Hemos recibido tu solicitud de cotización. Nos pondremos en
+                    contacto
+                    contigo en las próximas 24 horas con
+                    los detalles de tu envío.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content" id="modal-login">
+            <div class="Modal-Title ">
+                <h3 data-i18n="iniciarRegistroTitle">Iniciar Sesión / Registrarse</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="Modal-Body">
+                <form id="authForm">
+                    <div class="form-group">
+                        <label for="authEmail" data-i18n="correoElectronico">Correo Electrónico</label>
+                        <input type="email" id="authEmail" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="authPassword" data-i18n="contraseña">Contraseña</label>
+                        <input type="password" id="authPassword" class="form-control" required>
+                    </div>
+
+                    <!-- Campos adicionales para registro -->
+                    <div id="registerFields" style="display: none;">
+                        <div class="form-group">
+                            <label for="fullName">Nombre Completo</label>
+                            <input type="text" id="fullName" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="phoneNumber" data-i18n="telefono">Número de Teléfono</label>
+                            <input type="tel" id="phoneNumber" class="form-control">
+                        </div>
+
+                        <div style="display: inline-flex;gap: 22px;">
+                            <div class="form-group" style="width: 50%;">
+                                <label for="country" data-i18n="paisreg">País:</label>
+                                <select id="country" class="form-control" required>
+                                    <option value="" disabled selected data-i18n="selectpais">Seleccione un país
+                                    </option>
+                                    <option value="US">Estados Unidos</option>
+                                    <option value="DO">República Dominicana</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="width: 50%;">
+                                <label for="state" data-i18n="selectstate">Estado/Provincia:</label>
+                                <select id="state" class="form-control" required>
+                                    <option value="" disabled selected data-i18n="selectstate">Estado/Provincia</option>
+                                </select>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="street" data-i18n="direccionreg">Dirección (Calle y Número):</label>
+                            <input type="text" id="street" class="form-control" required>
+                        </div>
+
+
+                        <div style="display: inline-flex;gap: 22px;">
+                            <div class="form-group" style="width: 50%;">
+                                <label for="city" data-i18n="Ciudad">Ciudad:</label>
+                                <input type="text" id="city" class="form-control" required>
+                            </div>
+                            <div class="form-group" style="width: 50%;">
+                                <label for="zipCode" data-i18n="codigopostal">Código Postal:</label>
+                                <input type="text" id="zipCode" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="terminos">
+                            <input type="checkbox" id="termsCheckbox" required>
+                            <label for="termsCheckbox" style="margin-bottom: 0rem;" data-i18n="aceptoTerminos">Acepto
+                                los</label> <a href="#" style="color: var(--secondary);" onclick="showTerms()"
+                                data-i18n="terminosCondiciones">Términos y Condiciones</a>
+                        </div>
+                    </div>
+
+                    <div
+                        style="display: inline-flex;align-items: center;width: 100%;gap: 15px;justify-content: center;flex-direction: row;">
+                        <button type="button" id="loginUserBtn" class="btn" data-i18n="login">Iniciar Sesión</button>
+                        <button type="button" id="showLoginBtn" class="btn btn-outline-2" style="display: none;"
+                            data-i18n="yaTengoCuenta">Ya
+                            tengo
+                            cuenta</button>
+                        <button type="button" id="registerUserBtn" class="btn btn-outline-2"
+                            data-i18n="crearCuenta">Crear cuenta</button>
+                    </div>
+
+                    <!-- Botón de Google -->
+                    <div style="text-align: center;margin: 1rem 0;display: inline-flex;flex-direction: column;">
+                        <p style="margin: 1rem 0;" data-i18n="oIniciaGoogle">O inicia sesión con</p>
+                        <button type="button" id="googleSignInBtn" class="btn">
+                            <img src="./img/google_logo_1.png">
+                            <span data-i18n="continuarcongoogle">Continuar con Google</span>
+                        </button>
+                    </div>
+
+                    <div id="authMessage" style="margin-top: 1rem; color: var(--accent);"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Términos y Condiciones Modal -->
+    <div id="termsModal" class="modal" style="background-color: rgb(0 0 0 / 5%);">
+        <div class="modal-content" style="max-width: 800px; max-height: 80vh; overflow-y: auto;">
+            <div class="Modal-Title">
+                <h3 data-i18n="terminosCondiciones">Términos y Condiciones</h3>
+                <button class="close-terms-modal">&times;</button>
+            </div>
+            <div class="Modal-Body">
+                <div style="text-align: left; margin-bottom: 1.5rem;">
+                    <p><strong>Última actualización:</strong> 26 de junio de 2025</p>
+                    <h4>1. Aceptación de los Términos</h4>
+                    <p>Al registrarte en Meetransportation, aceptas cumplir con estos términos y condiciones.</p>
+                    <h4>2. Servicios</h4>
+                    <p>Meetransportation ofrece servicios de envío de paquetes desde Estados Unidos a República
+                        Dominicana.
+                    </p>
+                    <h4>3. Responsabilidades del Usuario</h4>
+                    <p>El usuario es responsable de proporcionar información precisa y completa durante el registro y al
+                        solicitar servicios.</p>
+                    <h4>4. Privacidad</h4>
+                    <p>Tus datos personales serán protegidos según nuestra Política de Privacidad.</p>
+                    <h4>5. Restricciones</h4>
+                    <p>No se permiten envíos de artículos ilegales o prohibidos por las leyes de tránsito internacional.
+                    </p>
+                    <h4>6. Modificaciones</h4>
+                    <p>Nos reservamos el derecho de modificar estos términos en cualquier momento.</p>
+                    <h4>7. Limitación de Responsabilidad</h4>
+                    <p>Meetransportation no será responsable por daños indirectos o consecuenciales derivados del uso
+                        del
+                        servicio.</p>
+                </div>
+                <button class="close-terms-modal terms-OK" data-i18n="Aceptar">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Carrito Modal -->
+    <div id="cartModal" class="modal">
+        <div class="modal-content" id="modal-cart">
+            <div class="Modal-Title">
+                <h3 data-i18n="tuCarrito">Tu Carrito</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="Modal-Body">
+                <div id="cartItemsContainer" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Los items del carrito se mostrarán aquí -->
+                    <p style="text-align: center;" data-i18n="carritoVacio">Tu carrito está vacío</p>
+                </div>
+                <div id="cartTotal" style="font-weight: bold;text-align: right;margin-top: 0.5rem;font-size: 1.2rem;">
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
+                    <button id="clearCartBtn" class="btn btn-outline" data-i18n="vaciarCarrito">Vaciar Carrito</button>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="checkoutBtn" class="btn" data-i18n="pago">Proceder al Pago</button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Agrega esto justo antes del cierre del body (antes de los scripts) -->
+    <div class="vertical-nav">
+        <div class="nav-dot active pulse" data-section="inicio"></div>
+        <div class="nav-line-container">
+            <div class="nav-line-progress" id="line1"></div>
+        </div>
+        <div class="nav-dot" data-section="services"></div>
+        <div class="nav-line-container">
+            <div class="nav-line-progress" id="line2"></div>
+        </div>
+        <div class="nav-dot" data-section="quote"></div>
+        <div class="nav-line-container">
+            <div class="nav-line-progress" id="line3"></div>
+        </div>
+        <div class="nav-dot" data-section="contact"></div>
+    </div>
+
+
+
+    <!-- Modal para compra de arroz/aceite o cajas/tanques -->
+    <div id="orderItemsModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="Modal-Title">
+                <h3 data-i18n="infoCompra">Información de Compra</h3>
+            </div>
+            <div class="Modal-Body">
+                <p data-i18n="llamanosParaComprar">Nos encantaría ayudarte con tu pedido. Por favor llámanos al
+                    siguiente número y te lo vendemos al
+                    mejor precio:</p>
+                <p style="text-align: center; font-size: 1.2rem; margin: 1rem 0;">
+                    <a href="tel:+18885313887"
+                        style="background-color: var(--secondary);color: white;font-weight: bold;padding: 0.5rem 1rem;text-decoration: none;border-radius: 23px;display: inline-flex;align-items: center;">+1
+                        (888) 531-3887</a>
+                </p>
+                <p data-i18n="llamanosParaComprar2">Nuestro equipo estará encantado de atenderte y proporcionarte toda
+                    la información que necesites.</p>
+            </div>
+            <div class="modal-footer" style="text-align: center;">
+                <button class="btn close-modal" style="position: relative;background-color: var(--secondary);"
+                    data-i18n="entendido">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/12124242846?text=Saludos,%20me%20gustaría%20comunicarme%20con%20servicio%20al%20cliente."
+        class="whatsapp-float pulse" target="_blank" rel="noopener noreferrer">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+    <script src="./js/addressData.js"></script>
+    <script src="./js/main.js"></script>
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Menú móvil
+            const mobileMenuBtn = document.getElementById('mobile-menu');
+            const mainNav = document.getElementById('main-nav');
+
+            mobileMenuBtn.addEventListener('click', function () {
+                mainNav.classList.toggle('active');
+                this.querySelector('i').classList.toggle('fa-bars');
+                this.querySelector('i').classList.toggle('fa-times');
+            });
+
+            // Cerrar menú al hacer clic en un enlace
+            document.querySelectorAll('#main-nav a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mainNav.classList.remove('active');
+                    mobileMenuBtn.querySelector('i').classList.add('fa-bars');
+                    mobileMenuBtn.querySelector('i').classList.remove('fa-times');
+                });
+            });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Configuración común para ambos inputs
+            const options = {
+                preferredCountries: ['us', 'do'],
+                separateDialCode: true,
+                initialCountry: "us",
+                nationalMode: false, // Importante para mantener el código fuera del input
+                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+            };
+
+            // Inicializa los inputs
+            const phoneInput = document.querySelector("#phone");
+            const phoneIti = window.intlTelInput(phoneInput, options);
+
+            const phoneNumberInput = document.querySelector("#phoneNumber");
+            const phoneNumberIti = window.intlTelInput(phoneNumberInput, options);
+
+            // Función para formatear visualmente con guiones
+            function formatNumberForDisplay(input, iti) {
+                const countryCode = iti.getSelectedCountryData().iso2;
+                let number = input.value.replace(/\D/g, '');
+
+                // Solo aplicamos formato para US y DO
+                if ((countryCode === 'us' || countryCode === 'do') && number.length > 0) {
+                    // Limitar a 10 dígitos (sin contar el código)
+                    if (number.length > 10) number = number.substring(0, 10);
+
+                    // Aplicar formato: 123-456-7890
+                    let formatted = '';
+                    if (number.length > 6) {
+                        formatted = `${number.substring(0, 3)}-${number.substring(3, 6)}-${number.substring(6)}`;
+                    } else if (number.length > 3) {
+                        formatted = `${number.substring(0, 3)}-${number.substring(3)}`;
+                    } else {
+                        formatted = number;
+                    }
+
+                    input.value = formatted;
+                }
+            }
+
+            // Event listeners para formateo en tiempo real
+            [phoneInput, phoneNumberInput].forEach(input => {
+                const iti = input === phoneInput ? phoneIti : phoneNumberIti;
+
+                input.addEventListener('input', function () {
+                    // Mantener solo dígitos en el valor real
+                    const digits = this.value.replace(/\D/g, '');
+                    if (digits.length > 10) {
+                        this.value = digits.substring(0, 10);
+                    }
+
+                    // Formatear visualmente
+                    formatNumberForDisplay(this, iti);
+                });
+
+                input.addEventListener('blur', function () {
+                    formatNumberForDisplay(this, iti);
+                });
+
+                input.addEventListener('keydown', function (e) {
+                    // Permitir solo teclas numéricas y comandos especiales
+                    if (!/[\d-]|Backspace|Delete|ArrowLeft|ArrowRight|Tab/.test(e.key)) {
+                        e.preventDefault();
+                    }
+                });
+            });
+
+            // Función para obtener el número limpio (sin formato)
+            window.getCleanPhoneNumber = function (inputElement) {
+                const iti = window.intlTelInputGlobals.getInstance(inputElement);
+                const countryData = iti.getSelectedCountryData();
+                const digits = inputElement.value.replace(/\D/g, '');
+                return `+${countryData.dialCode}${digits}`;
+            };
+        });
+    </script>
+
+
+    <script>
+        function scrollToServices() {
+            const servicesSection = document.getElementById('services');
+            servicesSection.scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        // Opcional: También puedes agregar esto para que funcione con el scroll de rueda del mouse
+        document.querySelector('.scroll-down-arrow').addEventListener('click', scrollToServices);
+    </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const dots = document.querySelectorAll('.nav-dot');
+            const lines = document.querySelectorAll('.nav-line-progress');
+            const sections = ['inicio', 'services', 'quote', 'contact'];
+            const sectionElements = sections.map(id => document.getElementById(id));
+
+            let currentActiveIndex = 0;
+            let isAnimating = false;
+            let lastScrollPosition = window.scrollY;
+
+            // Función para actualizar la navegación
+            function updateNavigation() {
+                const scrollPosition = window.scrollY;
+                const windowHeight = window.innerHeight;
+                const scrollDirection = scrollPosition > lastScrollPosition ? 'down' : 'up';
+                lastScrollPosition = scrollPosition;
+
+                // Encontrar la sección activa
+                let newActiveIndex = currentActiveIndex;
+                sectionElements.forEach((section, index) => {
+                    if (section) {
+                        const sectionTop = section.offsetTop;
+                        const sectionBottom = sectionTop + section.offsetHeight;
+                        const triggerOffset = windowHeight * 0.3;
+
+                        if (scrollPosition + triggerOffset >= sectionTop &&
+                            scrollPosition + triggerOffset <= sectionBottom) {
+                            newActiveIndex = index;
+                        }
+                    }
+                });
+
+                // Actualizar puntos activos si cambió la sección
+                if (newActiveIndex !== currentActiveIndex && !isAnimating) {
+                    isAnimating = true;
+
+                    // Resetear clases
+                    dots.forEach(dot => {
+                        dot.classList.remove('active', 'passed', 'pulse');
+                    });
+
+                    // Marcar secciones pasadas
+                    for (let i = 0; i < newActiveIndex; i++) {
+                        dots[i].classList.add('passed');
+                    }
+
+                    // Activar nueva sección
+                    setTimeout(() => {
+                        dots[newActiveIndex].classList.add('active', 'pulse');
+                        currentActiveIndex = newActiveIndex;
+                        isAnimating = false;
+                    }, 50);
+                }
+
+                // Actualizar progreso de líneas de manera precisa
+                for (let i = 0; i < sectionElements.length - 1; i++) {
+                    const currentSection = sectionElements[i];
+                    const nextSection = sectionElements[i + 1];
+
+                    if (currentSection && nextSection) {
+                        const sectionTop = currentSection.offsetTop;
+                        const sectionBottom = nextSection.offsetTop;
+                        const sectionHeight = sectionBottom - sectionTop;
+
+                        let progress = (scrollPosition - sectionTop) / sectionHeight;
+                        progress = Math.max(0, Math.min(1, progress));
+
+                        if (lines[i]) {
+                            // Suavizar la transición cuando estamos cerca de los extremos
+                            const easedProgress = easeInOutCubic(progress);
+                            lines[i].style.height = `${easedProgress * 100}%`;
+                        }
+                    }
+                }
+            }
+
+            // Función de easing para suavizar el progreso
+            function easeInOutCubic(t) {
+                return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            }
+
+            // Evento para desplazamiento al hacer clic
+            dots.forEach(dot => {
+                dot.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const sectionId = this.getAttribute('data-section');
+                    const section = document.getElementById(sectionId);
+                    if (section) {
+                        window.scrollTo({
+                            top: section.offsetTop,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // Optimización del evento scroll
+            let scrollTimeout;
+            window.addEventListener('scroll', function () {
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(updateNavigation, 16); // ~60fps
+            }, { passive: true });
+
+            // Inicialización
+            updateNavigation();
+        });
+    </script>
+
+</body>
+
+</html>
